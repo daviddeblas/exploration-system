@@ -15,4 +15,4 @@ EXPOSE 8000
 COPY --from=vue /app/website/dist /app/website/dist
 COPY server ./
 
-CMD ["uvicorn", "main:app"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
