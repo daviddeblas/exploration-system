@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket-Test</title>
+  </head>
+  <body style="background-color: white">
+    <h1 style="background-color: white">Socket</h1>
+    <form id="beep" method="POST" action="#">
+      <input type="submit" value="Beep" />
+    </form>
+    <h2 style="background-color: white">Logs</h2>
+    <div id="log"></div>
+
+    <script type="module" charset="utf-8">
+      import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+      const socket = io("", { path: "/sockets" });
+
+      socket.on("connect", function () {
+        console.log("CONNECT!!!")
+        socket.emit("my_event", { data: "connected to the SocketServer..." });
+      });
+
+      document.getElementById("beep").onclick = function () {
+        socket.emit("beep", { data: "beep" });
+        return false;
+      };
+    </script>
+  </body>
+</html>
