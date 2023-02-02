@@ -1,0 +1,7 @@
+version: "3"
+services:
+  groundstation:
+    image: inf3995-101-groundstation
+    build: groundstation
+    ports:
+      - "8000:8000"
