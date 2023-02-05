@@ -1,29 +1,25 @@
-# Station au sol
+# Groundstation Interface Web
 
-## Project setup
-```
+## Installation du projet
+
+```sh
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+### Exécuter en mode développement
+
+```sh
+npm run dev
 ```
 
-### Compiles and minifies for production
-```
+### Compiler le projet pour production
+
+```sh
 npm run build
 ```
 
-### Lints and fixes files
+### Exécuter les tests
+
+```sh
+npm run test
 ```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
-#TODO 
-
-implement npm start ( regler les problèmes )
