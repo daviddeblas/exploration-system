@@ -1,9 +1,21 @@
+<script setup lang="ts">
+import { inject } from "vue";
+import { socketProvider } from "@/plugins/socket";
+import type { Socket } from "socket.io-client";
+
+const socket = inject(socketProvider) as Socket;
+
+function identify() {
+  socket.emit("identify", { data: "beep" });
+}
+</script>
+
 <template>
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
       <button class="btn">Lancer</button>
-      <button class="btn">Identifier</button>
+      <button class="btn" @click="identify">Identifier</button>
       <button class="btn">Terminer</button>
     </div>
   </div>
