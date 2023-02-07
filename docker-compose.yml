@@ -5,3 +5,6 @@ services:
     build: groundstation
     ports:
       - "8000:8000"
+  rover:
+    image: inf3995-101-rover
+    build: rover
