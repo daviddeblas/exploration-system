@@ -11,5 +11,5 @@ docker compose build groundstation
 Démarrer le container
 
 ```
-docker compose run groundstation
+docker compose up --build groundstation
 ```
