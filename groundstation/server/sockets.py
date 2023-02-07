@@ -20,8 +20,8 @@ async def connect(sid, environ, auth):
     await sio.emit('join', {'sid': sid})
 
 @sio.event
-async def beep(data, _):
-    pub.put("beep")
+async def identify(data, _):
+    pub.put("identify")
 
 
 @sio.event

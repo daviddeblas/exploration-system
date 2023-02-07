@@ -5,8 +5,8 @@ import type { Socket } from "socket.io-client";
 
 const socket = inject(socketProvider) as Socket;
 
-function indentify() {
-  socket.emit("beep", { data: "beep" });
+function identify() {
+  socket.emit("identify", { data: "beep" });
 }
 </script>
 
@@ -15,7 +15,7 @@ function indentify() {
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
       <button class="btn">Lancer</button>
-      <button class="btn" @click="indentify">Identifier</button>
+      <button class="btn" @click="identify">Identifier</button>
       <button class="btn">Terminer</button>
     </div>
   </div>
