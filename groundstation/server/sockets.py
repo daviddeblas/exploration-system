@@ -12,8 +12,7 @@ sio_app = socketio.ASGIApp(
 )
 
 session = zenoh.open()
-key = 'some_key'
-pub = session.declare_publisher(key)
+pub = session.declare_publisher('identify')
 
 @sio.event
 async def connect(sid, environ, auth):
@@ -22,7 +21,6 @@ async def connect(sid, environ, auth):
 
 @sio.event
 async def beep(data, _):
-    print('Sending beep with zenoh!')
     pub.put("beep")
 
 
