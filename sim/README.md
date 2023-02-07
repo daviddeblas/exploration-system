@@ -7,7 +7,7 @@ docker build -t inf3995-equipe101-simulation .
 docker run -p 5901:5901 -it inf3995-equipe101-simulation bash
 ```
 
-Ensuite éxecuter ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
+Ensuite executer ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
 ```
 cd /root
 source .profile
