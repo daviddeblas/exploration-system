@@ -37,5 +37,6 @@ RUN pip install -r requirements.txt
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
 
-COPY . ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
+COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
+COPY main.py ./src/
 CMD bash
