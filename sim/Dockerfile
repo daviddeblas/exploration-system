@@ -26,10 +26,16 @@ RUN apt-get install -y ros-noetic-ros-control \
     ros-noetic-gazebo-ros-control \
     ros-noetic-joint-state-publisher-gui \
     ros-noetic-rqt-robot-steering \
-    ros-noetic-teleop-twist-keyboard xterm
+    ros-noetic-teleop-twist-keyboard xterm \
+    python3-pip python3-yaml
 RUN mkdir -p inf3995_ws/src && \
     git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
+
 COPY . ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 CMD bash
