@@ -12,7 +12,9 @@ sio_app = socketio.ASGIApp(
 )
 
 session = zenoh.open()
-pub = session.declare_publisher('identify')
+pub1 = session.declare_publisher('identify')
+pub2 = session.declare_publisher('start')
+pub3 = session.declare_publisher('finish')
 
 @sio.event
 async def connect(sid, environ, auth):
@@ -20,9 +22,16 @@ async def connect(sid, environ, auth):
     await sio.emit('join', {'sid': sid})
 
 @sio.event
+async def start(data, _):
+    pub2.put("start")
+    
+@sio.event
 async def identify(data, _):
-    pub.put("identify")
-
+    pub1.put("identify")
+    
+@sio.event
+async def finish(data, _):
+    pub3.put("finish")
 
 @sio.event
 async def disconnect(sid):
