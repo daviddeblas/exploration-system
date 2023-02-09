@@ -5,7 +5,7 @@ Premièrement, il faut build et run l'image docker en étant placer dans le root
 ```
 docker compose run --build -p 5901:5901 sim
 ```
-Ensuite executer ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
+Ensuite exécuter ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
 ```
 cd /root
 source .profile
@@ -31,4 +31,4 @@ Puis dans un autre terminal
 python3 ../inf3995_ws/src/main_robot2.py
 ```
 
-Si la station au sol roule également, il est possible d'utiliser les buton disponible pour interagir avec la simulation
+Si la station au sol roule également, il est possible d'utiliser les bouton disponible pour interagir avec la simulation
