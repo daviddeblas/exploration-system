@@ -1,7 +1,6 @@
 import zenoh, time
 import rospy
 from geometry_msgs.msg import Twist
-MOVE_TIME_SEC = 0.01
 
 pub = rospy.Publisher('/robot1/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
@@ -36,8 +35,5 @@ if __name__ == "__main__":
     sub3 = session.declare_subscriber('finish', finish_listener)
 
     print("Started listening")
-    print(rospy.get_namespace())
-    rospy.resolve_name("/robot2/")
-    print(rospy.get_namespace())
     while True:
         time.sleep(1)
