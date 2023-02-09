@@ -2,7 +2,7 @@
 <launch>
 
     <arg name="robot_namespace_robot1" default="/robot1/"/>
-    <arg name="world_name" default="$(find limo_gazebo_sim)/worlds/empty.world"/>
+    <arg name="world_name" default="$(find limo_gazebo_sim)/worlds/empty_personalised.world"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
@@ -31,6 +31,8 @@
                 -urdf
                 -param robot_description
                 -model 'limo$(arg robot_namespace_robot1)'" />
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
     </group>
 
     <!-- Robot 2 -->
@@ -52,10 +54,10 @@
                 -urdf
                 -param robot_description
                 -model 'limo_2$(arg robot_namespace_robot2)'" />
-    </group>
 
-    <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
+    </group>
 
     <!-- load the controllers -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner"
