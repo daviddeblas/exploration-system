@@ -20,8 +20,15 @@ catkin_make && source devel/setup.bash
 roslaunch limo_gazebo_sim limos.launch &
 ```
 
-Finalement pour lancer le fichier main.py ouvrir un nouveau terminal (dans TurboVNC) et executer
+Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
-python3 ../inf3995_ws/src/main.py
+python3 ../inf3995_ws/src/main_robot1.py
 ```
+
+Puis dans un autre terminal
+
+```
+python3 ../inf3995_ws/src/main_robot2.py
+```
+
 Si la station au sol roule également, il est possible d'utiliser les buton disponible pour interagir avec la simulation
