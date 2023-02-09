@@ -8,6 +8,13 @@ services:
   rover:
     image: inf3995-101-rover
     build: rover
+
   cognifly:
     image: inf3995-101-cognifly
     build: cognifly
+
+  sim:
+    image: inf3995-101-sim
+    build: sim
+    ports:
+      - "5901:5901"

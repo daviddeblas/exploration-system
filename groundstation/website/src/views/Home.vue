@@ -5,8 +5,16 @@ import type { Socket } from "socket.io-client";
 
 const socket = inject(socketProvider) as Socket;
 
+function start() {
+  socket.emit("start", { data: "Démarrer mission" });
+}
+
 function identify() {
   socket.emit("identify", { data: "beep" });
+}
+
+function finish() {
+  socket.emit("finish", { data: "Finir mission" });
 }
 </script>
 
@@ -14,9 +22,9 @@ function identify() {
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
-      <button class="btn">Lancer</button>
+      <button class="btn" @click="start">Lancer</button>
       <button class="btn" @click="identify">Identifier</button>
-      <button class="btn">Terminer</button>
+      <button class="btn" @click="finish">Terminer</button>
     </div>
   </div>
 </template>
