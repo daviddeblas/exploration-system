@@ -21,7 +21,6 @@
         <arg name="y" default="0.0"/>
         <arg name="z" default="0.0"/>
         <arg name="yaw" default="0.0"/>
-        <arg name="script_path" default="/inf3995_ws/src/main.py"/>
 
         <node name="spawn_limo_model" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)
                 -y $(arg y)
@@ -31,8 +30,6 @@
                 -urdf
                 -param robot_description
                 -model 'limo$(arg robot_namespace_robot1)'" />
-        <!-- Load joint controller configurations from YAML file to parameter server -->
-        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
     </group>
 
     <!-- Robot 2 -->
@@ -55,14 +52,14 @@
                 -param robot_description
                 -model 'limo_2$(arg robot_namespace_robot2)'" />
 
-        <!-- Load joint controller configurations from YAML file to parameter server -->
-        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
     </group>
+
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
 
     <!-- load the controllers -->
     <node name="controller_spawner" pkg="controller_manager" type="spawner"
-          respawn="false" output="screen" args="limo_state_controller 
-                                limo_fl_steering_hinge_controller limo_fr_steering_hinge_controller"/>
+          respawn="false" output="screen" args="limo_state_controller"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
