@@ -10,6 +10,23 @@
       <uri>model://ground_plane</uri>
     </include>
 
+    <population name="wall_population">
+      <model name="can1">
+        <include>
+          <static>true</static>
+          <uri>model://grey_wall</uri>
+        </include>
+      </model>
+      <pose>0 0 0 0 0 0</pose>
+      <box>
+        <size>10 10 0.0001</size>
+      </box>
+      <model_count>3</model_count>
+      <distribution>
+        <type>random</type>
+      </distribution>
+    </population>
+
     <scene>
         <shadows>0</shadows>
     </scene>
