@@ -30,6 +30,16 @@
                 -urdf
                 -param robot_description
                 -model 'limo$(arg robot_namespace_robot1)'" />
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
+
+        <!-- load the controllers -->
+        <node name="controller_spawner" pkg="controller_manager" type="spawner"
+            respawn="false" output="screen" args="limo_state_controller"/>
+
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />
     </group>
 
     <!-- Robot 2 -->
@@ -52,16 +62,17 @@
                 -param robot_description
                 -model 'limo_2$(arg robot_namespace_robot2)'" />
 
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
+
+        <!-- load the controllers -->
+        <node name="controller_spawner" pkg="controller_manager" type="spawner"
+            respawn="false" output="screen" args="limo_state_controller"/>
+
+        <node name="robot_state_publisher1" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+        <node name="rviz_1" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />
     </group>
 
-    <!-- Load joint controller configurations from YAML file to parameter server -->
-    <rosparam file="$(find limo_gazebo_sim)/config/limo_four_diff_control.yaml" command="load"/>
-
-    <!-- load the controllers -->
-    <node name="controller_spawner" pkg="controller_manager" type="spawner"
-          respawn="false" output="screen" args="limo_state_controller"/>
-
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />
+    
 </launch>
