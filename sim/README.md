@@ -32,3 +32,5 @@ python3 ../inf3995_ws/src/main_robot2.py
 ```
 
 Si la station au sol roule également, il est possible d'utiliser les bouton disponible pour interagir avec la simulation
+
+Pour ouvrir un éditeur de texte et modifier des fichiers, gedit est installé et peux être utilisé `gedit ../inf3995_ws/src/main_robot1.py`ou `gedit ../inf3995_ws/src/main_robot2.py` pour le second robot.  
