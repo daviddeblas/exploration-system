@@ -40,8 +40,11 @@ RUN pip install -r requirements.txt
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
 
+COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
+
 COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
+
 COPY main*.py ./src/
 COPY *.sh ./src/
 CMD bash

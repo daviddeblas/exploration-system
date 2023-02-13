@@ -5,6 +5,13 @@ Premièrement, il faut build et run l'image docker en étant placer dans le root
 ```
 docker compose run --build -p 5901:5901 sim
 ```
+
+Pour générer des murs de manière aléatoire utilisez ces commandes où le nombre de murs se trouve en argument de l'appel au script:
+```
+cd ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
+python3 wall_generator.py 4
+```
+
 Ensuite exécuter ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
 ```
 cd /root

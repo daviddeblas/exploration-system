@@ -10,24 +10,6 @@
       <uri>model://ground_plane</uri>
     </include>
 
-    <population name="wall_population">
-      <model name="wall">
-        <include>
-          <static>true</static>
-          <uri>model://grey_wall</uri>
-        </include>
-      </model>
-      <pose>0 0 0 0 0 0</pose>
-      <box>
-        <size>15 15 0.0001</size>
-      </box>
-      <model_count>3</model_count>
-      <distribution>
-        <type>random</type>
-      </distribution>
-    </population>
-
-
     <population name="outer_wall1_population">
       <model name="outer_wall1">
         <include>
@@ -97,11 +79,6 @@
         <type>uniform</type>
       </distribution>
     </population>
-
-    <include>
-      <uri>model://grey_wall</uri>
-      <pose>4 2 0 0 0 1</pose>
-    </include>
 
     <scene>
         <shadows>0</shadows>
