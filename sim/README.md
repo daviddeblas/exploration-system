@@ -17,7 +17,7 @@ Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
 cd ../inf3995_ws
 catkin_make && source devel/setup.bash
-roslaunch limo_gazebo_sim limos.launch &
+./src/launch_simulation.sh
 ```
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer

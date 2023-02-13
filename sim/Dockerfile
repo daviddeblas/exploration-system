@@ -43,4 +43,5 @@ RUN rosdep install --from-paths src --ignore-src -r -y
 COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY empty_personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY main*.py ./src/
+COPY *.sh ./src/
 CMD bash
