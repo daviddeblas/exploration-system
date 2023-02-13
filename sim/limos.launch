@@ -2,7 +2,7 @@
 <launch>
 
     <arg name="robot_namespace_robot1" default="/robot1/"/>
-    <arg name="world_name" default="$(find limo_gazebo_sim)/worlds/empty_personalised.world"/>
+    <arg name="world_name" default="$(find limo_gazebo_sim)/worlds/personalised.world"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
