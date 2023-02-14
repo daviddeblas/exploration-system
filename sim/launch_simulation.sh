@@ -1,4 +1,9 @@
 #!/bin/bash
+
+(
+    cd ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
+    python3 wall_generator.py 4
+)
 x=$((((RANDOM % 101) / 10) - 5))   # Les positions possibles sont entre -5 et 5
 y=$((((RANDOM % 101) / 10) - 5))   # Les positions possibles sont entre -10 et 10
 yaw=$((RANDOM % 7))         # Environ 2pi pour l'orientation
