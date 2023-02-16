@@ -20,6 +20,8 @@ cd ../inf3995_ws
 catkin_make && source devel/setup.bash
 ./src/launch_simulation.sh
 ```
+Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
+
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
