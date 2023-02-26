@@ -46,4 +46,4 @@ if __name__ == "__main__":
     print("Started listening")
     while True:
         time.sleep(1)
-        pub1 = session.declare_publisher('robotState').put(in_mission)
+        pub1 = session.declare_publisher('robot_state').put(in_mission)

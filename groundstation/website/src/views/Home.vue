@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { reactive , inject } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
-let roverStatus = ROBOT_STATUS.offline; 
 
 const socket = inject(socketProvider) as Socket;
 
+let reactive_state = reactive({
+  status: ROBOT_STATUS.offline,
+});
+
 function start() {
   socket.emit("start", { data: "Démarrer mission" });
+  console.log("start");
 }
 
 function identify() {
@@ -20,15 +24,15 @@ function finish() {
   socket.emit("finish", { data: "Finir mission" });
 }
 
-socket.on("robotState", (in_mission) => {
-  console.log("in_mission: " + in_mission)
-  const robot_state = JSON.parse(in_mission);
-  console.log("robot state" + robot_state);
+socket.on("robot_state", (in_mission) => {
+  if (in_mission === true) {
+    reactive_state.status = ROBOT_STATUS.in_mission;
+
+  } else if (in_mission === false){
+    reactive_state.status = ROBOT_STATUS.pending;
   
-  if (in_mission) {
-    roverStatus = ROBOT_STATUS.in_mission;
-  } else {
-    roverStatus = ROBOT_STATUS.pending;
+  } else if (in_mission === undefined){
+    reactive_state.status = ROBOT_STATUS.offline;
   }
 });
 
@@ -43,7 +47,7 @@ socket.on("robotState", (in_mission) => {
       <button class="btn" @click="finish">Terminer</button>
     </div>
     <div>
-    <span>Le rover est {{ roverStatus }} </span>
+    <span>Le rover est {{ reactive_state.status }} </span>
   </div>
 
   </div>
