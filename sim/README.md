@@ -16,8 +16,20 @@ Ensuite ouvrir **TurboVNC Viewer**
 Puis se connecter à `localhost:5901` et mettre sont mot de passe
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
+cd ../catkin_ws
+source ../catkin_ws/devel_isolated/setup.bash
+roslaunch cartographer_ros carto.launch
+catkin_make_isolated --install --use-ninja && source devel_isolated/setup.bash
 cd ../inf3995_ws
 catkin_make && source devel/setup.bash
+sed -i -e 's/\r$//' ./src/launch_simulation.sh
+./src/launch_simulation.sh
+```
+
+```
+cd ../inf3995_ws
+source devel/setup.bash
+sed -i -e 's/\r$//' ./src/launch_simulation.sh
 ./src/launch_simulation.sh
 ```
 Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`

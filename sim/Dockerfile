@@ -36,14 +36,48 @@ RUN mkdir -p inf3995_ws/src && \
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
+RUN apt-get update && apt-get install -y ros-noetic-move-base \
+    ros-noetic-robot-pose-ekf ros-noetic-amcl \
+    ros-noetic-slam-gmapping  ros-noetic-map-server
+
+RUN apt-get update && apt-get install -y ros-noetic-explore-lite
+
+
+RUN apt-get update && apt-get install -y python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
+
+RUN mkdir catkin_ws
+WORKDIR /catkin_ws
+RUN wstool init src
+RUN wstool merge -t src https://raw.githubusercontent.com/cartographer-project/cartographer_ros/master/cartographer_ros.rosinstall
+RUN wstool update -t src
+
+COPY package.xml ./src/cartographer/
+
+RUN rosdep update
+RUN rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y
+
+RUN src/cartographer/scripts/install_abseil.sh
+
+COPY ./cartographer/* ../catkin_ws/src/cartographer_ros/cartographer_ros/configuration_files/
+
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
+    catkin_make_isolated --install --use-ninja"
+
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
-
+COPY ./config/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
+COPY *.rviz ./src/ugv_gazebo_sim/limo/limo_description/rviz/
 COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
+    catkin_make"
+
 COPY main*.py ./src/
 COPY *.sh ./src/
+
+RUN echo "source ../catkin_ws/devel_isolated/setup.bash" >> ~/.bashrc
+
 CMD bash

@@ -2,7 +2,7 @@ import zenoh, time
 import rospy
 from geometry_msgs.msg import Twist
 
-pub = rospy.Publisher('/robot1/cmd_vel', Twist, queue_size=10)
+pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
 rate=rospy.Rate(10)
 move = Twist()
