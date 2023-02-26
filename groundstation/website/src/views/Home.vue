@@ -46,10 +46,9 @@ socket.on("robot_state", (in_mission) => {
       <button class="btn" @click="identify">Identifier</button>
       <button class="btn" @click="finish">Terminer</button>
     </div>
-    <div>
-    <span>Le rover est {{ reactive_state.status }} </span>
-  </div>
-
+    <div >
+    <span class="robot_state">Le rover est {{ reactive_state.status }} </span>
+    </div>
   </div>
 </template>
 
@@ -82,5 +81,25 @@ socket.on("robot_state", (in_mission) => {
   padding: 10px;
   color: rgb(55, 21, 21);
   cursor: pointer;
+}
+.btn:hover {
+  background-color: #0e9f4f;
+}
+.robot_state {
+  margin-top: 10px;
+  font-size: 20px;
+  background-color: #d9c1b9;
+  color: #604d44;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  width: 225px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+span {
+  display: block;
 }
 </style>
