@@ -15,7 +15,7 @@ def start_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     move.linear.x = -0.5
-    move.linear.y = -0.5
+    move.angular.z = -0.5
     pub.publish(move)
     in_mission = True
 
@@ -30,14 +30,14 @@ def finish_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     move.linear.x = 0.0
-    move.linear.y = 0.0
+    move.angular.z = 0.0
     pub.publish(move)
     in_mission = False
 
 
 if __name__ == "__main__":
     move.linear.x = 0.0
-    move.linear.y = 0.0
+    move.angular.z = 0.0
     pub.publish(move)
     session = zenoh.open()
     sub1 = session.declare_subscriber('start', start_listener)
