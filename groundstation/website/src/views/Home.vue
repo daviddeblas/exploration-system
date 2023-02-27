@@ -8,7 +8,8 @@ import { ROBOT_STATUS } from "@/common/constants";
 const socket = inject(socketProvider) as Socket;
 
 let reactive_state = reactive({
-  status: ROBOT_STATUS.offline,
+  rover: ROBOT_STATUS.offline,
+  drone: ROBOT_STATUS.offline,
 });
 
 function start() {
@@ -24,15 +25,27 @@ function finish() {
   socket.emit("finish", { data: "Finir mission" });
 }
 
-socket.on("robot_state", (in_mission) => {
+socket.on("rover_state", (in_mission) => {
   if (in_mission === true) {
-    reactive_state.status = ROBOT_STATUS.in_mission;
+    reactive_state.rover = ROBOT_STATUS.in_mission;
 
   } else if (in_mission === false){
-    reactive_state.status = ROBOT_STATUS.pending;
+    reactive_state.rover = ROBOT_STATUS.pending;
   
   } else if (in_mission === undefined){
-    reactive_state.status = ROBOT_STATUS.offline;
+    reactive_state.rover = ROBOT_STATUS.offline;
+  }
+});
+
+socket.on("drone_state", (drone_in_mission) => {
+  if (drone_in_mission === true) {
+    reactive_state.drone = ROBOT_STATUS.in_mission;
+
+  } else if (drone_in_mission === false){
+    reactive_state.drone = ROBOT_STATUS.pending;
+  
+  } else if (drone_in_mission === undefined){
+    reactive_state.drone = ROBOT_STATUS.offline;
   }
 });
 
@@ -47,7 +60,8 @@ socket.on("robot_state", (in_mission) => {
       <button class="btn" @click="finish">Terminer</button>
     </div>
     <div >
-    <span class="robot_state">Le rover est {{ reactive_state.status }} </span>
+    <span class="robot_state">Le rover est {{ reactive_state.rover }} </span>
+    <span class="robot_state">Le drone est {{ reactive_state.drone }} </span>
     </div>
   </div>
 </template>
@@ -93,7 +107,7 @@ socket.on("robot_state", (in_mission) => {
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  width: 225px;
+  width: 230px;
   text-align: center;
   position: relative;
   overflow: hidden;

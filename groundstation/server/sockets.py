@@ -20,46 +20,40 @@ pubStart = session.declare_publisher('start')
 pubFinish = session.declare_publisher('finish')
 
 
-in_mission = None
-last_updated = None
-
-
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
-    asyncio.create_task(send_robot_state())
+    asyncio.create_task(rover.send_robot_state())
+    asyncio.create_task(drone.send_robot_state())
 
 
-@sio.event
-async def send_robot_state():
-    global in_mission, last_updated
-    while True:
-        if (in_mission is not None):
-            await sio.emit('robot_state', eval(in_mission))
-            await asyncio.sleep(1)
+class RobotCommunication:
+    def __init__(self, name):
+        self.name = name
+        self.in_mission = None
+        self.last_updated = None
+        self.sub = session.declare_subscriber(
+            f'{self.name}_state', self.robot_state)
 
-            # Vérifie si le robot est toujours connecté, si ce n'est pas le cas, on met à jour l'état du robot
-            if time.time() - last_updated > TIMEOUT_ROBOT:
-                in_mission = None
+    async def send_robot_state(self):
+        while True:
+            if self.in_mission is not None:
+                await sio.emit(f'{self.name}_state', eval(self.in_mission))
+                await asyncio.sleep(1)
 
-        elif (in_mission == None):
-            await sio.emit('robot_state', in_mission)
-            await asyncio.sleep(1)
+                if time.time() - self.last_updated > TIMEOUT_ROBOT:
+                    self.in_mission = None
+            else:
+                await sio.emit(f'{self.name}_state', self.in_mission)
+                await asyncio.sleep(1)
 
-
-def update_robot_state(new_data):
-    global in_mission, last_updated
-    in_mission = new_data
-    last_updated = time.time()
-
-
-def robot_state(sample):
-    global msg
-    msg = sample.payload.decode('utf-8')
-    update_robot_state(msg)
+    def robot_state(self, sample):
+        self.in_mission = sample.payload.decode('utf-8')
+        self.last_updated = time.time()
 
 
-sub1 = session.declare_subscriber('robot_state', robot_state)
+rover = RobotCommunication('rover')
+drone = RobotCommunication('drone')
 
 
 @ sio.event
