@@ -2,6 +2,7 @@ import socketio
 import zenoh
 import asyncio
 import time
+from constants import TIMEOUT_ROBOT
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
@@ -21,7 +22,6 @@ pubFinish = session.declare_publisher('finish')
 
 in_mission = None
 last_updated = None
-TIMEOUT = 4
 
 
 @sio.event
@@ -39,7 +39,7 @@ async def send_robot_state():
             await asyncio.sleep(1)
 
             # Vérifie si le robot est toujours connecté, si ce n'est pas le cas, on met à jour l'état du robot
-            if time.time() - last_updated > TIMEOUT:
+            if time.time() - last_updated > TIMEOUT_ROBOT:
                 in_mission = None
 
         elif (in_mission == None):
