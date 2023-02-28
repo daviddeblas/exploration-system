@@ -21,9 +21,17 @@
     <arg name="z" default="0.0"/>
     <arg name="yaw" default="0.0"/>
 
-    <node pkg="tf" type="static_transform_publisher" name="map_to_odom_broadcaster" args="0 0 0 0 0 0 map odom 100" />
-    <node pkg="tf" type="static_transform_publisher" name="odom_to_base_broadcaster" args="0 0 0 0 0 0 odom base_footprint 100" />
-    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link_broadcaster" args="0 0 0 0 0 0 base_footprint base_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="map_to_odom_broadcaster" args="0 0 0 0 0 0 map odom 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="map_to_footprint_broadcaster" args="0 0 0 0 0 0 odom base_footprint 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link_broadcaster" args="0 0 0 0 0 0 base_footprint base_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_broadcaster" args="0 0 0 0 0 0 base_link laser_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_fl_wheel_broadcaster" args="0 0 0 0 0 0 base_link front_left_wheel_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_fr_wheel_broadcaster" args="0 0 0 0 0 0 base_link front_right_wheel_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_rl_wheel_broadcaster" args="0 0 0 0 0 0 base_link rear_left_wheel_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_rr_wheel_broadcaster" args="0 0 0 0 0 0 base_link rear_right_wheel_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_inertial_broadcaster" args="0 0 0 0 0 0 base_link inertial_link 10000" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu_broadcaster" args="0 0 0 0 0 0 base_link imu_link 10000" />
+
 
 
     <node name="spawn_limo_model" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)

@@ -3,12 +3,6 @@
 
     <node pkg="topic_tools" type="relay" name="remap_limo_scan" args="/limo/scan /scan" />
 
-    <node pkg="robot_pose_ekf" name="robot_pose_ekf" type="robot_pose_ekf">
-        <param name="output_frame" value="odom" />
-        <param name="base_footprint_frame" value="base_link"/>
-        <remap from="limo/imu" to="imu" />
-    </node>
-
     <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" args="
     -configuration_directory $(find cartographer_ros)/configuration_files
     -configuration_basename build_map_2d.lua">
