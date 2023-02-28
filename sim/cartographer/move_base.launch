@@ -1,0 +1,30 @@
+<?xml version="1.1"?>
+<launch>
+
+    <!--  ************** Navigation ***************  -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  	  	<rosparam file="$(find cartographer_ros)/configuration_files/costmap_common_params.yaml" command="load" ns="global_costmap" />
+  	 	<rosparam file="$(find cartographer_ros)/configuration_files/costmap_common_params.yaml" command="load" ns="local_costmap" />
+  		<rosparam file="$(find cartographer_ros)/configuration_files/local_costmap_params.yaml" command="load" />
+  		<rosparam file="$(find cartographer_ros)/configuration_files/global_costmap_params.yaml" command="load" />
+  		<rosparam file="$(find cartographer_ros)/configuration_files/planner.yaml" command="load" />
+
+		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
+		<param name="planner_frequency" value="1.0" />
+		<param name="planner_patience" value="5.0" />
+		<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS" />
+		<param name="controller_frequency" value="5.0" />
+		<param name="controller_patience" value="15.0" />
+        <param name="clearing_rotation_allowed" value="true" />
+	</node>
+
+    <!-- Start the exploration node -->
+    <node name="explore_light" pkg="explore_lite" type="explore" output="screen">
+        <param name="costmap_topic" value="costmap"/>
+        <param name="planner_frequency" value="0.5"/>
+        <param name="min_frontier_size" value="0.5"/>
+        <param name="plan_goal_distance" value="1.0"/>
+        <param name="visualization_pub_topic" value="/explore_visualization"/>
+        <param name="visualization_marker_topic" value="/explore_markers"/>
+    </node>
+</launch>

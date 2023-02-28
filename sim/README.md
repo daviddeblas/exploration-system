@@ -16,30 +16,27 @@ Ensuite ouvrir **TurboVNC Viewer**
 Puis se connecter à `localhost:5901` et mettre sont mot de passe
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
-cd ../catkin_ws
-source ../catkin_ws/devel_isolated/setup.bash
-roslaunch cartographer_ros carto.launch
-catkin_make_isolated --install --use-ninja && source devel_isolated/setup.bash
-cd ../inf3995_ws
-catkin_make && source devel/setup.bash
-sed -i -e 's/\r$//' ./src/launch_simulation.sh
-./src/launch_simulation.sh
-```
-
-```
 cd ../inf3995_ws
 source devel/setup.bash
 sed -i -e 's/\r$//' ./src/launch_simulation.sh
 ./src/launch_simulation.sh
 ```
 Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
+Cela lancera la simulation, puis pour lancer la création de la carte utilisez:
+```
+source ../catkin_ws/devel_isolated/setup.bash
+roslaunch cartographer_ros carto.launch
+```
+Ensuite pour lancer le move_base du robot, utilisez:
 
+```
+roslaunch cartographer_ros move_base.launch
+```
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
 python3 ../inf3995_ws/src/main_robot1.py
 ```
-
 Puis dans un autre terminal
 
 ```

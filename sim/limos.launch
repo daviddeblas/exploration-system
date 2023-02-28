@@ -21,9 +21,9 @@
     <arg name="z" default="0.0"/>
     <arg name="yaw" default="0.0"/>
 
-    <node pkg="tf" type="static_transform_publisher" name="map_to_odom_broadcaster" args="0 0 0 0 0 0 map odom 50" />
-    <node pkg="tf" type="static_transform_publisher" name="odom_to_base_broadcaster" args="0 0 0 0 0 0 odom base_link 50" />
-    <node pkg="tf" type="static_transform_publisher" name="imu_base_link_broadcaster" args="0 0 0 0 0 0 /limo/imu base_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="map_to_odom_broadcaster" args="0 0 0 0 0 0 map odom 100" />
+    <node pkg="tf" type="static_transform_publisher" name="odom_to_base_broadcaster" args="0 0 0 0 0 0 odom base_footprint 100" />
+    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link_broadcaster" args="0 0 0 0 0 0 base_footprint base_link 100" />
 
 
     <node name="spawn_limo_model" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)
@@ -43,40 +43,7 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />
-
-    <!-- Start the exploration node -->
-    <node name="explore_light" pkg="explore_lite" type="explore" output="screen">
-        <param name="costmap_topic" value="costmap"/>
-        <param name="planner_frequency" value="0.5"/>
-        <param name="min_frontier_size" value="0.5"/>
-        <param name="plan_goal_distance" value="1.0"/>
-        <param name="visualization_pub_topic" value="/explore_visualization"/>
-        <param name="visualization_marker_topic" value="/explore_markers"/>
-    </node>
-
-    <!--  ************** Navigation ***************  -->
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-  	  	<rosparam file="$(find limo_gazebo_sim)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-  	 	<rosparam file="$(find limo_gazebo_sim)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-  		<rosparam file="$(find limo_gazebo_sim)/config/local_costmap_params.yaml" command="load" />
-  		<rosparam file="$(find limo_gazebo_sim)/config/global_costmap_params.yaml" command="load" />
-  		<rosparam file="$(find limo_gazebo_sim)/config/planner.yaml" command="load" />
-
-		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
-		<param name="planner_frequency" value="1.0" />
-		<param name="planner_patience" value="5.0" />
-		<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS" />
-		<param name="controller_frequency" value="5.0" />
-		<param name="controller_patience" value="15.0" />
-        	<param name="clearing_rotation_allowed" value="true" />
-	</node>
-
-    <!-- navigation, map server
-    <param name="/use_sim_time" value="true"/>
-    <node name="map_server" pkg="map_server" type="map_server" output="screen" respawn="true">
-        <param name="frame_id" value="map"/>
-    </node> -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />	
 
 	<!--  **************** Visualisation ****************  -->
 	<node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/navigation_diff.rviz"/>    

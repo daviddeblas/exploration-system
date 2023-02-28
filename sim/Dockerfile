@@ -16,7 +16,11 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-gazebo-ros-control \
     ros-noetic-joint-state-publisher-gui \
     ros-noetic-rqt-robot-steering \
-    ros-noetic-teleop-twist-keyboard xterm
+    ros-noetic-teleop-twist-keyboard xterm \
+    ros-noetic-move-base \
+    ros-noetic-robot-pose-ekf \
+    ros-noetic-navigation ros-noetic-explore-lite \
+    python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
 
 RUN curl -LO https://github.com/VirtualGL/virtualgl/archive/refs/tags/3.0.2.tar.gz && \
     tar xvf 3.0.2.tar.gz && \
@@ -35,15 +39,6 @@ RUN mkdir -p inf3995_ws/src && \
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
-
-RUN apt-get update && apt-get install -y ros-noetic-move-base \
-    ros-noetic-robot-pose-ekf ros-noetic-amcl \
-    ros-noetic-slam-gmapping  ros-noetic-map-server
-
-RUN apt-get update && apt-get install -y ros-noetic-explore-lite
-
-
-RUN apt-get update && apt-get install -y python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
 
 RUN mkdir catkin_ws
 WORKDIR /catkin_ws
@@ -67,7 +62,6 @@ WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
-COPY ./config/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
 COPY *.rviz ./src/ugv_gazebo_sim/limo/limo_description/rviz/
 COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
