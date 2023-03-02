@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { reactive , inject } from "vue";
+import { ref, inject } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
 
-const socket = inject(socketProvider) as Socket;
-
-let reactive_state = reactive({
-  rover: ROBOT_STATUS.offline,
-  drone: ROBOT_STATUS.offline,
-});
+let socket = inject(socketProvider) as Socket;
+const rover = ref(ROBOT_STATUS.offline);
+const drone = ref(ROBOT_STATUS.offline);
 
 function start() {
   socket.emit("start", { data: "Démarrer mission" });
@@ -27,28 +24,23 @@ function finish() {
 
 socket.on("rover_state", (in_mission) => {
   if (in_mission === true) {
-    reactive_state.rover = ROBOT_STATUS.in_mission;
-
-  } else if (in_mission === false){
-    reactive_state.rover = ROBOT_STATUS.pending;
-  
-  } else if (in_mission === undefined){
-    reactive_state.rover = ROBOT_STATUS.offline;
+    rover.value = ROBOT_STATUS.in_mission;
+  } else if (in_mission === false) {
+    rover.value = ROBOT_STATUS.pending;
+  } else if (in_mission === undefined) {
+    rover.value = ROBOT_STATUS.offline;
   }
 });
 
 socket.on("drone_state", (drone_in_mission) => {
   if (drone_in_mission === true) {
-    reactive_state.drone = ROBOT_STATUS.in_mission;
-
-  } else if (drone_in_mission === false){
-    reactive_state.drone = ROBOT_STATUS.pending;
-  
-  } else if (drone_in_mission === undefined){
-    reactive_state.drone = ROBOT_STATUS.offline;
+    drone.value = ROBOT_STATUS.in_mission;
+  } else if (drone_in_mission === false) {
+    drone.value = ROBOT_STATUS.pending;
+  } else if (drone_in_mission === undefined) {
+    drone.value = ROBOT_STATUS.offline;
   }
 });
-
 </script>
 
 <template>
@@ -59,9 +51,9 @@ socket.on("drone_state", (drone_in_mission) => {
       <button class="btn" @click="identify">Identifier</button>
       <button class="btn" @click="finish">Terminer</button>
     </div>
-    <div >
-    <span class="robot_state">Le rover est {{ reactive_state.rover }} </span>
-    <span class="robot_state">Le drone est {{ reactive_state.drone }} </span>
+    <div>
+      <span class="robot_state">Le rover est {{ rover }} </span>
+      <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
   </div>
 </template>
