@@ -1,45 +1,52 @@
-<script setup lang="ts">
-import { ref, inject } from "vue";
+<!-- eslint-disable vue/multi-word-component-names -->
+<script lang="ts">
+import { ref, inject, defineComponent } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
+export default defineComponent({
+  name: "Home",
+  data() {
+    return {
+      rover: ref(ROBOT_STATUS.offline),
+      drone: ref(ROBOT_STATUS.offline),
+      socket: inject(socketProvider) as Socket,
+    };
+  },
+  methods: {
+    start() {
+      this.socket.emit("start", { data: "Démarrer mission" });
+      console.log("start");
+    },
+    identify() {
+      this.socket.emit("identify", { data: "beep" });
+    },
+    finish() {
+      this.socket.emit("finish", { data: "Finir mission" });
+    },
+  },
+  mounted() {
+    this.socket.on("rover_state", (in_mission?: boolean) => {
+      if (in_mission === true) {
+        this.rover = ROBOT_STATUS.in_mission;
+      } else if (in_mission === false) {
+        this.rover = ROBOT_STATUS.pending;
+      } else if (in_mission === undefined) {
+        this.rover = ROBOT_STATUS.offline;
+      }
+    });
 
-let socket = inject(socketProvider) as Socket;
-const rover = ref(ROBOT_STATUS.offline);
-const drone = ref(ROBOT_STATUS.offline);
-
-function start() {
-  socket.emit("start", { data: "Démarrer mission" });
-  console.log("start");
-}
-
-function identify() {
-  socket.emit("identify", { data: "beep" });
-}
-
-function finish() {
-  socket.emit("finish", { data: "Finir mission" });
-}
-
-socket.on("rover_state", (in_mission) => {
-  if (in_mission === true) {
-    rover.value = ROBOT_STATUS.in_mission;
-  } else if (in_mission === false) {
-    rover.value = ROBOT_STATUS.pending;
-  } else if (in_mission === undefined) {
-    rover.value = ROBOT_STATUS.offline;
-  }
-});
-
-socket.on("drone_state", (drone_in_mission) => {
-  if (drone_in_mission === true) {
-    drone.value = ROBOT_STATUS.in_mission;
-  } else if (drone_in_mission === false) {
-    drone.value = ROBOT_STATUS.pending;
-  } else if (drone_in_mission === undefined) {
-    drone.value = ROBOT_STATUS.offline;
-  }
+    this.socket.on("drone_state", (drone_in_mission?: boolean) => {
+      if (drone_in_mission === true) {
+        this.drone = ROBOT_STATUS.in_mission;
+      } else if (drone_in_mission === false) {
+        this.drone = ROBOT_STATUS.pending;
+      } else if (drone_in_mission === undefined) {
+        this.drone = ROBOT_STATUS.offline;
+      }
+    });
+  },
 });
 </script>
 
