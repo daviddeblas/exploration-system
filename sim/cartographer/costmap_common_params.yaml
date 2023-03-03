@@ -8,7 +8,7 @@ footprint_padding: 0.02
 transform_tolerance: 0.2
 map_type: costmap
 
-always_send_full_costmap: false
+always_send_full_costmap: true
 
 obstacle_layer:
   enabled: true
@@ -29,6 +29,6 @@ inflation_layer:
 
 static_layer:
   enabled: true
-  publish_voxel_map: false
+  publish_voxel_map: true
   publish_frequency: 2.0 # publish costmap updates every 0.5 seconds
   map_topic: "/map"
