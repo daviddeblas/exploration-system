@@ -1,5 +1,6 @@
 <?xml version="1.1"?>
 <launch>
+
   <node pkg="explore_lite" type="explore" respawn="false" name="explore" output="screen">
     <param name="robot_base_frame" value="base_link"/>
     <param name="costmap_topic" value="move_base/global_costmap/costmap"/>

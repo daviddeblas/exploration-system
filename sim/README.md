@@ -18,21 +18,15 @@ Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
 cd ../inf3995_ws
 source devel/setup.bash
-sed -i -e 's/\r$//' ./src/launch_simulation.sh
 ./src/launch_simulation.sh
 ```
 Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
-Cela lancera la simulation, puis pour lancer la création de la carte utilisez:
+Cela lancera la simulation, puis pour lancer la création de la carte et move_base pour le fonctionnement du déplacement du robot utilisez:
 ```
-source ../catkin_ws/devel_isolated/setup.bash
 roslaunch cartographer_ros carto.launch
 ```
-Ensuite pour lancer le move_base du robot, utilisez:
 
-```
-roslaunch cartographer_ros move_base.launch
-```
-Puis pour lancer l'exploration autonome:
+Puis pour lancer l'exploration autonome manuellement plutot que d'utiliser la groundstation:
 ```
 roslaunch cartographer_ros explore.launch
 ```
