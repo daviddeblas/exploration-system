@@ -18,13 +18,7 @@
         <param name="clearing_rotation_allowed" value="true" />
 	</node>
 
-    <!-- Start the exploration node -->
-    <node name="explore_light" pkg="explore_lite" type="explore" output="screen">
-        <param name="costmap_topic" value="costmap"/>
-        <param name="planner_frequency" value="0.5"/>
-        <param name="min_frontier_size" value="0.5"/>
-        <param name="plan_goal_distance" value="1.0"/>
-        <param name="visualization_pub_topic" value="/explore_visualization"/>
-        <param name="visualization_marker_topic" value="/explore_markers"/>
-    </node>
+		<!--  **************** Visualisation ****************  -->
+	<node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find cartographer_ros)/configuration_files/navigation_diff.rviz"/>    
+
 </launch>

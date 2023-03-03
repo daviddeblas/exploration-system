@@ -51,8 +51,4 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/model_display.rviz" />	
-
-	<!--  **************** Visualisation ****************  -->
-	<node name="rviz_nav" pkg="rviz" type="rviz" args="-d $(find limo_description)/rviz/navigation_diff.rviz"/>    
 </launch>

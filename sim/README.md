@@ -32,6 +32,10 @@ Ensuite pour lancer le move_base du robot, utilisez:
 ```
 roslaunch cartographer_ros move_base.launch
 ```
+Puis pour lancer l'exploration autonome:
+```
+roslaunch cartographer_ros explore.launch
+```
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
