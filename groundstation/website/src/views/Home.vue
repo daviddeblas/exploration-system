@@ -4,9 +4,11 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 
 const socket = inject(socketProvider) as Socket;
+let state: string = 'finish';
 
 function start() {
   socket.emit("start", { data: "Démarrer mission" });
+  state = 'start';
 }
 
 function identify() {
@@ -15,6 +17,7 @@ function identify() {
 
 function finish() {
   socket.emit("finish", { data: "Finir mission" });
+  state = 'finish'
 }
 </script>
 
@@ -22,9 +25,9 @@ function finish() {
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
-      <button class="btn" @click="start">Lancer</button>
+      <button v-if = "state !== 'start'" class="btn" @click="start">Lancer</button>
       <button class="btn" @click="identify">Identifier</button>
-      <button class="btn" @click="finish">Terminer</button>
+      <button v-if = "state !== 'finish'" class="btn" @click="finish">Terminer</button>
     </div>
   </div>
 </template>
