@@ -1,5 +1,4 @@
 #!/bin/bash
-
 (
     cd ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
     python3 wall_generator.py 4

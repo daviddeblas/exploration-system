@@ -1,41 +1,48 @@
 import zenoh
 import time
 import rospy
+import roslaunch
 from geometry_msgs.msg import Twist
 
-pub = rospy.Publisher('/robot1/cmd_vel', Twist, queue_size=10)
+package_name = "cartographer_ros"
+launch_file_name = "explore.launch"
+uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+roslaunch.configure_logging(uuid)
+launch_file_path = roslaunch.rlutil.resolve_launch_arguments([package_name, launch_file_name])[0]
+launch_exploration = roslaunch.parent.ROSLaunchParent(uuid, [launch_file_path])
+start_exploration = False
+exploration_running = False
+
+pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
 rate = rospy.Rate(10)
 move = Twist()
-in_mission = False
-
 
 def start_listener(sample):
-    global in_mission
+    global exploration_running
+    global start_exploration
     message = sample.payload.decode('utf-8')
     print(message)
-    move.linear.x = -0.5
-    move.angular.z = -0.5
-    pub.publish(move)
-    in_mission = True
-
+    start_exploration = True
 
 def identify_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
 
-
 def finish_listener(sample):
-    global in_mission
     message = sample.payload.decode('utf-8')
     print(message)
-    move.linear.x = 0.0
-    move.angular.z = 0.0
-    pub.publish(move)
-    in_mission = False
+    global launch_exploration
+    launch_exploration.shutdown()
+    launch_exploration = roslaunch.parent.ROSLaunchParent(uuid, [launch_file_path])
+    
+    global exploration_running
+    exploration_running = False
 
-
-if __name__ == "__main__":
+def main():
+    global start_exploration
+    global exploration_running
+    global launch_exploration
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
@@ -46,4 +53,11 @@ if __name__ == "__main__":
     print("Started listening")
     while True:
         time.sleep(1)
-        pub1 = session.declare_publisher('rover_state').put(in_mission)
+        if start_exploration and not exploration_running:
+            launch_exploration.start()
+            start_exploration = False
+            exploration_running = True
+        pub1 = session.declare_publisher('rover_state').put(exploration_running)
+
+if __name__ == "__main__":
+    main()

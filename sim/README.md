@@ -17,17 +17,24 @@ Puis se connecter à `localhost:5901` et mettre sont mot de passe
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
 cd ../inf3995_ws
-catkin_make && source devel/setup.bash
+source devel/setup.bash
 ./src/launch_simulation.sh
 ```
 Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
+Cela lancera la simulation, puis pour lancer la création de la carte et move_base pour le fonctionnement du déplacement du robot utilisez:
+```
+roslaunch cartographer_ros carto.launch
+```
 
+Puis pour lancer l'exploration autonome manuellement plutot que d'utiliser la groundstation:
+```
+roslaunch cartographer_ros explore.launch
+```
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
 python3 ../inf3995_ws/src/main_robot1.py
 ```
-
 Puis dans un autre terminal
 
 ```
