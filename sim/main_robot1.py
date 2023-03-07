@@ -24,7 +24,6 @@ def start_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     start_exploration = True
-    exploration_running = True
 
 def identify_listener(sample):
     message = sample.payload.decode('utf-8')
@@ -41,6 +40,9 @@ def finish_listener(sample):
     exploration_running = False
 
 def main():
+    global start_exploration
+    global exploration_running
+    global launch_exploration
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
@@ -54,6 +56,7 @@ def main():
         if start_exploration and not exploration_running:
             launch_exploration.start()
             start_exploration = False
+            exploration_running = True
         pub1 = session.declare_publisher('rover_state').put(exploration_running)
 
 if __name__ == "__main__":
