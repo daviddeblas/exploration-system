@@ -38,7 +38,7 @@ def finish_listener(sample):
     global exploration_running
     exploration_running = False
 
-if __name__ == "__main__":
+def main():
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
@@ -51,7 +51,9 @@ if __name__ == "__main__":
     while True:
         time.sleep(1)
         if start_exploration and not exploration_running:
-            print("started exploration")
             launch_exploration.start()
             start_exploration = False
             exploration_running = True
+
+if __name__ == "__main__":
+    main()
