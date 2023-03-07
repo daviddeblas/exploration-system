@@ -1,0 +1,1 @@
+TIMEOUT_ROBOT = 4
