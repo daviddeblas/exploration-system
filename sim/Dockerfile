@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-rqt-robot-steering \
     ros-noetic-teleop-twist-keyboard xterm \
     ros-noetic-move-base \
-    ros-noetic-robot-pose-ekf \
     ros-noetic-navigation ros-noetic-explore-lite \
     python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
 
