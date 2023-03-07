@@ -2,8 +2,8 @@ import sys
 import random
 
 def generate_random_pose():
-    x = random.uniform(-4.0, 4.0)
-    y = random.uniform(-4.0, 4.0)
+    x = random.uniform(-7.0, 7.0)
+    y = random.uniform(-7.0, 7.0)
     yaw = random.uniform(-3.14, 3.14)
     return "%.4f %.4f 0.0001 0 0 %.4f" % (x, y, yaw)
 
