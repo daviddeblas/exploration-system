@@ -19,10 +19,12 @@ rate = rospy.Rate(10)
 move = Twist()
 
 def start_listener(sample):
+    global exploration_running
     global start_exploration
     message = sample.payload.decode('utf-8')
     print(message)
     start_exploration = True
+    exploration_running = True
 
 def identify_listener(sample):
     message = sample.payload.decode('utf-8')
@@ -52,7 +54,6 @@ def main():
         if start_exploration and not exploration_running:
             launch_exploration.start()
             start_exploration = False
-            exploration_running = True
         pub1 = session.declare_publisher('rover_state').put(exploration_running)
 
 if __name__ == "__main__":
