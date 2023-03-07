@@ -17,22 +17,18 @@ pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
 rate = rospy.Rate(10)
 move = Twist()
-in_mission = False
 
 def start_listener(sample):
     global start_exploration
-    global in_mission
     message = sample.payload.decode('utf-8')
     print(message)
     start_exploration = True
-    in_mission = True
 
 def identify_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
 
 def finish_listener(sample):
-    global in_mission
     message = sample.payload.decode('utf-8')
     print(message)
     global launch_exploration
@@ -41,7 +37,6 @@ def finish_listener(sample):
     
     global exploration_running
     exploration_running = False
-    in_mission = False
 
 def main():
     move.linear.x = 0.0
@@ -54,11 +49,11 @@ def main():
     print("Started listening")
     while True:
         time.sleep(1)
-        pub1 = session.declare_publisher('rover_state').put(in_mission)
         if start_exploration and not exploration_running:
             launch_exploration.start()
             start_exploration = False
             exploration_running = True
+        pub1 = session.declare_publisher('rover_state').put(exploration_running)
 
 if __name__ == "__main__":
     main()
