@@ -2,6 +2,7 @@
 <launch>
 
     <arg name="robot_namespace_robot1" default="/"/>
+    <arg name="robot_namespace_robot2" default="/robot2/"/>
     <arg name="world_name" default="$(find limo_gazebo_sim)/worlds/personalised.world"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -39,5 +40,12 @@
         respawn="false" output="screen" args="limo_state_controller"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <group ns="robot2">
+        <arg name="model" default="$(find simple_quad)/src/description/simple_quad.urdf"/>
+        <param name="robot2_description" command="$(find xacro)/xacro $(arg model)"/>
+        <node name="robot2_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+        <node name="spawn_simple_quad" pkg="gazebo_ros" type="spawn_model" args="-x 0.0 -y 0.0 -z 0.25 -Y 0.0 -unpause -urdf -param robot2_description -model $(arg model) robot_namespace:=$(arg robot_namespace_robot2)"/>
+    </group>
 
 </launch>

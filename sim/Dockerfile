@@ -34,7 +34,8 @@ RUN curl -LO https://github.com/TurboVNC/turbovnc/archive/refs/tags/3.0.2.tar.gz
     echo 'export PATH="$PATH:/opt/VirtualGL/bin:/opt/TurboVNC/bin"' >> /root/.profile
 
 RUN mkdir -p inf3995_ws/src && \
-    git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim
+    git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim && \
+    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
@@ -66,7 +67,7 @@ COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
-    catkin_make"
+    catkin_make -DCMAKE_CXX_STANDARD=17"
 
 COPY main*.py ./src/
 COPY *.sh ./src/
