@@ -3,7 +3,6 @@ cd /inf3995_ws/
 source devel/setup.bash
 cd ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 x_y=$(python3 wall_generator.py 3)
-
 x=$(echo $x_y | cut -d ',' -f 1)
 y=$(echo $x_y | cut -d ',' -f 2)
 yaw=$((RANDOM % 7))
