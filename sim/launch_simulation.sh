@@ -12,9 +12,10 @@ yaw2=$((RANDOM % 7))
 
 roslaunch limo_gazebo_sim limos.launch x:=$x y:=$y yaw:=$yaw x2:=$x2 y2:=$y2 yaw2:=$yaw2 &
 sleep 15s
-source ../catkin_ws/devel_isolated/setup.bash
-roslaunch cartographer_ros carto.launch &
-
+(
+    source /catkin_ws/devel_isolated/setup.bash
+    roslaunch cartographer_ros carto.launch &
+)
 (
     python3 /inf3995_ws/src/main_robot1.py
 )
