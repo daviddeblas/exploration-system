@@ -17,11 +17,11 @@
           <uri>model://grey_wall</uri>
         </include>
       </model>
-      <pose>0 10 0 0 0 0</pose>
+      <pose>0 6 0 0 0 0</pose>
       <box>
-        <size>20 0.0001 0.0001</size>
+        <size>12 0.0001 0.0001</size>
       </box>
-      <model_count>4</model_count>
+      <model_count>2</model_count>
       <distribution>
         <type>uniform</type>
       </distribution>
@@ -34,11 +34,11 @@
           <uri>model://grey_wall</uri>
         </include>
       </model>
-      <pose>0 -10 0 0 0 0</pose>
+      <pose>0 -6 0 0 0 0</pose>
       <box>
-        <size>20 0.0001 0.0001</size>
+        <size>12 0.0001 0.0001</size>
       </box>
-      <model_count>4</model_count>
+      <model_count>2</model_count>
       <distribution>
         <type>uniform</type>
       </distribution>
@@ -49,14 +49,14 @@
         <include>
           <static>true</static>
           <uri>model://grey_wall</uri>
-          <pose>10 0 0 0 0 1.57</pose>
+          <pose>6 0 0 0 0 1.57</pose>
         </include>
       </model>
       <pose>0 0 0 0 0 0</pose>
       <box>
-        <size>0.0001 20 0.0001</size>
+        <size>0.0001 12 0.0001</size>
       </box>
-      <model_count>4</model_count>
+      <model_count>2</model_count>
       <distribution>
         <type>uniform</type>
       </distribution>
@@ -67,14 +67,14 @@
         <include>
           <static>true</static>
           <uri>model://grey_wall</uri>
-          <pose>-10 0 0 0 0 1.57</pose>
+          <pose>-6 0 0 0 0 1.57</pose>
         </include>
       </model>
       <pose>0 0 0 0 0 0</pose>
       <box>
-        <size>0.0001 20 0.0001</size>
+        <size>0.0001 12 0.0001</size>
       </box>
-      <model_count>4</model_count>
+      <model_count>2</model_count>
       <distribution>
         <type>uniform</type>
       </distribution>

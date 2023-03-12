@@ -16,18 +16,26 @@ Ensuite ouvrir **TurboVNC Viewer**
 Puis se connecter à `localhost:5901` et mettre sont mot de passe
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
-cd ../inf3995_ws
-catkin_make && source devel/setup.bash
-./src/launch_simulation.sh
+sed -i -e 's/\r$//' /inf3995_ws/src/launch_simulation.sh
+/inf3995_ws/src/launch_simulation.sh
 ```
 Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
+Cela lancera la simulation et tous les launch files nécessaires.
 
+## Lancement manuel de tout les fichiers de simulation
+```
+roslaunch cartographer_ros carto.launch
+```
+
+Puis pour lancer l'exploration autonome manuellement plutot que d'utiliser la groundstation:
+```
+roslaunch cartographer_ros explore.launch
+```
 
 Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
 python3 ../inf3995_ws/src/main_robot1.py
 ```
-
 Puis dans un autre terminal
 
 ```
@@ -37,3 +45,4 @@ python3 ../inf3995_ws/src/main_robot2.py
 Si la station au sol roule également, il est possible d'utiliser les bouton disponible pour interagir avec la simulation
 
 Pour ouvrir un éditeur de texte et modifier des fichiers, gedit est installé et peux être utilisé `gedit ../inf3995_ws/src/main_robot1.py`ou `gedit ../inf3995_ws/src/main_robot2.py` pour le second robot.  
+

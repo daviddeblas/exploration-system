@@ -12,3 +12,15 @@ pip install -r requirements.txt
 ```
 uvicorn main:app --reload
 ```
+
+# Installation test
+
+```
+pip install pytest
+
+```
+# Lancer les tests
+
+```
+pytest test_socket.py
+```
