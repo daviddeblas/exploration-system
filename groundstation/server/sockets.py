@@ -19,7 +19,6 @@ pubIdentify = session.declare_publisher('identify')
 pubStart = session.declare_publisher('start')
 pubFinish = session.declare_publisher('finish')
 
-
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
@@ -32,8 +31,10 @@ class RobotCommunication:
         self.name = name
         self.in_mission = None
         self.last_updated = None
+        self.jpeg_bytes = None
         self.sub = session.declare_subscriber(
             f'{self.name}_state', self.robot_state)
+        self.subMapUpdate = session.declare_subscriber('map_image', self.handle_map_update)
 
     async def send_robot_state(self):
         while True:
@@ -46,10 +47,14 @@ class RobotCommunication:
             else:
                 await sio.emit(f'{self.name}_state', self.in_mission)
                 await asyncio.sleep(1)
+            await sio.emit('map_update', self.jpeg_bytes)
 
     def robot_state(self, sample):
         self.in_mission = sample.payload.decode('utf-8')
         self.last_updated = time.time()
+        
+    def handle_map_update(self, sample):
+        self.jpeg_bytes = sample.payload
 
 
 rover = RobotCommunication('rover')

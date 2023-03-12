@@ -12,6 +12,7 @@ export default defineComponent({
       rover: ref(ROBOT_STATUS.offline),
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
+      mapImageUrl: ref(""),
     };
   },
   methods: {
@@ -46,6 +47,14 @@ export default defineComponent({
         this.drone = ROBOT_STATUS.offline;
       }
     });
+
+    this.socket.on("map_update", (map_bytes: ArrayBuffer) => {
+      const arrayBufferView = new Uint8Array(map_bytes);
+      const blob = new Blob([arrayBufferView], { type: 'image/png' });
+      const imageUrl = URL.createObjectURL(blob);
+      this.mapImageUrl = imageUrl;
+      console.log(imageUrl);
+    });
   },
 });
 </script>
@@ -63,6 +72,9 @@ export default defineComponent({
       <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
   </div>
+  <div class="image-container">
+    <img class="image" :src="mapImageUrl" alt="Map" />
+  </div>
 </template>
 
 <style scoped>
@@ -76,6 +88,13 @@ export default defineComponent({
   font-family: "Roboto", sans-serif;
   background: #df9d81;
   padding: 25px;
+}
+.image-container{
+  display: flex;
+  justify-content: center;
+}
+.image{
+  height: 50vh; /* 50% of the viewport height */
 }
 #title {
   color: #943e36;
