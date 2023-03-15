@@ -23,13 +23,13 @@ def is_position_valid(x, y, pose):
     # Calculate the equation of the line segment in the form y = mx + b
     if corners[i][0] == corners[j][0]:
         # Vertical line, slope is infinite
-        if x == corners[i][0] and min(corners[i][1], corners[j][1]) - 0.4 <= y <= max(corners[i][1], corners[j][1]) + 0.4:
+        if x == corners[i][0] and min(corners[i][1], corners[j][1]) - 0.8 <= y <= max(corners[i][1], corners[j][1]) + 0.8:
             return False
     else:
         # Non-vertical line, calculate slope and y-intercept
         m = (corners[j][1] - corners[i][1]) / (corners[j][0] - corners[i][0])
         b = corners[i][1] - m * corners[i][0]
-        if abs(y - (m * x + b)) < 0.4 and min(corners[i][0], corners[j][0]) <= x <= max(corners[i][0], corners[j][0]):
+        if abs(y - (m * x + b)) < 0.8 and min(corners[i][0], corners[j][0]) <= x <= max(corners[i][0], corners[j][0]):
             return False
     return True
 
