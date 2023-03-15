@@ -94,7 +94,7 @@ export default defineComponent({
   justify-content: center;
 }
 .image{
-  height: 50vh; /* 50% of the viewport height */
+  height: 50vh;
 }
 #title {
   color: #943e36;
