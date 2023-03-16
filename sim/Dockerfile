@@ -56,7 +56,7 @@ RUN src/cartographer/scripts/install_abseil.sh
 COPY ./cartographer/* ../catkin_ws/src/cartographer_ros/cartographer_ros/configuration_files/
 
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
-    catkin_make_isolated --install --use-ninja"
+    catkin_make_isolated -DCMAKE_CXX_STANDARD=17 --install --use-ninja"
 
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
