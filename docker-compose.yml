@@ -17,3 +17,28 @@ services:
     build: sim
     ports:
       - "5901:5901"
+
+  sim-gpu:
+    image: inf3995-101-sim-gpu
+    build:
+      context: sim
+      dockerfile: Dockerfile.gpu
+    command: bash -c "while true; do sleep 1; done"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix"
+      - "${HOME}/.Xauthority:/home/user/.Xauthority"
+    environment:
+      - DISPLAY
+    devices:
+      - "/dev/dri:/dev/dri"
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 262144
+    stdin_open: true
+    tty: true
+    network_mode: host
