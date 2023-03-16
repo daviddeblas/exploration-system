@@ -31,6 +31,12 @@ tfBuffer = tf.TransformListener()
 def start_listener(sample):
     global exploration_running
     global start_exploration
+    
+    if not exploration_running:
+        move.angular.z = 1.5708
+        pub.publish(move)
+        time.sleep(2.0)
+    
     message = sample.payload.decode('utf-8')
     print(message)
     start_exploration = True
