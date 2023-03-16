@@ -21,18 +21,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ros-noetic-navigation ros-noetic-explore-lite \
     python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
 
-RUN curl -LO https://github.com/VirtualGL/virtualgl/archive/refs/tags/3.0.2.tar.gz && \
-    tar xvf 3.0.2.tar.gz && \
-    cmake -B build-virtualgl -S virtualgl-3.0.2 && \
-    cmake --build build-virtualgl --parallel --target install && \
-    rm -rf 3.0.2.tar.gz build-virtualgl virtualgl-3.0.2
-RUN curl -LO https://github.com/TurboVNC/turbovnc/archive/refs/tags/3.0.2.tar.gz && \
-    tar xvf 3.0.2.tar.gz && \
-    cmake -B build-turbovnc -S turbovnc-3.0.2 -DTVNC_BUILDHELPER=OFF -DTVNC_BUILDVIEWER=OFF && \
-    cmake --build build-turbovnc --target install && \
-    rm -rf 3.0.2.tar.gz build-turbovnc turbovnc-3.0.2 && \
-    echo 'export PATH="$PATH:/opt/VirtualGL/bin:/opt/TurboVNC/bin"' >> /root/.profile
-
 RUN mkdir -p inf3995_ws/src && \
     git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim
 
