@@ -18,6 +18,7 @@ session = zenoh.open()
 pubIdentify = session.declare_publisher('identify')
 pubStart = session.declare_publisher('start')
 pubFinish = session.declare_publisher('finish')
+returnHomeFinish = session.declare_publisher('return_home')
 
 @sio.event
 async def connect(sid, environ, auth):
@@ -31,10 +32,8 @@ class RobotCommunication:
         self.name = name
         self.in_mission = None
         self.last_updated = None
-        self.jpeg_bytes = None
         self.sub = session.declare_subscriber(
             f'{self.name}_state', self.robot_state)
-        self.subMapUpdate = session.declare_subscriber('map_image', self.handle_map_update)
 
     async def send_robot_state(self):
         while True:
@@ -47,19 +46,19 @@ class RobotCommunication:
             else:
                 await sio.emit(f'{self.name}_state', self.in_mission)
                 await asyncio.sleep(1)
-            await sio.emit('map_update', self.jpeg_bytes)
 
     def robot_state(self, sample):
         self.in_mission = sample.payload.decode('utf-8')
         self.last_updated = time.time()
-        
-    def handle_map_update(self, sample):
-        self.jpeg_bytes = sample.payload
 
+
+def handle_map_update(sample):
+    png_bytes = sample.payload
+    asyncio.run(sio.emit('map_update', png_bytes))
 
 rover = RobotCommunication('rover')
 drone = RobotCommunication('drone')
-
+subMapUpdates = session.declare_subscriber('map_image', handle_map_update)
 
 @ sio.event
 async def identify(data, _):
@@ -75,6 +74,9 @@ async def start(data, _):
 async def finish(data, _):
     pubFinish.put("finish")
 
+@ sio.event
+async def return_home(data, _):
+    returnHomeFinish.put("return_home")
 
 @ sio.event
 async def disconnect(sid):
