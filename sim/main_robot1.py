@@ -50,17 +50,17 @@ def finish_listener(sample):
     exploration_running = False
 
 def map_callback(data):
-    # Convert the OccupancyGrid message to a grayscale OpenCV image
+    # Convertir le message OccupancyGrid vers une image RGBA OpenCV
     map_array = np.array(data.data, dtype=np.int8).reshape((data.info.height, data.info.width))
 
-    # Crop the map to remove all lines and columns containing only -1
+    # Enlever tous les lignes et colonnes contenant seulement des -1
     non_free_rows, non_free_cols = np.nonzero(map_array != -1)
     cropped_array = map_array[
         non_free_rows.min(): non_free_rows.max() + 1,
         non_free_cols.min(): non_free_cols.max() + 1,
     ]
 
-    # Adjust the map metadata to reflect the cropping
+    # Ajuster la carte pour que les coordonnées soient respectées
     cropped_origin_x = data.info.origin.position.x + non_free_cols.min() * data.info.resolution
     cropped_origin_y = data.info.origin.position.y + non_free_rows.min() * data.info.resolution
     cropped_height, cropped_width = cropped_array.shape
@@ -74,32 +74,26 @@ def map_callback(data):
     cropped_info.info.origin.position.x = cropped_origin_x
     cropped_info.info.origin.position.y = cropped_origin_y
 
-    # Create a color image
+    # Créer l'image de couleur
     map_image = np.zeros((cropped_height, cropped_width, 4), dtype=np.uint8)
 
-    # Map the occupancy grid values to grayscale values for visual purposes
-    map_image[cropped_array == -1] = [128, 128, 128, 0]   # Unknown
-    map_image[(cropped_array >= 0) & (cropped_array <= 50)] = [255, 255, 255, 255]    # Free
-    map_image[(cropped_array > 50) & (cropped_array <= 100)] = [0, 0, 0, 255]    # Occupied
+    # Mapper les valeurs de OccupancyGrid vers les valeurs des images
+    map_image[cropped_array == -1] = [128, 128, 128, 0]   # Inconnues
+    map_image[(cropped_array >= 0) & (cropped_array <= 50)] = [255, 255, 255, 255]    # Espace ouvert
+    map_image[(cropped_array > 50) & (cropped_array <= 100)] = [0, 0, 0, 255]    # Espace Occupé
 
     trans, rot = tfBuffer.lookupTransform("map", "base_footprint", rospy.Time())
     
     robot_pos_x = int((trans[0] - cropped_origin_x) / cropped_info.info.resolution)
     robot_pos_y = int((trans[1] - cropped_origin_y) / cropped_info.info.resolution)
 
-    # Draw a rectangle on the map to represent the robot
+    # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (robot_pos_x-2, robot_pos_y-2), (robot_pos_x+2, robot_pos_y+2), (255, 0, 0, 255), thickness=-1)
-    
-    arrow_len = 10
-    arrow_start = (robot_pos_x, robot_pos_y)
-    arrow_end = (int(robot_pos_x + arrow_len * np.cos(rot[2])),
-                 int(robot_pos_y + arrow_len * np.sin(rot[2])))
-    cv2.arrowedLine(map_image, arrow_start, arrow_end, (0, 255, 0, 255), thickness=1, tipLength=0.5)
 
-    # Encode the image as PNG
+    # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
 
-    # Publish the PNG image on a Zenoh topic
+    # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
 
 def return_home_listener(sample):
