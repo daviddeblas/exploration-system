@@ -64,7 +64,7 @@
         <param name="robot2_description" command="$(find xacro)/xacro $(arg model)"/>
         <node name="robot2_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
-        <node name="spawn_simple_quad" pkg="gazebo_ros" type="spawn_model" args="-x 0.0 -y 0.0 -z 0.25 -Y 0.0 -unpause -urdf -param robot2_description -model $(arg model) robot_namespace:=$(arg robot_namespace_robot2)"/>
+        <node name="spawn_simple_quad" pkg="gazebo_ros" type="spawn_model" args="-x -5.0 -y 5.0 -z 0.25 -Y -1.57 -unpause -urdf -param robot2_description -model $(arg model) robot_namespace:=$(arg robot_namespace_robot2)"/>
     </group>
 
 </launch>
