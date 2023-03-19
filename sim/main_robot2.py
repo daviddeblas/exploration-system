@@ -62,12 +62,14 @@ def back_to_base():
 
 
 def drone_movement(line_number, start_line):
-    global line_counter
+    global line_counter, exploration_running
 
     for i in range(start_line, line_number):
         if stop_event.is_set():
             break
+
         forward()
+
         if (i != line_number - 1):
             if (line_counter % 2 == 0):
                 rotation_left()
@@ -84,11 +86,12 @@ def drone_movement(line_number, start_line):
                 rotation_left()
             else:
                 rotation_right()
-                
+
             line_counter = i + 1
         else:
             back_to_base()
             line_counter = 0
+            exploration_running = False
 
 
 def stop_drone_movement():
