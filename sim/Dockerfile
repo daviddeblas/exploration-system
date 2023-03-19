@@ -67,6 +67,7 @@ COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY cognifly/gazebo_ros_simple_quad.cpp ./src/simple_quad/src/simple_quad/src/
 COPY cognifly/simple_quad.urdf ./src/simple_quad/src/simple_quad/src/description/
+COPY constants.py ./src/
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make -DCMAKE_CXX_STANDARD=17"
 
