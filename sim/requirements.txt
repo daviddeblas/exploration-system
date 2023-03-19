@@ -1,1 +1,2 @@
 eclipse-zenoh==0.7.0rc0
+Pillow==9.4.0
