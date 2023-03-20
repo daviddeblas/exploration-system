@@ -12,7 +12,8 @@ y2=$((((RANDOM % 101) / 10) - 5))
 yaw2=$((RANDOM % 7))
 
 roslaunch limo_gazebo_sim limos.launch x:=$x y:=$y yaw:=$yaw x2:=$x2 y2:=$y2 yaw2:=$yaw2 &
-(
-    sleep 20
-    python3 /inf3995_ws/src/main_robot1.py
-)
+sleep 20
+
+python3 /inf3995_ws/src/main_robot1.py &
+
+python3 /inf3995_ws/src/main_robot2.py &

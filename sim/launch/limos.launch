@@ -41,6 +41,8 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
+    <include file="$(find limo_gazebo_sim)/launch/gmapping.launch" />
+
     <group ns="robot2">
         <node pkg="tf" type="static_transform_publisher" name="map_to__broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm1_link 10" />
         <node pkg="tf" type="static_transform_publisher" name="map_to__broacaster" args="0 0 0 0 0 0 simple_quad_arm1_link simple_quad_arm1_motor_link 10" />

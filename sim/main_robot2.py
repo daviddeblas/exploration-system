@@ -137,11 +137,12 @@ def main():
     sub1 = session.declare_subscriber('start', start_listener)
     sub2 = session.declare_subscriber('identify', identify_listener)
     sub3 = session.declare_subscriber('finish', finish_listener)
+    pub_state = session.declare_publisher('drone_state')
 
     print("Started listening")
     while True:
         time.sleep(1)
-        pub1 = session.declare_publisher('drone_state').put(exploration_running)
+        pub_state.put(exploration_running)
 
 
 if __name__ == "__main__":
