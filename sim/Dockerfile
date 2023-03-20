@@ -1,5 +1,5 @@
 FROM ros:noetic
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl git ros-noetic-roslint \
     x11-apps mesa-utils \
     libgl-dev libturbojpeg0-dev \
@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-teleop-twist-keyboard xterm \
     ros-noetic-move-base \
     ros-noetic-navigation ros-noetic-explore-lite \
-    python3-wstool python3-rosdep ninja-build stow python3-catkin-tools
+    python3-wstool python3-rosdep ninja-build stow python3-catkin-tools \
+    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping
 
 RUN curl -LO https://github.com/VirtualGL/virtualgl/archive/refs/tags/3.0.2.tar.gz && \
     tar xvf 3.0.2.tar.gz && \
@@ -40,40 +41,24 @@ RUN mkdir -p inf3995_ws/src && \
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-RUN mkdir catkin_ws
-WORKDIR /catkin_ws
-RUN wstool init src
-RUN wstool merge -t src https://raw.githubusercontent.com/cartographer-project/cartographer_ros/master/cartographer_ros.rosinstall
-RUN wstool update -t src
-
-COPY package.xml ./src/cartographer/
-
-RUN rosdep update
-RUN rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y
-
-RUN src/cartographer/scripts/install_abseil.sh
-
-COPY ./cartographer/* ../catkin_ws/src/cartographer_ros/cartographer_ros/configuration_files/
-
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
-    catkin_make_isolated --install --use-ninja"
-
 WORKDIR /inf3995_ws
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
-COPY *.rviz ./src/ugv_gazebo_sim/limo/limo_description/rviz/
-COPY limos.launch ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
+COPY rviz/* ./src/ugv_gazebo_sim/limo/limo_description/rviz/
+COPY launch/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY cognifly/gazebo_ros_simple_quad.cpp ./src/simple_quad/src/simple_quad/src/
 COPY cognifly/simple_quad.urdf ./src/simple_quad/src/simple_quad/src/description/
 COPY constants.py ./src/
+COPY configuration_files/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
+
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make -DCMAKE_CXX_STANDARD=17"
 
 COPY main*.py ./src/
 COPY *.sh ./src/
 
-RUN echo "source ../catkin_ws/devel_isolated/setup.bash" >> ~/.bashrc
+RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc
 
 CMD bash
