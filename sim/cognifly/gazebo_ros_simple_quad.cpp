@@ -521,7 +521,7 @@ namespace gazebo_plugins
     auto pos = pose.Pos();
     odom_.pose.pose.position.x = pos.X();
     odom_.pose.pose.position.y = pos.Y();
-    odom_.pose.pose.position.y = pos.Z();
+    odom_.pose.pose.position.z = pos.Z();
 
     auto qt = pose.Rot();
     odom_.pose.pose.orientation.x = qt.X();
