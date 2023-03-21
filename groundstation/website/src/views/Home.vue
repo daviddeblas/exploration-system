@@ -12,6 +12,7 @@ export default defineComponent({
       rover: ref(ROBOT_STATUS.offline),
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
+      mapImageUrl: ref(""),
     };
   },
   methods: {
@@ -43,14 +44,26 @@ export default defineComponent({
         this.drone = ROBOT_STATUS.offline;
       }
     },
+    onMapUpdate(map_bytes: ArrayBuffer) {
+      const arrayBufferView = new Uint8Array(map_bytes);
+      const blob = new Blob([arrayBufferView], { type: "image/png" });
+      const imageUrl = URL.createObjectURL(blob);
+      this.mapImageUrl = imageUrl;
+      console.log(imageUrl);
+    },
+    return_home() {
+      this.socket.emit("return_home", { data: "Retour à la base" });
+    },
   },
   mounted() {
     this.socket.on("rover_state", this.onRoverState);
     this.socket.on("drone_state", this.onDroneState);
+    this.socket.on("map_update", this.onMapUpdate);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
     this.socket.off("drone_state", this.onDroneState);
+    this.socket.off("map_update", this.onMapUpdate);
   },
 });
 </script>
@@ -62,11 +75,15 @@ export default defineComponent({
       <button class="btn" @click="start">Lancer</button>
       <button class="btn" @click="identify">Identifier</button>
       <button class="btn" @click="finish">Terminer</button>
+      <button class="btn" @click="return_home">Retour à la Base</button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
       <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
+  </div>
+  <div class="image-container">
+    <img v-if="mapImageUrl !== ''" class="image" :src="mapImageUrl" alt="Map" />
   </div>
 </template>
 
@@ -76,6 +93,13 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+.image-container {
+  display: flex;
+  justify-content: center;
+}
+.image {
+  height: 50vh;
 }
 #title {
   color: #943e36;
