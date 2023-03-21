@@ -254,14 +254,14 @@ namespace gazebo_plugins
     impl_->ca_ = 2.0 * sqrt(impl_->ka_ * impl_->link_->GetInertial()->IXX());
 
     // Subscribe to pose
-    impl_->cmd_pos_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_pos", 1000,
+    impl_->cmd_pos_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_pos", 100,
                                                      &GazeboRosSimpleQuadPrivate::OnCmdPos, impl_.get());
 
     // ROS_INFO("Subscribed to [%s]", impl_->cmd_pos_sub_.get_topic_name());
     ROS_INFO("Subscribed to [cmd_pos]");
 
     // Subscribe to twist
-    impl_->cmd_vel_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_vel", 1000,
+    impl_->cmd_vel_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_vel", 100,
                                                      &GazeboRosSimpleQuadPrivate::OnCmdVel, impl_.get());
 
     // ROS_INFO("Subscribed to [%s]", impl_->cmd_vel_sub_.get_topic_name());
@@ -279,7 +279,7 @@ namespace gazebo_plugins
     impl_->publish_odom_ = _sdf->Get<bool>("publish_odom", true).first;
     if (impl_->publish_odom_)
     {
-      impl_->odometry_pub_ = impl_->ros_node_.advertise<nav_msgs::Odometry>(impl_->odometry_topic_, 1000);
+      impl_->odometry_pub_ = impl_->ros_node_.advertise<nav_msgs::Odometry>(impl_->odometry_topic_, 100);
 
       ROS_INFO("Advertise odometry on [%s]", impl_->odometry_topic_.c_str());
     }

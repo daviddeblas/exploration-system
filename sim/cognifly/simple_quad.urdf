@@ -197,7 +197,7 @@
           <mean>0.0</mean>
           <stddev>1.7e-2</stddev>
           <bias_mean>0.1</bias_mean>
-          <bias_stddev>0.001</bias_stddev>
+          <bias_stddev>0.01</bias_stddev>
           <!-- <mean>0.0</mean>
           <stddev>0.0</stddev>
           <bias_mean>0.0</bias_mean>
@@ -209,7 +209,7 @@
           <mean>0.0</mean>
           <stddev>1.7e-2</stddev>
           <bias_mean>0.1</bias_mean>
-          <bias_stddev>0.001</bias_stddev>
+          <bias_stddev>0.01</bias_stddev>
           <!-- <mean>0.0</mean>
           <stddev>0.0</stddev>
           <bias_mean>0.0</bias_mean>
@@ -221,7 +221,7 @@
           <mean>0.0</mean>
           <stddev>1.7e-2</stddev>
           <bias_mean>0.1</bias_mean>
-          <bias_stddev>0.001</bias_stddev>
+          <bias_stddev>0.01</bias_stddev>
           <!-- <mean>0.0</mean>
           <stddev>0.0</stddev>
           <bias_mean>0.0</bias_mean>
@@ -237,7 +237,7 @@
   <inertial>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <mass value="0.125"/>
-    <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    <inertia ixx="0.01"  ixy="0"  ixz="0" iyy="0.01" iyz="0" izz="0.01" />
   </inertial>
 
   <collision>
@@ -315,7 +315,7 @@
   <inertial>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <mass value="0.035"/>
-    <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    <inertia ixx="0.01"  ixy="0"  ixz="0" iyy="0.01" iyz="0" izz="0.01" />
   </inertial>
 </link>
 
