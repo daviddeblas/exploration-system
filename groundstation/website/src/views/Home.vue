@@ -13,11 +13,13 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
+      state:  ROBOT_STATUS.offline,
     };
   },
   methods: {
     start() {
       this.socket.emit("start", { data: "Démarrer mission" });
+      this.state = ROBOT_STATUS.in_mission;
       console.log("start");
     },
     identify() {
@@ -25,6 +27,7 @@ export default defineComponent({
     },
     finish() {
       this.socket.emit("finish", { data: "Finir mission" });
+      this.state = ROBOT_STATUS.offline;
     },
     return_home(){
       this.socket.emit("return_home", { data: "Retour à la base" })
@@ -66,9 +69,9 @@ export default defineComponent({
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
-      <button class="btn" @click="start">Lancer</button>
+      <button v-show = "state !== 'en mission'" class="btn" @click="start">Lancer</button>
       <button class="btn" @click="identify">Identifier</button>
-      <button class="btn" @click="finish">Terminer</button>
+      <button v-show = "state !== 'hors ligne'" class="btn" @click="finish">Terminer</button>
       <button class="btn" @click="return_home">Retour à la Base</button>
     </div>
     <div>
