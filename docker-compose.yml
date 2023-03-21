@@ -3,7 +3,8 @@ services:
   groundstation:
     image: inf3995-101-groundstation
     build: groundstation
-    network_mode: host
+    ports: 
+      - "8000:8000"
   rover:
     image: inf3995-101-rover
     build: rover
