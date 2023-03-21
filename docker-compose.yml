@@ -3,7 +3,7 @@ services:
   groundstation:
     image: inf3995-101-groundstation
     build: groundstation
-    networks: host
+    network_mode: host
   rover:
     image: inf3995-101-rover
     build: rover
