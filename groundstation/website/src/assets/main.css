@@ -5,12 +5,12 @@
 body {
   background-image: url("./background.jpg");
   margin: 0;
+  font-family: "Roboto", sans-serif;
 }
 
 .toolbar {
   overflow: hidden;
   background-color: #4f312b;
-  font-family: 'Roboto', sans-serif;
   margin-left: 10px;
   font-weight: bold;
 }
@@ -32,4 +32,12 @@ body {
 .toolbar a.active {
   background-color: #a24036;
   color: white;
+}
+
+.router-view {
+    margin: 25px auto;
+    justify-content: center;
+    width: 80%;
+    background: #df9d81;
+    padding: 25px;
 }

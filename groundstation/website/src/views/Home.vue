@@ -25,9 +25,7 @@ export default defineComponent({
     finish() {
       this.socket.emit("finish", { data: "Finir mission" });
     },
-  },
-  mounted() {
-    this.socket.on("rover_state", (in_mission?: boolean) => {
+    onRoverState(in_mission?: boolean) {
       if (in_mission === true) {
         this.rover = ROBOT_STATUS.in_mission;
       } else if (in_mission === false) {
@@ -35,9 +33,8 @@ export default defineComponent({
       } else if (in_mission === undefined) {
         this.rover = ROBOT_STATUS.offline;
       }
-    });
-
-    this.socket.on("drone_state", (drone_in_mission?: boolean) => {
+    },
+    onDroneState(drone_in_mission?: boolean) {
       if (drone_in_mission === true) {
         this.drone = ROBOT_STATUS.in_mission;
       } else if (drone_in_mission === false) {
@@ -45,7 +42,15 @@ export default defineComponent({
       } else if (drone_in_mission === undefined) {
         this.drone = ROBOT_STATUS.offline;
       }
-    });
+    },
+  },
+  mounted() {
+    this.socket.on("rover_state", this.onRoverState);
+    this.socket.on("drone_state", this.onDroneState);
+  },
+  unmounted() {
+    this.socket.off("rover_state", this.onRoverState);
+    this.socket.off("drone_state", this.onDroneState);
   },
 });
 </script>
@@ -70,12 +75,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 25px auto;
   justify-content: center;
-  width: 80%;
-  font-family: "Roboto", sans-serif;
-  background: #df9d81;
-  padding: 25px;
 }
 #title {
   color: #943e36;

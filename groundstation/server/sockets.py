@@ -3,10 +3,17 @@ import zenoh
 import asyncio
 import time
 from constants import TIMEOUT_ROBOT
+import database
+import asyncio
+import models
+import datetime
+import json
+
+logger_queue = asyncio.Queue()
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=[]
+    cors_allowed_origins="*"
 )
 
 sio_app = socketio.ASGIApp(
@@ -20,11 +27,41 @@ pubStart = session.declare_publisher('start')
 pubFinish = session.declare_publisher('finish')
 
 
+def log_sub(sample):
+    message = sample.payload.decode('utf-8')
+    logger_queue.put_nowait(message)
+
+
+logger_sub = session.declare_subscriber("logger", log_sub)
+
+
+async def logger_task():
+    while True:
+        message = await logger_queue.get()
+        data = message.split(";;", 2)
+        db = database.SessionLocal()
+        log_entry = models.LogEntry(
+            mission_id=models.mission.id,
+            time=datetime.datetime.now(),
+            robot=data[0],
+            category=data[1],
+            data=data[2])
+        db.add(log_entry)
+        db.commit()
+        db.refresh(log_entry)
+        db.close()
+
+        await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
+
+asyncio.create_task(logger_task())
+
+
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
     asyncio.create_task(rover.send_robot_state())
     asyncio.create_task(drone.send_robot_state())
+    logger_queue.put_nowait(f"groundstation;;connect;;{sid}")
 
 
 class RobotCommunication:
@@ -59,18 +96,22 @@ drone = RobotCommunication('drone')
 @ sio.event
 async def identify(data, _):
     pubIdentify.put("identify")
+    logger_queue.put_nowait("groundstation;;identify;;")
 
 
 @ sio.event
 async def start(data, _):
     pubStart.put("start")
+    logger_queue.put_nowait("groundstation;;start;;")
 
 
 @ sio.event
 async def finish(data, _):
     pubFinish.put("finish")
+    logger_queue.put_nowait("groundstation;;finish;;")
 
 
 @ sio.event
 async def disconnect(sid):
     print(f'{sid}: disconnected')
+    logger_queue.put_nowait(f"groundstation;;disconnect;;{sid}")
