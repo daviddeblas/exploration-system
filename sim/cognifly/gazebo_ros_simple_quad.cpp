@@ -333,7 +333,7 @@ namespace gazebo_plugins
     impl_->odom_.twist.covariance[28] = impl_->covariance_[10];
     impl_->odom_.twist.covariance[35] = impl_->covariance_[11];
 
-    impl_->max_acc_ = _sdf->Get<double>("max_acc", 10).first;
+    impl_->max_acc_ = _sdf->Get<double>("max_acc", 0.1).first;
 
     impl_->fake_pitch_roll_ = _sdf->Get<bool>("fake_pitch_roll", true).first;
 

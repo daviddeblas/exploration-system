@@ -9,6 +9,7 @@ pub = rospy.Publisher('/robot2/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_drone', anonymous=False)
 rate = rospy.Rate(10)
 move = Twist()
+session = zenoh.open()
 
 exploration_running = False
 stop_event = threading.Event()
@@ -16,6 +17,7 @@ line_counter = 0
 
 
 def rotation_left():
+    rospy.sleep(1.5)
     move.angular.z = 1.0
     pub.publish(move)
     rospy.sleep(TIME_TO_TURN_90)
@@ -24,6 +26,7 @@ def rotation_left():
 
 
 def rotation_right():
+    rospy.sleep(1.5)
     move.angular.z = -1.0
     pub.publish(move)
     rospy.sleep(TIME_TO_TURN_90)
@@ -39,7 +42,6 @@ def forward():
     move.linear.x = 0.0
     pub.publish(move)
 
-
 def back_to_base():
     move.angular.z = -1.0
     pub.publish(move)
@@ -47,13 +49,14 @@ def back_to_base():
     move.angular.z = 0.0
     pub.publish(move)
 
-    rospy.sleep(0.5)
+    rospy.sleep(1.5)
     move.linear.x = 1.0
     pub.publish(move)
     rospy.sleep(CROSS_THE_MAP_TIME)
     move.linear.x = 0.0
     pub.publish(move)
 
+    rospy.sleep(1.5)
     move.angular.z = 1.0
     pub.publish(move)
     rospy.sleep(TIME_TO_TURN_145)
@@ -81,6 +84,7 @@ def drone_movement(line_number, start_line):
             rospy.sleep(REPOSITION_TIME)
             move.linear.x = 0.0
             pub.publish(move)
+  
 
             if (line_counter % 2 == 0):
                 rotation_left()
@@ -89,6 +93,7 @@ def drone_movement(line_number, start_line):
 
             line_counter = i + 1
         else:
+            rospy.sleep(1)
             back_to_base()
             line_counter = 0
             exploration_running = False
@@ -133,7 +138,7 @@ def main():
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
-    session = zenoh.open()
+
     sub1 = session.declare_subscriber('start', start_listener)
     sub2 = session.declare_subscriber('identify', identify_listener)
     sub3 = session.declare_subscriber('finish', finish_listener)
