@@ -81,9 +81,14 @@ export default defineComponent({
       <span class="robot_state">Le rover est {{ rover }} </span>
       <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
-  </div>
-  <div class="image-container">
-    <img v-if="mapImageUrl !== ''" class="image" :src="mapImageUrl" alt="Map" />
+    <div class="image-container">
+      <img
+        v-if="mapImageUrl !== ''"
+        class="image"
+        :src="mapImageUrl"
+        alt="Map"
+      />
+    </div>
   </div>
 </template>
 
