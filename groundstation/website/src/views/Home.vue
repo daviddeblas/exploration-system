@@ -147,4 +147,27 @@ export default defineComponent({
 span {
   display: block;
 }
+
+@media only screen and (max-width: 768px) {
+  .home {
+    width: 100%;
+    padding: 10px;
+  }
+  .image {
+    height: 30vh;
+  }
+  #title {
+    font-size: 30px; 
+    margin-top: 10px; 
+  }
+  .btn {
+    font-size: 16px;
+    padding: 8px;
+    margin: 0 3px;
+  }
+  .robot_state {
+    font-size: 16px;
+    width: 180px;
+  }
+}
 </style>
