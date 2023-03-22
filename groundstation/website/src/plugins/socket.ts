@@ -5,7 +5,7 @@ const socketProvider = Symbol() as InjectionKey<Socket>;
 
 export default {
   install: (app: App) => {
-    const socket = io("", { path: "/sockets" });
+    const socket = io("http://localhost:8000", { path: "/sockets" });
     app.provide<Socket>(socketProvider, socket);
   },
 };

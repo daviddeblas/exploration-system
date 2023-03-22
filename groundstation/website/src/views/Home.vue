@@ -29,12 +29,7 @@ export default defineComponent({
       this.socket.emit("finish", { data: "Finir mission" });
       this.state = ROBOT_STATUS.offline;
     },
-    return_home(){
-      this.socket.emit("return_home", { data: "Retour à la base" })
-    }
-  },
-  mounted() {
-    this.socket.on("rover_state", (in_mission?: boolean) => {
+    onRoverState(in_mission?: boolean) {
       if (in_mission === true) {
         this.rover = ROBOT_STATUS.in_mission;
       } else if (in_mission === false) {
@@ -42,9 +37,8 @@ export default defineComponent({
       } else if (in_mission === undefined) {
         this.rover = ROBOT_STATUS.offline;
       }
-    });
-
-    this.socket.on("drone_state", (drone_in_mission?: boolean) => {
+    },
+    onDroneState(drone_in_mission?: boolean) {
       if (drone_in_mission === true) {
         this.drone = ROBOT_STATUS.in_mission;
       } else if (drone_in_mission === false) {
@@ -52,15 +46,27 @@ export default defineComponent({
       } else if (drone_in_mission === undefined) {
         this.drone = ROBOT_STATUS.offline;
       }
-    });
-
-    this.socket.on("map_update", (map_bytes: ArrayBuffer) => {
+    },
+    onMapUpdate(map_bytes: ArrayBuffer) {
       const arrayBufferView = new Uint8Array(map_bytes);
       const blob = new Blob([arrayBufferView], { type: "image/png" });
       const imageUrl = URL.createObjectURL(blob);
       this.mapImageUrl = imageUrl;
       console.log(imageUrl);
-    });
+    },
+    return_home() {
+      this.socket.emit("return_home", { data: "Retour à la base" });
+    },
+  },
+  mounted() {
+    this.socket.on("rover_state", this.onRoverState);
+    this.socket.on("drone_state", this.onDroneState);
+    this.socket.on("map_update", this.onMapUpdate);
+  },
+  unmounted() {
+    this.socket.off("rover_state", this.onRoverState);
+    this.socket.off("drone_state", this.onDroneState);
+    this.socket.off("map_update", this.onMapUpdate);
   },
 });
 </script>
@@ -78,9 +84,14 @@ export default defineComponent({
       <span class="robot_state">Le rover est {{ rover }} </span>
       <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
-  </div>
-  <div class="image-container">
-    <img v-if="mapImageUrl !== ''" class="image" :src="mapImageUrl" alt="Map" />
+    <div class="image-container">
+      <img
+        v-if="mapImageUrl !== ''"
+        class="image"
+        :src="mapImageUrl"
+        alt="Map"
+      />
+    </div>
   </div>
 </template>
 
@@ -89,12 +100,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 25px auto;
   justify-content: center;
-  width: 80%;
-  font-family: "Roboto", sans-serif;
-  background: #df9d81;
-  padding: 25px;
 }
 .image-container {
   display: flex;
