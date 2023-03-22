@@ -9,7 +9,9 @@ app = FastAPI()
 app.mount('/sockets', app=sio_app)
 
 # Interface Web
-app.mount("/", StaticFiles(directory="../website/dist", html = True), name="app")
+app.mount("/", StaticFiles(directory="../website/dist", html=True), name="app")
+
+
 @app.exception_handler(404)
 def not_found(request, exc):
     return FileResponse('../website/dist/index.html')
