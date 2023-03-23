@@ -57,7 +57,7 @@ button {
   background-color: #d2e8f1;
   font-size: 20px;
   font-family: "Roboto", sans-serif;
-  padding: 10px;
+  padding: 10px 20px;
   color: rgb(55, 21, 21);
   cursor: pointer;
   border: none;
@@ -67,4 +67,11 @@ button {
 button:hover {
   background-color: #bad8e4;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media only screen and (max-width: 768px) {
+  .router-view {
+    width: 100%;
+    padding: 10px;
+  }
 }

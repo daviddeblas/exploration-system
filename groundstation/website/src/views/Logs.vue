@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, inject, defineComponent } from "vue";
+import { inject, defineComponent } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
@@ -21,11 +21,12 @@ interface Mission {
 const MAX_LOG = 30;
 
 export default defineComponent({
-  name: "Home",
+  name: "Logs",
   data() {
     return {
       socket: inject(socketProvider) as Socket,
       logs: [] as Log[],
+      showFullLog: false,
       missions: [] as Mission[],
       start_id: 0,
       mission_id: 0,
@@ -101,12 +102,19 @@ export default defineComponent({
     <p class="actions">
       <select v-model="mission_id">
         <option :value="0">Direct</option>
-        <option v-for="mission in missions" :value="mission.id">
+        <option
+          v-for="mission in missions"
+          :value="mission.id"
+          :key="mission.id"
+        >
           {{ mission.id }}
         </option>
       </select>
       <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
       <button @click="onNext">&rarr;</button>
+      <button @click="showFullLog = !showFullLog">
+        {{ showFullLog ? '▲' : '▼' }} {{ showFullLog ? 'Afficher Moins' : 'Afficher Plus' }}
+      </button>
     </p>
     <table>
       <tr>
@@ -119,7 +127,16 @@ export default defineComponent({
         <td>{{ new Date(log.time).toLocaleTimeString("it-IT") }}</td>
         <td>{{ log.robot }}</td>
         <td>{{ log.category }}</td>
-        <td class="log-data">{{ log.data }}</td>
+        <td class="log-data">
+          <div v-for="(line, index) in log.data.split('\n')" :key="index">
+            <div v-if="line.length <= 50 || showFullLog">
+              {{ line }}
+            </div>
+            <div v-else>
+              {{ line.slice(0, 50) }}...
+            </div>
+          </div>
+        </td>
       </tr>
     </table>
   </div>
@@ -131,7 +148,6 @@ export default defineComponent({
 }
 .actions > button {
   margin-left: 10px;
-  width: 50px;
 }
 table {
   border-collapse: collapse;

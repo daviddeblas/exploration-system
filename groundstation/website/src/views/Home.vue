@@ -136,10 +136,6 @@ span {
 }
 
 @media only screen and (max-width: 768px) {
-  .home {
-    width: 100%;
-    padding: 10px;
-  }
   .image {
     height: 30vh;
   }
