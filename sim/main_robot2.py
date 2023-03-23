@@ -2,8 +2,11 @@ import zenoh
 import time
 import rospy
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 import threading
 from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
+
+NAME = "drone"
 
 pub = rospy.Publisher('/robot2/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_drone', anonymous=False)
@@ -14,6 +17,8 @@ session = zenoh.open()
 exploration_running = False
 stop_event = threading.Event()
 line_counter = 0
+
+last_position = None
 
 
 def rotation_left():
@@ -41,6 +46,7 @@ def forward():
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
     pub.publish(move)
+
 
 def back_to_base():
     move.angular.z = -1.0
@@ -84,7 +90,6 @@ def drone_movement(line_number, start_line):
             rospy.sleep(REPOSITION_TIME)
             move.linear.x = 0.0
             pub.publish(move)
-  
 
             if (line_counter % 2 == 0):
                 rotation_left()
@@ -134,6 +139,11 @@ def finish_listener(sample):
     stop_drone_movement()
 
 
+def odom_callback(data):
+    global last_position
+    last_position = data.pose.pose.position
+
+
 def main():
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -143,11 +153,14 @@ def main():
     sub2 = session.declare_subscriber('identify', identify_listener)
     sub3 = session.declare_subscriber('finish', finish_listener)
     pub_state = session.declare_publisher('drone_state')
+    rospy.Subscriber("/robot2/odom", Odometry, odom_callback)
+    logger_pub = session.declare_publisher('logger')
 
     print("Started listening")
     while True:
         time.sleep(1)
         pub_state.put(exploration_running)
+        logger_pub.put(f"{NAME};;position;;{str(last_position)}")
 
 
 if __name__ == "__main__":
