@@ -7,13 +7,14 @@ import time
 import tf
 import zenoh
 
+from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 
-NAME = "rover"
 
+NAME = "rover"
 package_name = "limo_bringup"
 launch_file_name = "explore.launch"
 
@@ -39,8 +40,13 @@ bridge = CvBridge()
 
 tfBuffer = tf.TransformListener()
 
+cognifly = MoveCognifly()
+
 def start_listener(sample):
     global start_exploration
+    global cognifly
+    
+    cognifly.start_mission()
 
     message = sample.payload.decode('utf-8')
     print(message)
@@ -48,6 +54,8 @@ def start_listener(sample):
     start_exploration = True
 
 def identify_listener(sample):
+    global cognifly
+    cognifly.identify_cognifly()
     message = sample.payload.decode('utf-8')
     print(message)
     subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
@@ -57,6 +65,9 @@ def finish_listener(sample):
     print(message)
     global launch_exploration
     global exploration_running
+    
+    global cognifly
+    cognifly.finish_mission()
 
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
@@ -133,6 +144,9 @@ def map_callback(data):
 def return_home_listener(sample):
     global initial_data
     global exploration_running
+    
+    global cognifly
+    cognifly.finish_mission()
     if exploration_running:
         return
     message = sample.payload.decode('utf-8')
