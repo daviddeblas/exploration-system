@@ -125,12 +125,19 @@ export default defineComponent({
   </div>
 </template>
 
-<style>
+<style scoped>
 .log-data {
   white-space: pre;
 }
 .actions > button {
   margin-left: 10px;
   width: 50px;
+}
+table {
+  border-collapse: collapse;
+}
+td {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
 }
 </style>
