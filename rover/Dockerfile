@@ -33,6 +33,7 @@ RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make"
 
 COPY main.py ./src/
+COPY beep.wav ./src/
 COPY *.sh ./src/
 
 RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc
