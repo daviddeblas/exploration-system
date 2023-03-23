@@ -13,7 +13,7 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
-      state:  ROBOT_STATUS.offline,
+      state: ROBOT_STATUS.offline,
     };
   },
   methods: {
@@ -75,10 +75,10 @@ export default defineComponent({
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
-      <button v-show = "state !== 'en mission'" class="btn" @click="start">Lancer</button>
-      <button class="btn" @click="identify">Identifier</button>
-      <button v-show = "state !== 'hors ligne'" class="btn" @click="finish">Terminer</button>
-      <button class="btn" @click="return_home">Retour à la Base</button>
+      <button v-show="state !== 'en mission'" @click="start">Lancer</button>
+      <button @click="identify">Identifier</button>
+      <button v-show="state !== 'hors ligne'" @click="finish">Terminer</button>
+      <button @click="return_home">Retour à la Base</button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
@@ -119,17 +119,7 @@ export default defineComponent({
   display: flex;
   gap: 25px;
 }
-.btn {
-  background-color: #13ce66;
-  font-size: 20px;
-  font-family: "Roboto", sans-serif;
-  padding: 10px;
-  color: rgb(55, 21, 21);
-  cursor: pointer;
-}
-.btn:hover {
-  background-color: #0e9f4f;
-}
+
 .robot_state {
   margin-top: 10px;
   font-size: 20px;
@@ -157,8 +147,8 @@ span {
     height: 30vh;
   }
   #title {
-    font-size: 30px; 
-    margin-top: 10px; 
+    font-size: 30px;
+    margin-top: 10px;
   }
   .btn {
     font-size: 16px;
