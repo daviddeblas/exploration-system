@@ -1,13 +1,39 @@
-import datetime
-import json
 import time
 import unittest
+import database
+import models
 import asyncio
 from unittest import mock
 import zenoh
 from unittest.mock import patch, MagicMock
-from sockets import sio_app, rover, drone, handle_map_update, pubIdentify, pubStart, pubFinish, returnHomeFinish, logger_queue, RobotCommunication, sio, logger_task
+from sockets import (
+    sio_app,
+    rover,
+    drone,
+    log_sub,
+    handle_map_update,
+    logger_queue,
+    RobotCommunication,
+    sio,
+    logger_task,
+)
 import socketio
+
+class TestLogSub(unittest.TestCase):
+    async def test_log_sub(self):
+        mock_message = MagicMock()
+        mock_message.payload = b'rover;;category;;data'
+        log_sub(mock_message)
+
+        db = await database.SessionLocal()
+        log_entry = db.query(models.LogEntry).first()
+        self.assertEqual(log_entry.robot, 'rover')
+        self.assertEqual(log_entry.category, 'category')
+        self.assertEqual(log_entry.data, 'data')
+
+        db.delete(log_entry)
+        db.commit()
+        db.close()
 
 class TestLoggerTask(unittest.TestCase):
     def setUp(self):
@@ -201,3 +227,5 @@ class TestClient:
             },
         }, receive=asyncio.Queue().get, send=MagicMock())
         return response
+if __name__ == '__main__':
+    asyncio.run(unittest.main())
