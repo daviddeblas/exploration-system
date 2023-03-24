@@ -53,14 +53,13 @@ async def logger_task():
 
         await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
 
-asyncio.create_task(logger_task())
-
 
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
     asyncio.create_task(rover.send_robot_state())
     asyncio.create_task(drone.send_robot_state())
+    asyncio.create_task(logger_task())
     logger_queue.put_nowait(f"groundstation;;connect;;{sid}")
 
 
