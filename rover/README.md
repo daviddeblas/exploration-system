@@ -23,5 +23,5 @@ docker save inf3995-101-rover | ssh -C agilex@<ip> docker load
 ## Exécuter le container
 
 ```
-docker run -it --rm --network host --device /dev/snd inf3995-101-rover
+docker run -it --rm --network host --device /dev/snd --device /dev/ttyUSB0 --device /dev/ttyTHS1  inf3995-101-rover
 ```
