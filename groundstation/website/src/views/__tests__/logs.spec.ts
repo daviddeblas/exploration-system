@@ -1,0 +1,96 @@
+import { mount } from "@vue/test-utils";
+import Logs from "../Logs.vue";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { socketProvider } from "@/plugins/socket";
+import { SocketTestHelper } from "@/helper/socket-test-helper";
+
+describe("Logs", () => {
+  let wrapper: any;
+
+  beforeEach(() => {
+    wrapper = mount(Logs, {
+      global: { provide: { [socketProvider as symbol]: SocketTestHelper } },
+    });
+  });
+
+/*
+  afterEach(() => {
+    wrapper.unmount()
+  })*/
+
+  it("loads logs and missions on mounted", async () => {
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.missions).toBeTruthy();
+    expect(wrapper.vm.logs).toBeTruthy();
+  });
+
+  it("loads logs with correct parameters on mission_id change", async () => {
+    const missionId = 1;
+    wrapper.vm.mission_id = missionId;
+    await wrapper.vm.$nextTick();
+    const logsUrl = `${SERVER_URL}/api/logs?mission=${missionId}&start_id=0`;
+    expect(fetch).toHaveBeenCalledWith(logsUrl);
+  });
+
+  it("adds log when onLogger is called with a new log", async () => {
+    const newLog = {
+      id: 1,
+      mission_id: 1,
+      time: "2022-03-24T16:41:16.000Z",
+      robot: "rover",
+      category: "data",
+      data: "Test log",
+    };
+    wrapper.vm.onLogger(JSON.stringify(newLog));
+    expect(wrapper.vm.logs.length).toEqual(1);
+    expect(wrapper.vm.logs[0]).toEqual(newLog);
+  });
+
+  it("does not add log when onLogger is called with a log that already exists", async () => {
+    const log = {
+      id: 1,
+      mission_id: 1,
+      time: "2022-03-24T16:41:16.000Z",
+      robot: "rover",
+      category: "data",
+      data: "Test log",
+    };
+    wrapper.vm.logs = [log];
+    wrapper.vm.onLogger(JSON.stringify(log));
+    expect(wrapper.vm.logs.length).toEqual(1);
+  });
+
+  it("loads next logs when onNext is called", async () => {
+    wrapper.vm.logs = [
+      {
+        id: 10,
+        mission_id: 1,
+        time: "2022-03-24T16:41:16.000Z",
+        robot: "rover",
+        category: "data",
+        data: "Test log",
+      },
+    ];
+    wrapper.vm.start_id = 10;
+    await wrapper.vm.onNext();
+    expect(wrapper.vm.logs.length).toBeGreaterThan(0);
+    expect(fetch).toHaveBeenCalled();
+  });
+
+  it("loads previous logs when onPrev is called", async () => {
+    wrapper.vm.logs = [
+      {
+        id: 10,
+        mission_id: 1,
+        time: "2022-03-24T16:41:16.000Z",
+        robot: "rover",
+        category: "data",
+        data: "Test log",
+      },
+    ];
+    wrapper.vm.start_id = 0;
+    await wrapper.vm.onPrev();
+    expect(wrapper.vm.logs.length).toBeGreaterThan(0);
+    expect(fetch).toHaveBeenCalled();
+  });
+});
