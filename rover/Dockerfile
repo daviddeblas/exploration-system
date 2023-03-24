@@ -28,6 +28,8 @@ RUN pip install -r requirements.txt
 
 WORKDIR /inf3995_ws 
 
+COPY ./ydlidar_ws/* ./src/ydlidar_ws/
+
 COPY launch/* ./src/limo_ros/limo_bringup/launch/
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make"
