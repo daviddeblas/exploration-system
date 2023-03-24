@@ -57,7 +57,6 @@ describe("Home", () => {
   it("should emit start event when start button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
     const startButton = wrapper.find("#buttons button:nth-child(1)");
-    console.log(startButton);
     startButton.trigger("click");
     expect(socketTestHelper.emit).toHaveBeenCalledWith("start", {
       data: "Démarrer mission",
