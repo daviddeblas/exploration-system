@@ -107,13 +107,14 @@ export default defineComponent({
           :value="mission.id"
           :key="mission.id"
         >
-          {{ mission.id }}
+          Mission #{{ mission.id }}
         </option>
       </select>
       <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
       <button @click="onNext">&rarr;</button>
       <button @click="showFullLog = !showFullLog">
-        {{ showFullLog ? '▲' : '▼' }} {{ showFullLog ? 'Afficher Moins' : 'Afficher Plus' }}
+        {{ showFullLog ? "▲" : "▼" }}
+        {{ showFullLog ? "Afficher Moins" : "Afficher Plus" }}
       </button>
     </p>
     <table>
@@ -132,9 +133,7 @@ export default defineComponent({
             <div v-if="line.length <= 50 || showFullLog">
               {{ line }}
             </div>
-            <div v-else>
-              {{ line.slice(0, 50) }}...
-            </div>
+            <div v-else>{{ line.slice(0, 50) }}...</div>
           </div>
         </td>
       </tr>
