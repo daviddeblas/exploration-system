@@ -56,7 +56,8 @@ describe("Home", () => {
 
   it("should emit start event when start button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
-    const startButton = wrapper.find(".btn:nth-child(1)");
+    const startButton = wrapper.find("#buttons button:nth-child(1)");
+    console.log(startButton);
     startButton.trigger("click");
     expect(socketTestHelper.emit).toHaveBeenCalledWith("start", {
       data: "Démarrer mission",
@@ -65,7 +66,7 @@ describe("Home", () => {
 
   it("should emit identify event when identify button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
-    const identifyButton = wrapper.find(".btn:nth-child(2)");
+    const identifyButton = wrapper.find("#buttons button:nth-child(2)");
     identifyButton.trigger("click");
     expect(socketTestHelper.emit).toHaveBeenCalledWith("identify", {
       data: "beep",
@@ -74,7 +75,7 @@ describe("Home", () => {
 
   it("should emit stop event when finish button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
-    const stopButton = wrapper.find(".btn:nth-child(3)");
+    const stopButton = wrapper.find("#buttons button:nth-child(3)");
     stopButton.trigger("click");
     expect(socketTestHelper.emit).toHaveBeenCalledWith("finish", {
       data: "Finir mission",
