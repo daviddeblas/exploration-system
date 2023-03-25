@@ -17,3 +17,11 @@ Démarrer le container
 ```
 docker compose up --build groundstation
 ```
+
+## Simulation
+Construire le container
+```
+docker compose run --build -p 5901:5901 sim
+```
+
+Puis allez voir dans le README dans le dossier sim pour plus d'information pour démarrer la simulation 
