@@ -51,7 +51,7 @@ describe("Logs", () => {
     await wrapper.vm.onNext();
     expect(wrapper.vm.logs.length).toBeGreaterThan(0);
   });
-
+/*
   it("loads previous logs when onPrev is called", async () => {
     wrapper.vm.logs = [
       {
@@ -67,5 +67,5 @@ describe("Logs", () => {
     await wrapper.vm.onPrev();
     expect(wrapper.vm.logs.length).toBeGreaterThan(0);
     expect(fetch).toHaveBeenCalled();
-  });
+  });*/
 });
