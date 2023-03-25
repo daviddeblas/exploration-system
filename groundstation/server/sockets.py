@@ -22,10 +22,10 @@ sio_app = socketio.ASGIApp(
 )
 
 session = zenoh.open()
-pubIdentify = session.declare_publisher('identify')
-pubStart = session.declare_publisher('start')
-pubFinish = session.declare_publisher('finish')
-returnHomeFinish = session.declare_publisher('return_home')
+pub_identify = session.declare_publisher('identify')
+pub_start = session.declare_publisher('start')
+pub_finish = session.declare_publisher('finish')
+return_home_finish = session.declare_publisher('return_home')
 
 def log_sub(sample):
     message = sample.payload.decode('utf-8')
@@ -53,14 +53,13 @@ async def logger_task():
 
         await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
 
-asyncio.create_task(logger_task())
-
 
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
     asyncio.create_task(rover.send_robot_state())
     asyncio.create_task(drone.send_robot_state())
+    asyncio.create_task(logger_task())
     logger_queue.put_nowait(f"groundstation;;connect;;{sid}")
 
 
@@ -95,28 +94,28 @@ def handle_map_update(sample):
 
 rover = RobotCommunication('rover')
 drone = RobotCommunication('drone')
-subMapUpdates = session.declare_subscriber('map_image', handle_map_update)
+sub_map_updates = session.declare_subscriber('map_image', handle_map_update)
 
 @ sio.event
 async def identify(data, _):
-    pubIdentify.put("identify")
+    pub_identify.put("identify")
     logger_queue.put_nowait("groundstation;;identify;;")
 
 
 @ sio.event
 async def start(data, _):
-    pubStart.put("start")
+    pub_start.put("start")
     logger_queue.put_nowait("groundstation;;start;;")
 
 
 @ sio.event
 async def finish(data, _):
-    pubFinish.put("finish")
+    pub_finish.put("finish")
     logger_queue.put_nowait("groundstation;;finish;;")
 
 @ sio.event
 async def return_home(data, _):
-    returnHomeFinish.put("return_home")
+    return_home_finish.put("return_home")
 
 @ sio.event
 async def disconnect(sid):
