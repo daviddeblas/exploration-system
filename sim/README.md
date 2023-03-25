@@ -24,22 +24,22 @@ Cela lancera la simulation et tous les launch files nécessaires.
 
 ## Lancement manuel de tout les fichiers de simulation
 ```
-roslaunch cartographer_ros carto.launch
+roslaunch limo_gazebo_sim gmapping.launch
 ```
 
 Puis pour lancer l'exploration autonome manuellement plutot que d'utiliser la groundstation:
 ```
-roslaunch cartographer_ros explore.launch
+roslaunch limo_gazebo_sim explore.launch
 ```
 
-Finalement pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
+Pour lancer les fichier main de chaque robot ouvrir un nouveau terminal (dans TurboVNC) et executer
 ```
-python3 ../inf3995_ws/src/main_robot1.py
+python3 /inf3995_ws/src/main_robot1.py
 ```
 Puis dans un autre terminal
 
 ```
-python3 ../inf3995_ws/src/main_robot2.py
+python3 /inf3995_ws/src/main_robot2.py
 ```
 
 Si la station au sol roule également, il est possible d'utiliser les bouton disponible pour interagir avec la simulation
