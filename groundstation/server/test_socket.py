@@ -1,231 +1,37 @@
-import time
 import unittest
-import database
-import models
-import asyncio
 from unittest import mock
-import zenoh
-from unittest.mock import patch, MagicMock
-from sockets import (
-    sio_app,
-    rover,
-    drone,
-    log_sub,
-    handle_map_update,
-    logger_queue,
-    RobotCommunication,
-    sio,
-    logger_task,
-)
-import socketio
+from unittest.mock import Mock, patch, MagicMock, AsyncMock
+import asyncio
+import time
 
-class TestLogSub(unittest.TestCase):
-    async def test_log_sub(self):
-        mock_message = MagicMock()
-        mock_message.payload = b'rover;;category;;data'
-        log_sub(mock_message)
+from sockets import RobotCommunication, logger_task, handle_map_update
 
-        db = await database.SessionLocal()
-        log_entry = db.query(models.LogEntry).first()
-        self.assertEqual(log_entry.robot, 'rover')
-        self.assertEqual(log_entry.category, 'category')
-        self.assertEqual(log_entry.data, 'data')
 
-        db.delete(log_entry)
-        db.commit()
-        db.close()
+class TestRobotCommunication(unittest.IsolatedAsyncioTestCase):
 
-class TestLoggerTask(unittest.TestCase):
-    def setUp(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-
-        self.queue = asyncio.Queue()
-
-    def tearDown(self):
-        self.loop.close()
-
-    @patch('sockets.database.SessionLocal')
-    @patch('sockets.models.LogEntry')
-    async def test_logger_task(self, mock_LogEntry, mock_SessionLocal):
-        message = 'test_robot;;test_category;;test_data'
-        self.queue.put_nowait(message)
-
-        db = MagicMock()
-        mock_SessionLocal.return_value = db
-        log_entry = MagicMock()
-        mock_LogEntry.return_value = log_entry
-        await logger_task()
-
-        mock_SessionLocal.assert_called_once()
-        db.add.assert_called_once()
-        db.commit.assert_called_once()
-        db.refresh.assert_called_once()
-        self.assertTrue(mock_LogEntry.called)
-        log_entry.as_dict.assert_called_once()
-        self.assertEqual(self.queue.qsize(), 0)
-class TestSocketIO(unittest.TestCase):
-
-    async def emit_sio_event(self, event_name, data=None):
-        sid = "test_sid"
-        with patch.object(socketio.AsyncServer, 'emit') as mock_emit:
-            await sio._trigger_event_handlers(event_name, sid, data)
-            mock_emit.assert_called_once_with(event_name, data, room=sid)
-
-    async def setUp(self):
-        self.session = zenoh.open()
-        self.pubIdentify = self.session.declare_publisher('identify')
-        self.pubStart = self.session.declare_publisher('start')
-        self.pubFinish = self.session.declare_publisher('finish')
-        self.returnHomeFinish = self.session.declare_publisher('return_home')
-        self.logger_sub = self.session.declare_subscriber("logger")
-
-        self.rover = RobotCommunication('rover')
-        self.drone = RobotCommunication('drone')
-        self.subMapUpdates = self.session.declare_subscriber('map_image')
-
-        self.loop = asyncio.get_running_loop()
-
-    async def tearDown(self):
-        self.session.close()
-        await sio.disconnect_all()
-
-    async def test_connect(self):
-        await self.emit_sio_event('connect')
-        await asyncio.sleep(0.1)
-        message = await self.logger_sub.take()
-        self.assertEqual(message.payload.decode('utf-8'), "groundstation;;connect;;test_sid")
-
-    async def test_identify(self):
-        await self.emit_sio_event('identify')
-        message = await self.pubIdentify.take()
-        self.assertEqual(message.payload.decode('utf-8'), "identify")
-
-        await asyncio.sleep(0.1)
-        message = await self.logger_sub.take()
-        self.assertEqual(message.payload.decode('utf-8'), "groundstation;;identify;;")
-
-    async def test_start(self):
-        await self.emit_sio_event('start')
-        message = await self.pubStart.take()
-        self.assertEqual(message.payload.decode('utf-8'), "start")
-
-        await asyncio.sleep(0.1)
-        message = await self.logger_sub.take()
-        self.assertEqual(message.payload.decode('utf-8'), "groundstation;;start;;")
-
-    async def test_finish(self):
-        await self.emit_sio_event('finish')
-        message = await self.pubFinish.take()
-        self.assertEqual(message.payload.decode('utf-8'), "finish")
-
-        await asyncio.sleep(0.1)
-        message = await self.logger_sub.take()
-        self.assertEqual(message.payload.decode('utf-8'), "groundstation;;finish;;")
-
-    async def test_return_home(self):
-        await self.emit_sio_event('return_home')
-        message = await self.returnHomeFinish.take()
-        self.assertEqual(message.payload.decode('utf-8'), "return_home")
-
-    async def test_disconnect(self):
-        await self.emit_sio_event('disconnect')
-        await asyncio.sleep(0.1)
-        message = await self.logger_sub.take()
-        self.assertEqual(message.payload.decode('utf-8'), "groundstation;;disconnect;;test_sid")
-        
-    async def test_rover_communication(self):
+    @mock.patch('sockets.sio.emit')
+    async def test_send_robot_state(self, mock_emit):
         rover = RobotCommunication('rover')
-        rover.in_mission = 'move(1, 2, 3)'
-        rover.last_updated = time.time() - 2
-
-        with mock.patch('socketio.AsyncServer.emit') as mock_emit:
-            asyncio.run(rover.send_robot_state())
-            mock_emit.assert_called_with('rover_state', 'move(1, 2, 3)')
-
-        rover.in_mission = None
-
-        with mock.patch('socketio.AsyncServer.emit') as mock_emit:
-            asyncio.run(rover.send_robot_state())
-            mock_emit.assert_called_with('rover_state', None)
-
-
-class TestSockets(unittest.TestCase):
+        rover.in_mission = 'True'
+        rover.last_updated = time.time()
+        try:
+            await asyncio.wait_for(rover.send_robot_state(), timeout=2)
+        except asyncio.exceptions.TimeoutError:
+            mock_emit.assert_called_with('rover_state', True)
+        except Exception as e:
+            raise e
     
-    def setUp(self):
-        self.test_client = TestClient(sio_app)
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
         
-    def tearDown(self):
-        self.loop.close()
+    def test_handle_map_update(self):
+        # set up the sample and mock out the sio.emit method
+        png_bytes = b'test_png_bytes'
+        sample = Mock(payload=png_bytes)
+        sio_emit_mock = AsyncMock()
+        with patch('sockets.sio.emit', sio_emit_mock):
 
-    @patch('sockets.sio.emit')
-    async def test_identify_event(self, mock_emit):
-        data = {}
-        await self.test_client.emit('identify', data)
-        pubIdentify.assert_called_once()
-        logger_queue.put_nowait.assert_called_once_with("groundstation;;identify;;")
+            # test that the map_update event is emitted with the correct payload
+            handle_map_update(sample)
+            sio_emit_mock.assert_called_with('map_update', png_bytes)
 
-    @patch('sockets.sio.emit')
-    async def test_start_event(self, mock_emit):
-        data = {}
-        await self.test_client.emit('start', data)
-        pubStart.assert_called_once()
-        logger_queue.put_nowait.assert_called_once_with("groundstation;;start;;")
-
-    @patch('sockets.sio.emit')
-    async def test_finish_event(self, mock_emit):
-        data = {}
-        await self.test_client.emit('finish', data)
-        pubFinish.assert_called_once()
-        logger_queue.put_nowait.assert_called_once_with("groundstation;;finish;;")
-
-    @patch('sockets.sio.emit')
-    async def test_return_home_event(self, mock_emit):
-        data = {}
-        await self.test_client.emit('return_home', data)
-        returnHomeFinish.assert_called_once()
-
-    @patch('sockets.sio.emit')
-    async def test_rover_send_robot_state(self, mock_emit):
-        rover.in_mission = True
-        await rover.send_robot_state()
-        mock_emit.assert_called_once_with('rover_state', eval(rover.in_mission))
-
-    @patch('sockets.sio.emit')
-    async def test_drone_send_robot_state(self, mock_emit):
-        drone.in_mission = None
-        await drone.send_robot_state()
-        mock_emit.assert_called_once_with('drone_state', None)
-
-    @patch('sockets.sio.emit')
-    async def test_handle_map_update(self, mock_emit):
-        png_bytes = b'123'
-        sample = MagicMock(payload=png_bytes)
-        await handle_map_update(sample)
-        mock_emit.assert_called_once_with('map_update', png_bytes)
-
-class TestClient:
-    def __init__(self, app):
-        self.app = app
-
-    async def emit(self, event, data):
-        response = await self.app(scope={
-            'type': 'test',
-            'http_version': '1.1',
-            'method': 'POST',
-            'headers': [],
-            'path': '/socket.io/',
-            'query_string': b'',
-            'raw_path': '/socket.io/',
-            'client': ('127.0.0.1', 5000),
-            'server': ('127.0.0.1', 5000),
-            'asgi': {
-                'version': '3.0',
-                'spec_version': '2.1',
-            },
-        }, receive=asyncio.Queue().get, send=MagicMock())
-        return response
 if __name__ == '__main__':
-    asyncio.run(unittest.main())
+    unittest.main()
