@@ -13,6 +13,8 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
+      rover_battery: ref(0),
+      drone_battery: ref(0),
     };
   },
   methods: {
@@ -54,11 +56,19 @@ export default defineComponent({
     return_home() {
       this.socket.emit("return_home", { data: "Retour à la base" });
     },
+    onRoverBatteryState(battery_state: number) {
+      this.rover_battery = battery_state;
+    },
+    onDroneBatteryState(battery_state: number) {
+      this.drone_battery = battery_state;
+    },
   },
   mounted() {
     this.socket.on("rover_state", this.onRoverState);
     this.socket.on("drone_state", this.onDroneState);
     this.socket.on("map_update", this.onMapUpdate);
+    this.socket.on("battery_state", this.onRoverBatteryState);
+    this.socket.on("battery_state", this.onDroneBatteryState);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
@@ -72,14 +82,32 @@ export default defineComponent({
   <div class="home">
     <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
-      <button v-show = "(rover !== 'en mission') && (drone !== 'en mission')" @click="start">Lancer</button>
+      <button
+        v-show="rover !== 'en mission' && drone !== 'en mission'"
+        @click="start"
+      >
+        Lancer
+      </button>
       <button @click="identify">Identifier</button>
-      <button v-show = "(rover == 'en mission') || (drone == 'en mission')" @click="finish">Terminer</button>
+      <button
+        v-show="rover == 'en mission' || drone == 'en mission'"
+        @click="finish"
+      >
+        Terminer
+      </button>
       <button @click="return_home">Retour à la Base</button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
       <span class="robot_state">Le drone est {{ drone }} </span>
+    </div>
+    <div>
+      <span class="battery_state" v-if="drone !== 'hors ligne'"
+        >La batterie du drone est à {{ drone_battery }}%
+      </span>
+      <span class="battery_state" v-if="rover !== 'hors ligne'"
+        >La batterie du rover est à {{ rover_battery }}%
+      </span>
     </div>
     <div class="image-container">
       <img
@@ -126,9 +154,25 @@ export default defineComponent({
   border-radius: 5px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   width: 230px;
-  text-align: center;
+  float: left;
   position: relative;
   overflow: hidden;
+  margin: 5px;
+}
+
+.battery_state {
+  margin-top: 10px;
+  font-size: 20px;
+  background-color: #d9c1b9;
+  color: #604d44;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  width: 230px;
+  float: right;
+  position: relative;
+  overflow: hidden;
+  margin: 5px;
 }
 
 span {
