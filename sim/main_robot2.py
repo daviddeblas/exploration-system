@@ -4,7 +4,8 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import threading
-from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
+from constants import TIME_TO_TURN_90, TIME_TO_TURN_135, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
+import math
 
 NAME = "drone"
 
@@ -48,26 +49,149 @@ def forward():
     pub.publish(move)
 
 
+# def back_to_base():
+#     global line_counter
+
+#     if (line_counter % 2 == 0 and line_counter != NUMBER_OF_LINE - 1):
+#         rotation_right()
+#         for _ in range(line_counter):
+#             move.linear.x = 0.2
+#             pub.publish(move)
+#             rospy.sleep(REPOSITION_TIME)
+#             move.linear.x = 0.0
+#             pub.publish(move)
+#             rospy.sleep(1)
+#         rotation_left()
+#     else:
+#         rotation_time = math.atan(line_counter / 10)
+#         cross_the_map_time = END_LINE_TIME + line_counter * 0.035
+
+#         if (line_counter != 10):
+#             move.angular.z = 1.0
+#             pub.publish(move)
+#             rospy.sleep(rotation_time)
+#             move.angular.z = 0.0
+#             pub.publish(move)
+
+#             rospy.sleep(1.5)
+#             move.linear.x = 1.0
+#             pub.publish(move)
+#             rospy.sleep(cross_the_map_time)
+#             move.linear.x = 0.0
+#             pub.publish(move)
+
+#             rospy.sleep(1.5)
+#             move.angular.z = 1.0
+#             pub.publish(move)
+#             rospy.sleep(3.14 + rotation_time)
+#             move.angular.z = 0.0
+#             pub.publish(move)
+#         else:
+#             move.angular.z = -1.0
+#             pub.publish(move)
+#             rospy.sleep(TIME_TO_TURN_135)
+#             move.angular.z = 0.0
+#             pub.publish(move)
+
+#             rospy.sleep(1.5)
+#             move.linear.x = 1.0
+#             pub.publish(move)
+#             rospy.sleep(cross_the_map_time)
+#             move.linear.x = 0.0
+#             pub.publish(move)
+
+#             rospy.sleep(1.5)
+#             move.angular.z = 1.0
+#             pub.publish(move)
+#             rospy.sleep(TIME_TO_TURN_135)
+#             move.angular.z = 0.0
+#             pub.publish(move)
+#             line_counter = 0
+
+
 def back_to_base():
-    move.angular.z = -1.0
-    pub.publish(move)
-    rospy.sleep(TIME_TO_TURN_145)
-    move.angular.z = 0.0
-    pub.publish(move)
+    global line_counter
+    if (line_counter != 0):
+        if (line_counter % 2 == 0 and line_counter != NUMBER_OF_LINE - 1):
+            rotate_right_and_move_forward(line_counter)
+            rotation_left()
+        else:
+            go_to_starting_point(line_counter)
+    line_counter = 0
 
-    rospy.sleep(1.5)
-    move.linear.x = 1.0
-    pub.publish(move)
-    rospy.sleep(CROSS_THE_MAP_TIME)
-    move.linear.x = 0.0
-    pub.publish(move)
 
-    rospy.sleep(1.5)
-    move.angular.z = 1.0
-    pub.publish(move)
-    rospy.sleep(TIME_TO_TURN_145)
-    move.angular.z = 0.0
-    pub.publish(move)
+def rotate_right_and_move_forward(line_counter):
+    rotation_right()
+    move_forward(line_counter)
+
+
+def go_to_starting_point(line_counter):
+    rotation_time = math.atan(line_counter / 10)
+    cross_the_map_time = END_LINE_TIME + (line_counter-1) * 0.035
+
+    if (line_counter != 10):
+        turn_left_and_move_forward(rotation_time, cross_the_map_time)
+        replace_to_initial_orientation(rotation_time)
+    else:
+        turn_left_and_move_forward(TIME_TO_TURN_135, cross_the_map_time)
+        replace_to_initial_orientation(TIME_TO_TURN_135)
+
+
+def move_forward(line_counter):
+    for _ in range(line_counter):
+        move.linear.x = 0.2
+        pub.publish(move)
+        rospy.sleep(REPOSITION_TIME)
+        move.linear.x = 0.0
+        pub.publish(move)
+        rospy.sleep(1)
+
+
+def turn_left_and_move_forward(rotation_time, cross_the_map_time):
+    if (line_counter != 10):
+        move.angular.z = 1.0
+        pub.publish(move)
+        rospy.sleep(rotation_time)
+        move.angular.z = 0.0
+        pub.publish(move)
+
+        rospy.sleep(1.5)
+        move.linear.x = 1.0
+        pub.publish(move)
+        rospy.sleep(cross_the_map_time)
+        move.linear.x = 0.0
+        pub.publish(move)
+    else:
+        move.angular.z = -1.0
+        pub.publish(move)
+        rospy.sleep(TIME_TO_TURN_135)
+        move.angular.z = 0.0
+        pub.publish(move)
+
+        rospy.sleep(1.5)
+        move.linear.x = 1.0
+        pub.publish(move)
+        rospy.sleep(CROSS_THE_MAP_TIME)
+        move.linear.x = 0.0
+        pub.publish(move)
+
+
+def replace_to_initial_orientation(rotation_time):
+    global line_counter
+    if (line_counter != 10):
+        rospy.sleep(1.5)
+        move.angular.z = 1.0
+        pub.publish(move)
+        rospy.sleep(3.14 - rotation_time)
+        move.angular.z = 0.0
+        pub.publish(move)
+    else:
+        rospy.sleep(1.5)
+        move.angular.z = 1.0
+        pub.publish(move)
+        rospy.sleep(TIME_TO_TURN_135)
+        move.angular.z = 0.0
+        pub.publish(move)
 
 
 def drone_movement(line_number, start_line):
@@ -100,7 +224,7 @@ def drone_movement(line_number, start_line):
         else:
             rospy.sleep(1)
             back_to_base()
-            line_counter = 0
+            # line_counter = 0
             exploration_running = False
 
 
@@ -144,6 +268,17 @@ def odom_callback(data):
     last_position = data.pose.pose.position
 
 
+def return_home_listener(sample):
+    global exploration_running, line_counter
+    message = sample.payload.decode('utf-8')
+    print(message)
+    stop_event.set()
+    drone_thread.join()
+
+    back_to_base()
+    exploration_running = False
+
+
 def main():
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -155,6 +290,9 @@ def main():
     pub_state = session.declare_publisher('drone_state')
     rospy.Subscriber("/robot2/odom", Odometry, odom_callback)
     logger_pub = session.declare_publisher('logger')
+
+    return_home_sub = session.declare_subscriber(
+        'return_home', return_home_listener)
 
     print("Started listening")
     while True:
