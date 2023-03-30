@@ -46,6 +46,17 @@ def forward():
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
     pub.publish(move)
+    rospy.sleep(2)
+
+
+def backward():
+    rospy.sleep(0.5)
+    move.linear.x = -1.0
+    pub.publish(move)
+    rospy.sleep(END_LINE_TIME)
+    move.linear.x = 0.0
+    pub.publish(move)
+    rospy.sleep(2)
 
 
 def back_to_base():
@@ -76,25 +87,18 @@ def drone_movement(line_number, start_line):
     for i in range(start_line, line_number):
         if stop_event.is_set():
             break
-
-        forward()
+        if (line_counter % 2 == 0):
+            forward()
+        else:
+            backward()
 
         if (i != line_number - 1):
-            if (line_counter % 2 == 0):
-                rotation_left()
-            else:
-                rotation_right()
-
-            move.linear.x = 0.2
+            move.linear.y = 0.2
             pub.publish(move)
             rospy.sleep(REPOSITION_TIME)
-            move.linear.x = 0.0
+            move.linear.y = 0.0
             pub.publish(move)
-
-            if (line_counter % 2 == 0):
-                rotation_left()
-            else:
-                rotation_right()
+            rospy.sleep(0.5)
 
             line_counter = i + 1
         else:
