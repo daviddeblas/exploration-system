@@ -41,7 +41,7 @@ def rotation_right():
 
 def forward():
     rospy.sleep(0.5)
-    move.linear.x = 1.0
+    move.linear.x = 0.1
     pub.publish(move)
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
@@ -51,7 +51,7 @@ def forward():
 
 def backward():
     rospy.sleep(0.5)
-    move.linear.x = -1.0
+    move.linear.x = -0.1
     pub.publish(move)
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0

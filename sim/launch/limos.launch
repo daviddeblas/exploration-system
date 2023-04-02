@@ -44,26 +44,6 @@
     <include file="$(find limo_gazebo_sim)/launch/gmapping.launch" />
 
     <group ns="robot2">
-        <node pkg="tf" type="static_transform_publisher" name="map_to_quad_odom_broadcaster" args="0 0 0 0 0 0 simple_quad_map simple_quad_odom 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_odom_to_quad_base_link_broadcaster" args="0 0 0 0 0 0 simple_quad_odom simple_quad_base_link 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm1_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm1_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm1_motor_broadcaster" args="0 0 0 0 0 0 simple_quad_arm1_link simple_quad_arm1_motor_link 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm2_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm2_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm2_motor_broadcaster" args="0 0 0 0 0 0 simple_quad_arm2_link simple_quad_arm2_motor_link 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm3_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm3_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm3_motor_broadcaster" args="0 0 0 0 0 0 simple_quad_arm3_link simple_quad_arm3_motor_link 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm4_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm4_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_arm4_motor_broadcaster" args="0 0 0 0 0 0 simple_quad_arm4_link simple_quad_arm4_motor_link 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_camera_link_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_camera_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_camera_depth_broadcaster" args="0 0 0 0 0 0 simple_quad_camera_link simple_quad_camera_depth_frame 10" />
-
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_quad_imu_link_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_imu_link 10" />
-        <node pkg="tf" type="static_transform_publisher" name="quad_base_link_quad_lidar_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_lidar_link 10" />
 
         <arg name="model" default="$(find simple_quad)/src/description/simple_quad.urdf"/>
         <param name="robot2_description" command="$(find xacro)/xacro $(arg model)"/>
@@ -71,5 +51,6 @@
 
         <node name="spawn_simple_quad" pkg="gazebo_ros" type="spawn_model" args="-x -5.0 -y 5.0 -z 0.25 -Y -1.57 -unpause -urdf -param robot2_description -model $(arg model) robot_namespace:=$(arg robot_namespace_robot2)"/>
     </group>
+    <include file="$(find simple_quad)/launch/cognifly_pointcloud.launch" />
 
 </launch>

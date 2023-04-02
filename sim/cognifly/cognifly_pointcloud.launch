@@ -34,13 +34,14 @@
         <remap from="/scan" to="/robot2/scan" />
         <param name="target_frame" value="simple_quad_map" />
         <param name="transform_tolerance" value="0.01" />
-        <param name="min_height" value="-1.0" />
-        <param name="max_height" value="1.0" />
+        <param name="min_height" value="-5.0" />
+        <param name="max_height" value="5.0" />
         <param name="angle_min" value="-3.14" />
         <param name="angle_max" value="3.14" />
         <param name="angle_increment" value="0.017" />
         <param name="scan_time" value="1.0" />
         <param name="range_min" value="0.0" />
-        <param name="range_max" value="100.0" />
+        <param name="range_max" value="200.0" />
     </node>
+    <include file="$(find simple_quad)/launch/cognifly_mapping.launch" />
 </launch>

@@ -17,3 +17,5 @@ sleep 20
 python3 /inf3995_ws/src/main_robot1.py &
 
 python3 /inf3995_ws/src/main_robot2.py &
+
+python3 /inf3995_ws/src/simple_quad/src/simple_quad/show_image.py &
