@@ -52,10 +52,10 @@ COPY launch/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY cognifly/gazebo_ros_simple_quad.cpp ./src/simple_quad/src/simple_quad/src/
 COPY cognifly/simple_quad.urdf ./src/simple_quad/src/simple_quad/src/description/
-COPY cognifly/map_generation.launch ./src/simple_quad/src/simple_quad/launch/
+COPY cognifly/cognifly_pointcloud.launch ./src/simple_quad/src/simple_quad/launch/
 COPY cognifly/show_image.py ./src/simple_quad/src/simple_quad/
-COPY cognifly/cognifly_gmapping.launch ./src/simple_quad/src/simple_quad/launch/
-COPY cognifly/cognifly_gmapping.rviz ./src/simple_quad/src/simple_quad/rviz/
+COPY cognifly/cognifly_mapping.launch ./src/simple_quad/src/simple_quad/launch/
+COPY cognifly/cognifly_mapping.rviz ./src/simple_quad/src/simple_quad/rviz/
 COPY constants.py ./src/
 COPY configuration_files/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
 
