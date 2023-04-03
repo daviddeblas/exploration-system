@@ -173,7 +173,7 @@ def main():
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
-    start_sub = session.declare_subscriber('start', start_listener)
+    start_sub = session.declare_subscriber('start_rover', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
 

@@ -13,8 +13,8 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
-      rover_battery: ref(0),
-      drone_battery: ref(0),
+      rover_battery: ref(100),
+      drone_battery: ref(100),
     };
   },
   methods: {
@@ -67,13 +67,15 @@ export default defineComponent({
     this.socket.on("rover_state", this.onRoverState);
     this.socket.on("drone_state", this.onDroneState);
     this.socket.on("map_update", this.onMapUpdate);
-    this.socket.on("battery_state", this.onRoverBatteryState);
-    this.socket.on("battery_state", this.onDroneBatteryState);
+    this.socket.on("rover_battery", this.onRoverBatteryState);
+    this.socket.on("drone_battery", this.onDroneBatteryState);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
     this.socket.off("drone_state", this.onDroneState);
     this.socket.off("map_update", this.onMapUpdate);
+    this.socket.off("rover_battery", this.onRoverBatteryState);
+    this.socket.off("drone_battery", this.onDroneBatteryState);
   },
 });
 </script>
@@ -179,7 +181,7 @@ span {
   display: block;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 520px) {
   .image {
     height: 30vh;
   }
@@ -194,7 +196,11 @@ span {
   }
   .robot_state {
     font-size: 16px;
-    width: 180px;
+    width: 185px;
+  }
+  .battery_state {
+    font-size: 16px;
+    width: 185px;
   }
 }
 </style>
