@@ -24,8 +24,8 @@
 
 
 
-    <node name="spawn_limo_model" pkg="gazebo_ros" type="spawn_model" args="-x $(arg x)
-            -y $(arg y)
+    <node name="spawn_limo_model" pkg="gazebo_ros" type="spawn_model" args="-x -4
+            -y 5
             -z $(arg z)
             -Y $(arg yaw)
             -unpause
@@ -52,5 +52,6 @@
         <node name="spawn_simple_quad" pkg="gazebo_ros" type="spawn_model" args="-x -5.0 -y 5.0 -z 0.25 -Y -1.57 -unpause -urdf -param robot2_description -model $(arg model) robot_namespace:=$(arg robot_namespace_robot2)"/>
     </group>
     <include file="$(find simple_quad)/launch/cognifly_pointcloud.launch" />
+    <include file="$(find multirobot_map_merge)/launch/map_merge.launch" />
 
 </launch>
