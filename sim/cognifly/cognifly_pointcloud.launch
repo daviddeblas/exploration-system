@@ -32,7 +32,7 @@
     <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
         <remap from="/cloud_in" to="orb_slam2_mono/map_points" />
         <remap from="/scan" to="/robot2/scan" />
-        <param name="target_frame" value="simple_quad_map" />
+        <param name="target_frame" value="simple_quad_base_link" />
         <param name="transform_tolerance" value="0.01" />
         <param name="min_height" value="-5.0" />
         <param name="max_height" value="5.0" />
