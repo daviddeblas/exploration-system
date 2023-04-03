@@ -35,13 +35,15 @@ export default defineComponent({
         this.rover = ROBOT_STATUS.offline;
       }
     },
-    onDroneState(drone_in_mission?: boolean) {
+    onDroneState(drone_in_mission?: boolean | string) {
       if (drone_in_mission === true) {
         this.drone = ROBOT_STATUS.in_mission;
       } else if (drone_in_mission === false) {
         this.drone = ROBOT_STATUS.pending;
       } else if (drone_in_mission === undefined) {
         this.drone = ROBOT_STATUS.offline;
+      } else if (drone_in_mission === "Crashed") {
+        this.drone = ROBOT_STATUS.crashed;
       }
     },
     onMapUpdate(map_bytes: ArrayBuffer) {
