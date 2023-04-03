@@ -7,12 +7,11 @@ import time
 import tf
 import zenoh
 
-# from cognifly_movement import MoveCognifly
+from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
-
 
 NAME = "rover"
 package_name = "limo_bringup"
@@ -40,12 +39,11 @@ bridge = CvBridge()
 
 tfBuffer = tf.TransformListener()
 
-# cognifly = MoveCognifly()
+cognifly = MoveCognifly()
 
 def start_listener(sample):
     global start_exploration
     # global cognifly
-    
     # cognifly.start_mission()
 
     message = sample.payload.decode('utf-8')
@@ -54,8 +52,9 @@ def start_listener(sample):
     start_exploration = True
 
 def identify_listener(sample):
-    # global cognifly
-    # cognifly.identify_cognifly()
+    global cognifly
+    global session
+    cognifly.identify_cognifly(session)
     message = sample.payload.decode('utf-8')
     print(message)
     subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
@@ -79,13 +78,12 @@ def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
 
-
 def scan_callback(data):
     global last_scan
     last_scan = data
 
 def map_callback(data):
-     # Convertir le message OccupancyGrid vers une image RGBA OpenCV
+    # Convertir le message OccupancyGrid vers une image RGBA OpenCV
     map_array = np.array(data.data, dtype=np.int8).reshape(
         (data.info.height, data.info.width))
 
@@ -140,7 +138,6 @@ def map_callback(data):
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
 
-
 def return_home_listener(sample):
     global initial_data
     global exploration_running
@@ -178,6 +175,7 @@ def main():
     rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
 
     logger_pub = session.declare_publisher('logger')
+    cognifly_pub = session.declare_publisher('cogniflyId')
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
@@ -185,7 +183,7 @@ def main():
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
-    return_home_sub = session.declare_subscriber('return_home', return_home_listener)
+    return_home_sub = session.declare_subscriber('return_home', return_home_listener)    
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
