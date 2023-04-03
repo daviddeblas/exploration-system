@@ -90,14 +90,12 @@ class RobotCommunication:
 
     def robot_state(self, sample):
         self.in_mission = sample.payload.decode('utf-8')
-        print(self.in_mission)
         self.last_updated = time.time()
 
     def battery_state(self, sample):
         voltage = float(sample.payload.decode('utf-8'))
         percentage = int((voltage - 6) / (8.4 - 6) * 100)
         self.battery = percentage
-        print(self.battery)
         asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
         if (percentage <= 30):
             return_home_finish.put("return_home")
@@ -124,22 +122,17 @@ async def identify(data, _):
 
 @ sio.event
 async def start(data, _):
-    print(rover.get_battery(), drone.get_battery())
     if (rover.get_battery() <= 30):
-        print('1')
         pub_start_drone.put("start_drone")
         logger_queue.put_nowait("groundstation;;start;;")
 
     elif (drone.get_battery() <= 30):
-        print('2')
         pub_start_rover.put("start_rover")
         logger_queue.put_nowait("groundstation;;start;;")
 
     elif (rover.get_battery() <= 30 and drone.get_battery() <= 30):
-        print('3')
         return
     else:
-        print('4')
         pub_start_rover.put("start_rover")
         pub_start_drone.put("start_drone")
         logger_queue.put_nowait("groundstation;;start;;")
