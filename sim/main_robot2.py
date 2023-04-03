@@ -4,8 +4,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import threading
-from constants import TIME_TO_TURN_90, TIME_TO_TURN_135, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
-import math
+from constants import TIME_TO_TURN_90, END_LINE_TIME, REPOSITION_TIME, NUMBER_OF_LINE
 
 NAME = "drone"
 
@@ -18,6 +17,8 @@ session = zenoh.open()
 exploration_running = False
 stop_event = threading.Event()
 line_counter = 0
+forward_counter = 0
+backward_counter = 0
 
 last_position = None
 
@@ -41,190 +42,81 @@ def rotation_right():
 
 
 def forward():
+    global forward_counter
     rospy.sleep(0.5)
     move.linear.x = 1.0
     pub.publish(move)
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
     pub.publish(move)
+    rospy.sleep(2)
+    forward_counter += 1
 
 
-# def back_to_base():
-#     global line_counter
+def backward():
+    global backward_counter
+    rospy.sleep(0.5)
+    move.linear.x = -1.0
+    pub.publish(move)
+    rospy.sleep(END_LINE_TIME)
+    move.linear.x = 0.0
+    pub.publish(move)
+    rospy.sleep(2)
+    backward_counter += 1
 
-#     if (line_counter % 2 == 0 and line_counter != NUMBER_OF_LINE - 1):
-#         rotation_right()
-#         for _ in range(line_counter):
-#             move.linear.x = 0.2
-#             pub.publish(move)
-#             rospy.sleep(REPOSITION_TIME)
-#             move.linear.x = 0.0
-#             pub.publish(move)
-#             rospy.sleep(1)
-#         rotation_left()
-#     else:
-#         rotation_time = math.atan(line_counter / 10)
-#         cross_the_map_time = END_LINE_TIME + line_counter * 0.035
 
-#         if (line_counter != 10):
-#             move.angular.z = 1.0
-#             pub.publish(move)
-#             rospy.sleep(rotation_time)
-#             move.angular.z = 0.0
-#             pub.publish(move)
-
-#             rospy.sleep(1.5)
-#             move.linear.x = 1.0
-#             pub.publish(move)
-#             rospy.sleep(cross_the_map_time)
-#             move.linear.x = 0.0
-#             pub.publish(move)
-
-#             rospy.sleep(1.5)
-#             move.angular.z = 1.0
-#             pub.publish(move)
-#             rospy.sleep(3.14 + rotation_time)
-#             move.angular.z = 0.0
-#             pub.publish(move)
-#         else:
-#             move.angular.z = -1.0
-#             pub.publish(move)
-#             rospy.sleep(TIME_TO_TURN_135)
-#             move.angular.z = 0.0
-#             pub.publish(move)
-
-#             rospy.sleep(1.5)
-#             move.linear.x = 1.0
-#             pub.publish(move)
-#             rospy.sleep(cross_the_map_time)
-#             move.linear.x = 0.0
-#             pub.publish(move)
-
-#             rospy.sleep(1.5)
-#             move.angular.z = 1.0
-#             pub.publish(move)
-#             rospy.sleep(TIME_TO_TURN_135)
-#             move.angular.z = 0.0
-#             pub.publish(move)
-#             line_counter = 0
+def lateral_movement(direction):
+    if direction == "up":
+        move.linear.y = 0.2
+        pub.publish(move)
+        rospy.sleep(REPOSITION_TIME)
+        move.linear.y = 0.0
+        pub.publish(move)
+        rospy.sleep(0.5)
+    elif direction == "down":
+        move.linear.y = -0.2
+        pub.publish(move)
+        rospy.sleep(REPOSITION_TIME)
+        move.linear.y = 0.0
+        pub.publish(move)
+        rospy.sleep(0.75)
+    else:
+        print("Invalid direction")
 
 
 def back_to_base():
-    global line_counter
-    if (line_counter != 0):
-        if (line_counter % 2 == 0 and line_counter != NUMBER_OF_LINE - 1):
-            rotate_right_and_move_forward(line_counter)
-            rotation_left()
-        else:
-            go_to_starting_point(line_counter)
-    line_counter = 0
+    global line_counter, forward_counter, backward_counter
 
-
-def rotate_right_and_move_forward(line_counter):
-    rotation_right()
-    move_forward(line_counter)
-
-
-def go_to_starting_point(line_counter):
-    rotation_time = math.atan(line_counter / 10)
-    cross_the_map_time = END_LINE_TIME + (line_counter-1) * 0.035
-
-    if (line_counter != 10):
-        turn_left_and_move_forward(rotation_time, cross_the_map_time)
-        replace_to_initial_orientation(rotation_time)
-    else:
-        turn_left_and_move_forward(TIME_TO_TURN_135, cross_the_map_time)
-        replace_to_initial_orientation(TIME_TO_TURN_135)
-
-
-def move_forward(line_counter):
-    for _ in range(line_counter):
-        move.linear.x = 0.2
-        pub.publish(move)
-        rospy.sleep(REPOSITION_TIME)
-        move.linear.x = 0.0
-        pub.publish(move)
+    if (forward_counter > backward_counter):
         rospy.sleep(1)
-
-
-def turn_left_and_move_forward(rotation_time, cross_the_map_time):
-    if (line_counter != 10):
-        move.angular.z = 1.0
-        pub.publish(move)
-        rospy.sleep(rotation_time)
-        move.angular.z = 0.0
-        pub.publish(move)
-
-        rospy.sleep(1.5)
-        move.linear.x = 1.0
-        pub.publish(move)
-        rospy.sleep(cross_the_map_time)
-        move.linear.x = 0.0
-        pub.publish(move)
+        for _ in range(line_counter):
+            lateral_movement("down")
+        backward()
+        line_counter, forward_counter, backward_counter = 0, 0, 0
     else:
-        move.angular.z = -1.0
-        pub.publish(move)
-        rospy.sleep(TIME_TO_TURN_135)
-        move.angular.z = 0.0
-        pub.publish(move)
-
-        rospy.sleep(1.5)
-        move.linear.x = 1.0
-        pub.publish(move)
-        rospy.sleep(CROSS_THE_MAP_TIME)
-        move.linear.x = 0.0
-        pub.publish(move)
-
-
-def replace_to_initial_orientation(rotation_time):
-    global line_counter
-    if (line_counter != 10):
-        rospy.sleep(1.5)
-        move.angular.z = 1.0
-        pub.publish(move)
-        rospy.sleep(3.14 - rotation_time)
-        move.angular.z = 0.0
-        pub.publish(move)
-    else:
-        rospy.sleep(1.5)
-        move.angular.z = 1.0
-        pub.publish(move)
-        rospy.sleep(TIME_TO_TURN_135)
-        move.angular.z = 0.0
-        pub.publish(move)
+        for _ in range(line_counter):
+            lateral_movement("down")
+        line_counter, forward_counter, backward_counter = 0, 0, 0
 
 
 def drone_movement(line_number, start_line):
     global line_counter, exploration_running
 
     for i in range(start_line, line_number):
+        if (line_counter % 2 == 0):
+            forward()
+        else:
+            backward()
+
         if stop_event.is_set():
             break
 
-        forward()
-
         if (i != line_number - 1):
-            if (line_counter % 2 == 0):
-                rotation_left()
-            else:
-                rotation_right()
-
-            move.linear.x = 0.2
-            pub.publish(move)
-            rospy.sleep(REPOSITION_TIME)
-            move.linear.x = 0.0
-            pub.publish(move)
-
-            if (line_counter % 2 == 0):
-                rotation_left()
-            else:
-                rotation_right()
-
+            lateral_movement("up")
             line_counter = i + 1
         else:
             rospy.sleep(1)
             back_to_base()
-            # line_counter = 0
             exploration_running = False
 
 
@@ -272,6 +164,8 @@ def return_home_listener(sample):
     global exploration_running, line_counter
     message = sample.payload.decode('utf-8')
     print(message)
+    if (exploration_running == False):
+        return
     stop_event.set()
     drone_thread.join()
 
