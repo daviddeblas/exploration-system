@@ -175,12 +175,12 @@ def main():
     pub.publish(move)
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
-    rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
+    rospy.Subscriber("/scan", LaserScan, scan_callback)
 
     logger_pub = session.declare_publisher('logger')
-    odom_msg = rospy.wait_for_message('/odom', Odometry)
-    initial_x = odom_msg.pose.pose.position.x
-    initial_y = odom_msg.pose.pose.position.y
+
+    initial_x = 0.0
+    initial_y = 0.0
 
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
