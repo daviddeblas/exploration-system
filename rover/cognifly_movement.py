@@ -66,3 +66,7 @@ class MoveCognifly:
         self.cf.disarm()
         self.finishing_mission = False
         self.started_mission = False
+    
+    def is_crashed(self):
+        telemetry = self.cf.get_telemetry()
+        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
