@@ -93,9 +93,15 @@ class RobotCommunication:
         self.last_updated = time.time()
 
     def battery_state(self, sample):
-        voltage = float(sample.payload.decode('utf-8'))
-        percentage = int((voltage - 6) / (8.4 - 6) * 100)
-        self.battery = percentage
+        if (self.name == "rover"):
+            voltage = float(sample.payload.decode('utf-8'))
+            percentage = int((voltage - 8.3) / (12.6 - 8.3) * 100)
+            self.battery = percentage
+        else:
+            voltage = float(sample.payload.decode('utf-8'))
+            percentage = int((voltage - 6) / (8.4 - 6) * 100)
+            self.battery = percentage
+
         asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
         if (percentage <= 30):
             return_home_finish.put("return_home")
