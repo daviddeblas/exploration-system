@@ -36,14 +36,12 @@ RUN curl -LO https://github.com/TurboVNC/turbovnc/archive/refs/tags/3.0.2.tar.gz
 
 RUN mkdir -p inf3995_ws/src && \
     git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim && \
-    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/ && \
-    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros inf3995_ws/src/orb_slam_2_ros
+    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 WORKDIR /inf3995_ws
-RUN apt-get install ros-noetic-pointcloud-to-laserscan -y
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
@@ -52,10 +50,6 @@ COPY launch/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY cognifly/gazebo_ros_simple_quad.cpp ./src/simple_quad/src/simple_quad/src/
 COPY cognifly/simple_quad.urdf ./src/simple_quad/src/simple_quad/src/description/
-COPY cognifly/map_generation.launch ./src/simple_quad/src/simple_quad/launch/
-COPY cognifly/show_image.py ./src/simple_quad/src/simple_quad/
-COPY cognifly/cognifly_gmapping.launch ./src/simple_quad/src/simple_quad/launch/
-COPY cognifly/cognifly_gmapping.rviz ./src/simple_quad/src/simple_quad/rviz/
 COPY constants.py ./src/
 COPY configuration_files/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
 
