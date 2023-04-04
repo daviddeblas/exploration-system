@@ -21,9 +21,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 RUN mkdir -p inf3995_ws/src 
 
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
-
 WORKDIR /inf3995_ws 
 
 RUN git clone https://github.com/YDLIDAR/YDLidar-SDK.git \
@@ -35,11 +32,13 @@ RUN git clone https://github.com/YDLIDAR/YDLidar-SDK.git \
     && rm -r YDLidar-SDK
 
 ADD .rosinstall .rosinstall
-
 RUN . /opt/ros/noetic/setup.sh && rosinstall .; catkin_make
 
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
 COPY launch/* ./src/limo_ros/limo_bringup/launch/
-COPY main.py ./src/
+COPY main.py cognifly_movement.py ./src/
 COPY beep.wav ./src/
 COPY *.sh ./src/
 COPY params/* ./src/limo_ros/limo_bringup/param/diff
