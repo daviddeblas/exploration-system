@@ -30,6 +30,7 @@ return_home_finish = session.declare_publisher('return_home')
 return_home_rover = session.declare_publisher('return_home_rover')
 
 
+
 def log_sub(sample):
     message = sample.payload.decode('utf-8')
     logger_queue.put_nowait(message)
@@ -80,7 +81,7 @@ class RobotCommunication:
     async def send_robot_state(self):
         while True:
             if self.in_mission is not None:
-                await sio.emit(f'{self.name}_state', eval(self.in_mission))
+                await sio.emit(f'{self.name}_state', self.in_mission)
                 await asyncio.sleep(1)
 
                 if time.time() - self.last_updated > TIMEOUT_ROBOT:

@@ -1,5 +1,6 @@
 from cognifly import Cognifly
 import time
+import os
 
 MAX_VELOCITY = 0.25
 MAX_YAW = 1.0
@@ -9,7 +10,8 @@ LEVEL_TOO_LOW = 30
 
 class MoveCognifly:
     def __init__(self) -> None:
-        self.cf = Cognifly(drone_hostname="Cognifly2.lan", gui=False)
+        self.cf = Cognifly(
+            drone_hostname=os.environ["COGNIFLY_HOSTNAME"], gui=False)
         self.finishing_mission = False
         self.started_mission = False
         self.battery = BATTERY_CHARGE_100
@@ -79,3 +81,7 @@ class MoveCognifly:
         percentage = int((voltage - 6) / (8.4 - 6) * 100)
         self.battery = percentage
         return self.battery
+
+    def is_crashed(self):
+        telemetry = self.cf.get_telemetry()
+        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
