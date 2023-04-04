@@ -179,8 +179,9 @@ def main():
 
     logger_pub = session.declare_publisher('logger')
 
-    initial_x = 0.0
-    initial_y = 0.0
+    odom_msg = rospy.wait_for_message('/odom', Odometry)
+    initial_x = odom_msg.pose.pose.position.x
+    initial_y = odom_msg.pose.pose.position.y
 
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
