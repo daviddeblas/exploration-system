@@ -16,7 +16,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ros-noetic-image-geometry \
     ros-noetic-image-transport \
     python3-wstool python3-rosdep ninja-build stow python3-catkin-tools \
-    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping
+    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping \
+    alsa-utils
 
 RUN mkdir -p inf3995_ws/src 
 
@@ -46,5 +47,4 @@ COPY params/* ./src/limo_ros/limo_bringup/param/diff
 RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc
 
 RUN chmod +x ./src/launch_rover.sh
-CMD ./src/launch_rover.sh
-ENTRYPOINT /bin/bash
+CMD ["/bin/bash", "-c", "source /inf3995_ws/devel/setup.sh && ./src/launch_rover.sh"]
