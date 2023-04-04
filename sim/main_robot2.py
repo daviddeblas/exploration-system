@@ -178,7 +178,7 @@ def main():
     move.angular.z = 0.0
     pub.publish(move)
 
-    sub1 = session.declare_subscriber('start', start_listener)
+    sub1 = session.declare_subscriber('start_drone', start_listener)
     sub2 = session.declare_subscriber('identify', identify_listener)
     sub3 = session.declare_subscriber('finish', finish_listener)
     pub_state = session.declare_publisher('drone_state')

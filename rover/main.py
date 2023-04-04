@@ -204,9 +204,9 @@ def main():
     global exploration_running
     global launch_exploration
     global initial_data
-
+    global exploration_running_drone
     # global cognifly
-    exploration_running_drone
+
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
