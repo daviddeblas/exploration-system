@@ -41,6 +41,7 @@ COPY launch/* ./src/limo_ros/limo_bringup/launch/
 COPY main.py ./src/
 COPY beep.wav ./src/
 COPY *.sh ./src/
+COPY params/* ./src/limo_ros/limo_bringup/param/diff
 
 RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc
 
