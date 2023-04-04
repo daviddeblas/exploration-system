@@ -7,7 +7,7 @@ import time
 import tf
 import zenoh
 
-# from cognifly_movement import MoveCognifly
+from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
@@ -40,7 +40,7 @@ bridge = CvBridge()
 
 tfBuffer = tf.TransformListener()
 
-# cognifly = MoveCognifly()
+cognifly = MoveCognifly()
 
 
 def start_listener(sample):
@@ -176,6 +176,7 @@ def main():
     global exploration_running
     global launch_exploration
     global initial_data
+    global cognifly
 
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -201,14 +202,20 @@ def main():
     sub_map = rospy.Subscriber('/map', OccupancyGrid, map_callback)
 
     print("Started listening")
+    
+    drone_state_pub = session.declare_publisher('drone_state')
+    rover_state_pub= session.declare_publisher('rover_state')
     while True:
         time.sleep(1)
         if start_exploration and not exploration_running:
             launch_exploration.start()
             start_exploration = False
             exploration_running = True
-        pub1 = session.declare_publisher(
-            'rover_state').put(exploration_running)
+        rover_state_pub.put(exploration_running)
+        if cognifly.is_crashed():
+            drone_state_pub.put("Crashed")
+        else:
+            drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
 
