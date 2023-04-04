@@ -46,6 +46,9 @@ class MoveCognifly:
         for command in self.COMMANDS:
             if self.finishing_mission:
                 return
+            if self.battery <= 30:
+                self.finish_mission()
+                return
             command()
             time.sleep(10)
         self.cf.land_nonblocking()

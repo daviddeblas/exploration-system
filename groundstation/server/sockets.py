@@ -27,6 +27,7 @@ pub_start_rover = session.declare_publisher('start_rover')
 pub_start_drone = session.declare_publisher('start_drone')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
+return_home_rover = session.declare_publisher('return_home_rover')
 
 
 def log_sub(sample):
@@ -93,17 +94,13 @@ class RobotCommunication:
         self.last_updated = time.time()
 
     def battery_state(self, sample):
-        if (self.name == "rover"):
-            print(type(sample.payload.decode('utf-8')))
-            print(sample.payload.decode('utf-8'))
-            battery = int(sample.payload.decode('utf-8'))
-            self.battery = battery
-        else:
-            battery = int(sample.payload.decode('utf-8'))
-            self.battery = battery
+        battery = int(sample.payload.decode('utf-8'))
+        self.battery = battery
+
         asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
-        if (self.battery <= 30):
-            return_home_finish.put("return_home")
+
+        if (self.battery <= 30 and self.name == "rover"):
+            return_home_rover.put("return_home_rover")
 
     def get_battery(self):
         return self.battery

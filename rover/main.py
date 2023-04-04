@@ -159,12 +159,10 @@ def battery_rover_callback(data):
     current_battery_rover = int((voltage - 8.3) / (12.6 - 8.3) * 100)
 
 
-def return_home_listener(sample):
+def return_home():
     global initial_data
     global exploration_running
 
-    # global cognifly
-    # cognifly.finish_mission()
     if exploration_running:
         global launch_exploration
         launch_exploration.shutdown()
@@ -172,8 +170,7 @@ def return_home_listener(sample):
             uuid, [launch_file_path])
         exploration_running = False
         return
-    message = sample.payload.decode('utf-8')
-    print(message)
+
     return_pub = rospy.Publisher(
         '/move_base_simple/goal', PoseStamped, queue_size=10)
     msg = PoseStamped()
@@ -186,6 +183,20 @@ def return_home_listener(sample):
 
     # Publish the message
     return_pub.publish(msg)
+
+
+def return_home_rover_listener(sample):
+    message = sample.payload.decode('utf-8')
+    print(message)
+    return_home()
+
+
+def return_home_listener(sample):
+    message = sample.payload.decode('utf-8')
+    print(message)
+    # global cognifly
+    # cognifly.finish_mission()
+    return_home()
 
 
 def main():
@@ -213,9 +224,12 @@ def main():
     start_sub2 = session.declare_subscriber(
         'start_drone', start_listener_drone)
     identify_sub = session.declare_subscriber('identify', identify_listener)
+
     finish_sub = session.declare_subscriber('finish', finish_listener)
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
+    return_home_sub_rover = session.declare_subscriber(
+        'return_home_rover', return_home_rover_listener)
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
