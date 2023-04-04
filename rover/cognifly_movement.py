@@ -3,6 +3,8 @@ import time
 
 MAX_VELOCITY = 0.25
 MAX_YAW = 1.0
+BATTERY_CHARGE_100 = 100
+LEVEL_TOO_LOW = 30
 
 
 class MoveCognifly:
@@ -10,7 +12,7 @@ class MoveCognifly:
         self.cf = Cognifly(drone_hostname="Cognifly2.lan", gui=False)
         self.finishing_mission = False
         self.started_mission = False
-        self.battery = 100
+        self.battery = BATTERY_CHARGE_100
         self.COMMANDS = [
             # lambda : self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
             #                 max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
@@ -35,7 +37,7 @@ class MoveCognifly:
         ]
 
     def start_mission(self):
-        if self.started_mission or self.battery <= 30:
+        if self.started_mission or self.battery <= LEVEL_TOO_LOW:
             return
         self.finishing_mission = False
         self.started_mission = True
@@ -46,7 +48,7 @@ class MoveCognifly:
         for command in self.COMMANDS:
             if self.finishing_mission:
                 return
-            if self.battery <= 30:
+            if self.battery <= LEVEL_TOO_LOW:
                 self.finish_mission()
                 return
             command()

@@ -5,16 +5,19 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
+let battery_charge_100 = 100;
+
 export default defineComponent({
   name: "Home",
   data() {
     return {
+
       rover: ref(ROBOT_STATUS.offline),
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
-      rover_battery: ref(100),
-      drone_battery: ref(100),
+      rover_battery: ref(battery_charge_100),
+      drone_battery: ref(battery_charge_100),
     };
   },
   methods: {

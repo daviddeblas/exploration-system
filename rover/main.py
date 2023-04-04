@@ -67,7 +67,8 @@ def identify_listener(sample):
     # cognifly.identify_cognifly()
     message = sample.payload.decode('utf-8')
     print(message)
-    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
+    subprocess.call(['aplay', '-q', '--device', 'hw:2,0',
+                    '/inf3995_ws/src/beep.wav'])
 
 
 def finish_listener(sample):
@@ -135,7 +136,7 @@ def map_callback(data):
         0, 0, 0, 255]    # Espace Occupé
 
     trans, rot = tfBuffer.lookupTransform(
-        "map", "base_footprint", rospy.Time())
+        "map", "base_link", rospy.Time())
 
     robot_pos_x = int((trans[0] - cropped_origin_x) /
                       cropped_info.info.resolution)
@@ -212,10 +213,11 @@ def main():
     pub.publish(move)
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
-    rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
+    rospy.Subscriber("/scan", LaserScan, scan_callback)
     rospy.Subscriber("/LimoState", LimoStatus, battery_rover_callback)
 
     logger_pub = session.declare_publisher('logger')
+
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
