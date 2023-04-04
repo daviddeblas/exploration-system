@@ -1,3 +1,4 @@
+
 import cv2
 import numpy as np
 import roslaunch
@@ -12,7 +13,7 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
-
+from limo_base.msg import LimoStatus
 
 NAME = "rover"
 package_name = "limo_bringup"
@@ -30,28 +31,36 @@ initial_data = {'x': 0, 'y': 0}
 session = zenoh.open()
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
-rate=rospy.Rate(10)
+rate = rospy.Rate(10)
 move = Twist()
 
 last_position = None
 last_scan = None
+current_battery_rover = None
 
 bridge = CvBridge()
-
 tfBuffer = tf.TransformListener()
 
 # cognifly = MoveCognifly()
+exploration_running_drone = False
 
-def start_listener(sample):
+
+def start_listener_rover(sample):
     global start_exploration
-    # global cognifly
-    
-    # cognifly.start_mission()
-
     message = sample.payload.decode('utf-8')
     print(message)
     pub.publish(move)
     start_exploration = True
+
+
+def start_listener_drone(sample):
+    global exploration_running_drone
+    message = sample.payload.decode('utf-8')
+    print(message)
+    exploration_running_drone = True
+    # global cognifly
+    # cognifly.start_mission()
+
 
 def identify_listener(sample):
     # global cognifly
@@ -60,20 +69,22 @@ def identify_listener(sample):
     print(message)
     subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
 
+
 def finish_listener(sample):
-    message = sample.payload.decode('utf-8')
-    print(message)
     global launch_exploration
     global exploration_running
-    
+    global exploration_running_drone
+    message = sample.payload.decode('utf-8')
+    print(message)
+
     # global cognifly
     # cognifly.finish_mission()
-
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
-
     exploration_running = False
+    exploration_running_drone = False
+
 
 def odom_callback(data):
     global last_position
@@ -84,8 +95,9 @@ def scan_callback(data):
     global last_scan
     last_scan = data
 
+
 def map_callback(data):
-     # Convertir le message OccupancyGrid vers une image RGBA OpenCV
+    # Convertir le message OccupancyGrid vers une image RGBA OpenCV
     map_array = np.array(data.data, dtype=np.int8).reshape(
         (data.info.height, data.info.width))
 
@@ -141,13 +153,24 @@ def map_callback(data):
     session.declare_publisher('map_image').put(png.tobytes())
 
 
+def battery_rover_callback(data):
+    global current_battery_rover
+    voltage = float(data.battery_voltage)
+    current_battery_rover = int((voltage - 8.3) / (12.6 - 8.3) * 100)
+
+
 def return_home_listener(sample):
     global initial_data
     global exploration_running
-    
+
     # global cognifly
     # cognifly.finish_mission()
     if exploration_running:
+        global launch_exploration
+        launch_exploration.shutdown()
+        launch_exploration = roslaunch.parent.ROSLaunchParent(
+            uuid, [launch_file_path])
+        exploration_running = False
         return
     message = sample.payload.decode('utf-8')
     print(message)
@@ -164,28 +187,35 @@ def return_home_listener(sample):
     # Publish the message
     return_pub.publish(msg)
 
+
 def main():
     global start_exploration
     global exploration_running
     global launch_exploration
     global initial_data
 
+    # global cognifly
+    exploration_running_drone
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
     rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
+    rospy.Subscriber("/LimoState", LimoStatus, battery_rover_callback)
 
     logger_pub = session.declare_publisher('logger')
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
 
-    start_sub = session.declare_subscriber('start', start_listener)
+    start_sub = session.declare_subscriber('start_rover', start_listener_rover)
+    start_sub2 = session.declare_subscriber(
+        'start_drone', start_listener_drone)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
-    return_home_sub = session.declare_subscriber('return_home', return_home_listener)
+    return_home_sub = session.declare_subscriber(
+        'return_home', return_home_listener)
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
@@ -202,6 +232,12 @@ def main():
             'rover_state').put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
+        # pub_drone_battery = session.declare_publisher('drone_battery').put(cognifly.get_battery())
+        pub_drone_state = session.declare_publisher(
+            'drone_state').put(exploration_running_drone)
+        pub_rover_battery = session.declare_publisher(
+            'rover_battery').put(current_battery_rover)
+
 
 if __name__ == "__main__":
     main()
