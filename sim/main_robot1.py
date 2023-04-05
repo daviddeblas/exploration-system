@@ -178,7 +178,7 @@ def main():
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
     time.sleep(0.5)
-    sub_map = rospy.Subscriber('/map', OccupancyGrid, map_callback)
+    sub_map = rospy.Subscriber('/robot1/map', OccupancyGrid, map_callback)
     print("Started listening")
     while True:
         time.sleep(1)
