@@ -322,7 +322,7 @@
 <joint name="simple_quad_camera_joint" type="fixed">
   <parent link="simple_quad_base_link"/>
   <child link="simple_quad_camera_link"/>
-  <origin xyz="0.215 0 0.0" rpy="0 ${pi/4} 0"/>
+  <origin xyz="0.215 0 0.0" rpy="0 0 0"/>
 </joint>
 
 <link name="simple_quad_camera_depth_frame"/>

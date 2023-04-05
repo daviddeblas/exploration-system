@@ -1,1 +1,7 @@
+cognifly==0.3.3
 eclipse-zenoh==0.7.0rc0
+numpy==1.24.2
+opencv-contrib-python==4.7.0.72
+Pillow==9.5.0
+psutil==5.9.4
+PySimpleGUI==4.60.4

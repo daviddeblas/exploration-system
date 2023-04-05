@@ -44,6 +44,23 @@
     <include file="$(find limo_gazebo_sim)/launch/gmapping.launch" />
 
     <group ns="robot2">
+        <node pkg="tf" type="static_transform_publisher" name="map_to__broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm1_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="map_to__broacaster" args="0 0 0 0 0 0 simple_quad_arm1_link simple_quad_arm1_motor_link 10" />
+
+        <node pkg="tf" type="static_transform_publisher" name="map_to__brodcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm2_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="map_to__broacater" args="0 0 0 0 0 0 simple_quad_arm2_link simple_quad_arm2_motor_link 10" />
+
+        <node pkg="tf" type="static_transform_publisher" name="map_to_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm3_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="ma_to__broacaster" args="0 0 0 0 0 0 simple_quad_arm3_link simple_quad_arm3_motor_link 10" />
+
+        <node pkg="tf" type="static_transform_publisher" name="map_o__broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_arm4_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="map_to__broacaer" args="0 0 0 0 0 0 simple_quad_arm4_link simple_quad_arm4_motor_link 10" />
+
+        <node pkg="tf" type="static_transform_publisher" name="odom_to_frcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_camera_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="odom_to_frcater" args="0 0 0 0 0 0 simple_quad_camera_link simple_quad_camera_depth_frame 10" />
+
+        <node pkg="tf" type="static_transform_publisher" name="base_foott_to_base_link_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_imu_link 10" />
+        <node pkg="tf" type="static_transform_publisher" name="base_foott_to_basenk_broadcaster" args="0 0 0 0 0 0 simple_quad_base_link simple_quad_lidar_link 10" />
 
         <arg name="model" default="$(find simple_quad)/src/description/simple_quad.urdf"/>
         <param name="robot2_description" command="$(find xacro)/xacro $(arg model)"/>
