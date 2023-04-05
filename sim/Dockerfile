@@ -36,8 +36,7 @@ RUN curl -LO https://github.com/TurboVNC/turbovnc/archive/refs/tags/3.0.2.tar.gz
 
 RUN mkdir -p inf3995_ws/src && \
     git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim && \
-    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/ && \
-    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros inf3995_ws/src/orb_slam_2_ros
+    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
