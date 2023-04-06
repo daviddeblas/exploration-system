@@ -216,7 +216,7 @@ def main():
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
     rospy.Subscriber("/scan", LaserScan, scan_callback)
-    rospy.Subscriber("/LimoState", LimoStatus, battery_rover_callback)
+    rospy.Subscriber("/limo_status", LimoStatus, battery_rover_callback)
 
     logger_pub = session.declare_publisher('logger')
 
