@@ -5,7 +5,7 @@ import rospy
 import subprocess
 import time
 import tf
-import zenoh
+import zenoh, math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
@@ -51,14 +51,17 @@ def start_listener(sample):
     pub.publish(move)
     start_exploration = True
 
+def identify_rover(sample):
+    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
+
 def identify_listener(sample):
     global cognifly
     global session
     cognifly.identify_cognifly(session)
     message = sample.payload.decode('utf-8')
     print(message)
-    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
-
+    identify_rover()
+    
 def finish_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
@@ -137,6 +140,15 @@ def map_callback(data):
 
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
+
+def farthest_robot_trigger(sample):
+    global cognifly
+    global last_position
+    rover_distance = math.sqrt(math.pow(last_position.x) + math.pow(last_position.y))
+    if (cognifly.distance_calculation > rover_distance):
+        cognifly.identify_cognifly()
+    else :
+        identify_rover()
 
 def return_home_listener(sample):
     global initial_data
