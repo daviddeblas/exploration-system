@@ -47,7 +47,6 @@ exploration_running_drone = False
 
 def start_listener_rover(sample):
     global start_exploration
-    global exploration_running_rover
 
     message = sample.payload.decode('utf-8')
     print(message)
