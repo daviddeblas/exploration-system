@@ -2,7 +2,7 @@ import socketio
 import zenoh
 import asyncio
 import time
-from constants import TIMEOUT_ROBOT
+from constants import TIMEOUT_ROBOT, BATTERY_CHARGE_100, LEVEL_TOO_LOW
 import database
 import asyncio
 import models
@@ -27,6 +27,7 @@ pub_start_rover = session.declare_publisher('start_rover')
 pub_start_drone = session.declare_publisher('start_drone')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
+return_home_rover = session.declare_publisher('return_home_rover')
 
 
 def log_sub(sample):
@@ -70,7 +71,7 @@ class RobotCommunication:
         self.name = name
         self.in_mission = None
         self.last_updated = None
-        self.battery = 100
+        self.battery = BATTERY_CHARGE_100
         self.sub = session.declare_subscriber(
             f'{self.name}_state', self.robot_state)
         self.sub_battery = session.declare_subscriber(
@@ -79,7 +80,7 @@ class RobotCommunication:
     async def send_robot_state(self):
         while True:
             if self.in_mission is not None:
-                await sio.emit(f'{self.name}_state', eval(self.in_mission))
+                await sio.emit(f'{self.name}_state', self.in_mission)
                 await asyncio.sleep(1)
 
                 if time.time() - self.last_updated > TIMEOUT_ROBOT:
@@ -93,18 +94,13 @@ class RobotCommunication:
         self.last_updated = time.time()
 
     def battery_state(self, sample):
-        if (self.name == "rover"):
-            voltage = float(sample.payload.decode('utf-8'))
-            percentage = int((voltage - 8.3) / (12.6 - 8.3) * 100)
-            self.battery = percentage
-        else:
-            voltage = float(sample.payload.decode('utf-8'))
-            percentage = int((voltage - 6) / (8.4 - 6) * 100)
-            self.battery = percentage
+        battery = int(sample.payload.decode('utf-8'))
+        self.battery = battery
 
         asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
-        if (percentage <= 30):
-            return_home_finish.put("return_home")
+
+        if (self.battery <= LEVEL_TOO_LOW and self.name == "rover"):
+            return_home_rover.put("return_home_rover")
 
     def get_battery(self):
         return self.battery
@@ -128,15 +124,15 @@ async def identify(data, _):
 
 @ sio.event
 async def start(data, _):
-    if (rover.get_battery() <= 30):
+    if (rover.get_battery() <= LEVEL_TOO_LOW):
         pub_start_drone.put("start_drone")
         logger_queue.put_nowait("groundstation;;start;;")
 
-    elif (drone.get_battery() <= 30):
+    elif (drone.get_battery() <= LEVEL_TOO_LOW):
         pub_start_rover.put("start_rover")
         logger_queue.put_nowait("groundstation;;start;;")
 
-    elif (rover.get_battery() <= 30 and drone.get_battery() <= 30):
+    elif (rover.get_battery() <= LEVEL_TOO_LOW and drone.get_battery() <= LEVEL_TOO_LOW):
         return
     else:
         pub_start_rover.put("start_rover")

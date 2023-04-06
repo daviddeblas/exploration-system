@@ -5,16 +5,19 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
+let battery_charge_100 = 100;
+
 export default defineComponent({
   name: "Home",
   data() {
     return {
+
       rover: ref(ROBOT_STATUS.offline),
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
-      rover_battery: ref(100),
-      drone_battery: ref(100),
+      rover_battery: ref(battery_charge_100),
+      drone_battery: ref(battery_charge_100),
     };
   },
   methods: {
@@ -28,22 +31,24 @@ export default defineComponent({
     finish() {
       this.socket.emit("finish", { data: "Finir mission" });
     },
-    onRoverState(in_mission?: boolean) {
-      if (in_mission === true) {
+    onRoverState(in_mission?: string) {
+      if (in_mission === "True") {
         this.rover = ROBOT_STATUS.in_mission;
-      } else if (in_mission === false) {
+      } else if (in_mission === "False") {
         this.rover = ROBOT_STATUS.pending;
       } else if (in_mission === undefined) {
         this.rover = ROBOT_STATUS.offline;
       }
     },
-    onDroneState(drone_in_mission?: boolean) {
-      if (drone_in_mission === true) {
+    onDroneState(drone_in_mission?: string) {
+      if (drone_in_mission === "True") {
         this.drone = ROBOT_STATUS.in_mission;
-      } else if (drone_in_mission === false) {
+      } else if (drone_in_mission === "False") {
         this.drone = ROBOT_STATUS.pending;
       } else if (drone_in_mission === undefined) {
         this.drone = ROBOT_STATUS.offline;
+      } else if (drone_in_mission === "Crashed") {
+        this.drone = ROBOT_STATUS.crashed;
       }
     },
     onMapUpdate(map_bytes: ArrayBuffer) {
