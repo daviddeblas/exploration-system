@@ -51,7 +51,7 @@ def start_listener(sample):
     pub.publish(move)
     start_exploration = True
 
-def identify_rover(sample):
+def identify_rover():
     subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
 
 def identify_listener(sample):
@@ -145,7 +145,7 @@ def farthest_robot_trigger(sample):
     global cognifly
     global last_position
     rover_distance = math.sqrt(math.pow(last_position.x) + math.pow(last_position.y))
-    if (cognifly.distance_calculation > rover_distance):
+    if (cognifly.distance_calculation() > rover_distance):
         cognifly.identify_cognifly()
     else :
         identify_rover()
@@ -212,6 +212,7 @@ def main():
             'rover_state').put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
+        farthest_robot_trigger()
 
 if __name__ == "__main__":
     main()
