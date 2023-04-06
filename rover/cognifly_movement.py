@@ -53,8 +53,7 @@ class MoveCognifly:
         self.cf.disarm()
 
     def identify_cognifly(self, session, limo_pos):
-        self.cf = Cognifly(drone_hostname="cognifly1")
-        session.declare_publisher('cogniflyId')
+        session.declare_publisher('cognifly_id').put('identify')
     
     def distance_calculation(self):
         cognifly_position = self.cf.get_position()
