@@ -1,6 +1,5 @@
 from cognifly import Cognifly
-import time
-import zenoh
+import time, zenoh, math
 
 MAX_VELOCITY=0.25
 MAX_YAW=1.0
@@ -55,32 +54,12 @@ class MoveCognifly:
 
     def identify_cognifly(self, session, limo_pos):
         self.cf = Cognifly(drone_hostname="cognifly1")
-        if ( self.distance_calculation(limo_pos) == DRONE ) : 
-            session.declare_publisher('cogniflyId')
+        session.declare_publisher('cogniflyId')
     
-    def distance_calculation(self, limo_position):
+    def distance_calculation(self):
         cognifly_position = self.cf.get_position()
-        robot = {x: " ",y: " "}
-        difference = {x: 0,y: 0}
-
-        if ( cognifly_position.x > limo_position.x ) : 
-            difference.x = cognifly_position.x - limo_position.x
-            robot.x = DRONE 
-        else : 
-            difference.x = limo_position.x - cognifly_position.x
-            robot.x = ROVER
-        
-        if ( cognifly_position.y > limo_position.y) : 
-            difference.y = cognifly_position.y - limo_position.y
-            robot.y = DRONE
-        else : 
-            difference.y = limo_position.y - cognifly_position.y
-            robot.y = ROVER
-
-        if ( difference.x > difference.y) : 
-            return robot.x
-        else : return robot.y
-
+        return math.sqrt(math.pow(cognifly_position.x) + math.pow(cognifly_position.y))
+    
     def finish_mission(self):
         self.finishing_mission = True
         self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
