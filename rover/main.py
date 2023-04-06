@@ -25,7 +25,7 @@ launch_file_path = roslaunch.rlutil.resolve_launch_arguments(
     [package_name, launch_file_name])[0]
 launch_exploration = roslaunch.parent.ROSLaunchParent(uuid, [launch_file_path])
 start_exploration = False
-exploration_running = False
+exploration_running_rover = False
 initial_data = {'x': 0, 'y': 0}
 
 session = zenoh.open()
@@ -47,6 +47,8 @@ exploration_running_drone = False
 
 def start_listener_rover(sample):
     global start_exploration
+    global exploration_running_rover
+
     message = sample.payload.decode('utf-8')
     print(message)
     pub.publish(move)
@@ -55,6 +57,7 @@ def start_listener_rover(sample):
 
 def start_listener_drone(sample):
     global exploration_running_drone
+
     message = sample.payload.decode('utf-8')
     print(message)
     exploration_running_drone = True
@@ -73,7 +76,7 @@ def identify_listener(sample):
 
 def finish_listener(sample):
     global launch_exploration
-    global exploration_running
+    global exploration_running_rover
     global exploration_running_drone
     message = sample.payload.decode('utf-8')
     print(message)
@@ -83,7 +86,7 @@ def finish_listener(sample):
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
-    exploration_running = False
+    exploration_running_rover = False
     exploration_running_drone = False
 
 
@@ -162,14 +165,14 @@ def battery_rover_callback(data):
 
 def return_home():
     global initial_data
-    global exploration_running
+    global exploration_running_rover
 
-    if exploration_running:
+    if exploration_running_rover:
         global launch_exploration
         launch_exploration.shutdown()
         launch_exploration = roslaunch.parent.ROSLaunchParent(
             uuid, [launch_file_path])
-        exploration_running = False
+        exploration_running_rover = False
         return
 
     return_pub = rospy.Publisher(
@@ -202,7 +205,7 @@ def return_home_listener(sample):
 
 def main():
     global start_exploration
-    global exploration_running
+    global exploration_running_rover
     global launch_exploration
     global initial_data
     global cognifly
@@ -243,20 +246,18 @@ def main():
     rover_state_pub = session.declare_publisher('rover_state')
     while True:
         time.sleep(1)
-        if start_exploration and not exploration_running:
+        if start_exploration and not exploration_running_rover:
             launch_exploration.start()
             start_exploration = False
-            exploration_running = True
-        rover_state_pub.put(exploration_running)
+            exploration_running_rover = True
+        rover_state_pub.put(exploration_running_rover)
         if cognifly.is_crashed():
             drone_state_pub.put("Crashed")
         else:
-            drone_state_pub.put(exploration_running)
+            drone_state_pub.put(exploration_running_drone)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
         # pub_drone_battery = session.declare_publisher('drone_battery').put(cognifly.get_battery())
-        pub_drone_state = session.declare_publisher(
-            'drone_state').put(exploration_running_drone)
         pub_rover_battery = session.declare_publisher(
             'rover_battery').put(current_battery_rover)
 
