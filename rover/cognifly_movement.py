@@ -1,14 +1,13 @@
 from cognifly import Cognifly
 import time, zenoh, math
 
-MAX_VELOCITY=0.25
-MAX_YAW=1.0
 
 DRONE = "cognifly",
 ROVER = "limo",
 class MoveCognifly:
     def __init__(self) -> None:
-        self.cf = Cognifly(drone_hostname="Cognifly2.lan", gui=False)
+        self.cf = Cognifly(
+            drone_hostname=os.environ["COGNIFLY_HOSTNAME"], gui=False)
         self.finishing_mission = False
         self.started_mission = False
         self.COMMANDS = [
@@ -30,10 +29,10 @@ class MoveCognifly:
             #                 max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
             # lambda : self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
             #                 max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda : self.cf.land_nonblocking(),
-            lambda : self.cf.disarm()
+            lambda: self.cf.land_nonblocking(),
+            lambda: self.cf.disarm()
         ]
-    
+
     def start_mission(self):
         if self.started_mission:
             return
@@ -62,7 +61,7 @@ class MoveCognifly:
     def finish_mission(self):
         self.finishing_mission = True
         self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
-                    max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
+                                         max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
         time.sleep(10)
         self.cf.land_nonblocking(),
         time.sleep(2)
