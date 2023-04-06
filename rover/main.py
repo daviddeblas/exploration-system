@@ -29,7 +29,7 @@ initial_data = {'x': 0, 'y': 0}
 session = zenoh.open()
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)
-rate=rospy.Rate(10)
+rate = rospy.Rate(10)
 move = Twist()
 
 last_position = None
@@ -67,7 +67,7 @@ def finish_listener(sample):
     print(message)
     global launch_exploration
     global exploration_running
-    
+
     # global cognifly
     # cognifly.finish_mission()
 
@@ -77,6 +77,7 @@ def finish_listener(sample):
 
     exploration_running = False
 
+
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
@@ -84,6 +85,7 @@ def odom_callback(data):
 def scan_callback(data):
     global last_scan
     last_scan = data
+
 
 def map_callback(data):
     # Convertir le message OccupancyGrid vers une image RGBA OpenCV
@@ -124,7 +126,7 @@ def map_callback(data):
         0, 0, 0, 255]    # Espace Occupé
 
     trans, rot = tfBuffer.lookupTransform(
-        "map", "base_footprint", rospy.Time())
+        "map", "base_link", rospy.Time())
 
     robot_pos_x = int((trans[0] - cropped_origin_x) /
                       cropped_info.info.resolution)
@@ -153,7 +155,7 @@ def farthest_robot_trigger(sample):
 def return_home_listener(sample):
     global initial_data
     global exploration_running
-    
+
     # global cognifly
     # cognifly.finish_mission()
     if exploration_running:
@@ -173,21 +175,23 @@ def return_home_listener(sample):
     # Publish the message
     return_pub.publish(msg)
 
+
 def main():
     global start_exploration
     global exploration_running
     global launch_exploration
     global initial_data
+    global cognifly
 
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
-    rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
+    rospy.Subscriber("/scan", LaserScan, scan_callback)
 
     logger_pub = session.declare_publisher('logger')
-    cognifly_pub = session.declare_publisher('cogniflyId')
+
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
@@ -195,24 +199,32 @@ def main():
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
-    return_home_sub = session.declare_subscriber('return_home', return_home_listener)    
+    return_home_sub = session.declare_subscriber(
+        'return_home', return_home_listener)
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
     sub_map = rospy.Subscriber('/map', OccupancyGrid, map_callback)
 
     print("Started listening")
+    
+    drone_state_pub = session.declare_publisher('drone_state')
+    rover_state_pub= session.declare_publisher('rover_state')
     while True:
         time.sleep(1)
         if start_exploration and not exploration_running:
             launch_exploration.start()
             start_exploration = False
             exploration_running = True
-        pub1 = session.declare_publisher(
-            'rover_state').put(exploration_running)
+        rover_state_pub.put(exploration_running)
+        if cognifly.is_crashed():
+            drone_state_pub.put("Crashed")
+        else:
+            drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
         farthest_robot_trigger()
+
 
 if __name__ == "__main__":
     main()

@@ -23,5 +23,13 @@ docker save inf3995-101-rover | ssh -C agilex@<ip> docker load
 ## Exécuter le container
 
 ```
-docker run -it --rm --network host --device /dev/snd --device /dev/ttyUSB0 --device /dev/ttyTHS1  inf3995-101-rover
+docker run --rm -it --network host --privileged -v /dev:/dev -e "COGNIFLY_HOSTNAME=CogniflyX.lan" --name inf3995-101-rover reg.zdev.ca/inf3995-101-rover
+```
+
+où CogniflyX correspond au nom du Cognifly utilisé
+
+## Arrêter le container
+
+```
+docker stop inf3995-101-rover
 ```
