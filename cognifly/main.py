@@ -1,7 +1,7 @@
 import zenoh, time
 import RPi.GPIO as GPIO
-
 from cognifly import Cognifly
+
 cf = Cognifly(drone_hostname="Cognifly1.lan", gui=False)
 session = zenoh.open()
 session.declare_subscriber ('cognifly_id', led_light)
@@ -27,10 +27,3 @@ def led_light:
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
-    
-    global position
-    session = zenoh.open()
-    sub = session.declare_subscriber('identify', identify_listener)
-    while True:
-        time.sleep(1)
-        print("position is: ", position )
