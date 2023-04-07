@@ -1,9 +1,9 @@
 from cognifly import Cognifly
-import time, zenoh, math
-
+import time, zenoh, math, os
 
 DRONE = "cognifly",
 ROVER = "limo",
+session = zenoh.open()
 class MoveCognifly:
     def __init__(self) -> None:
         self.cf = Cognifly(
