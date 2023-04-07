@@ -94,7 +94,11 @@ class RobotCommunication:
         self.last_updated = time.time()
 
     def battery_state(self, sample):
-        battery = int(sample.payload.decode('utf-8'))
+        battery = sample.payload.decode('utf-8')
+        try:
+            battery = int(sample.payload.decode('utf-8'))
+        except (ValueError, AttributeError):
+            return
         self.battery = battery
 
         asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
