@@ -57,7 +57,7 @@ def identify_rover():
 def identify_listener(sample):
     global cognifly
     global session
-    cognifly.identify_cognifly(session)
+    cognifly.identify_cognifly()
     message = sample.payload.decode('utf-8')
     print(message)
     identify_rover()
