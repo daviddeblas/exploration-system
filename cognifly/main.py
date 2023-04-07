@@ -3,16 +3,19 @@ import RPi.GPIO as GPIO
 from cognifly import Cognifly
 
 cf = Cognifly(drone_hostname="Cognifly1.lan", gui=False)
-session = zenoh.open()
-session.declare_subscriber ('cognifly_id', led_light)
-is_called = False
+
 
 def identify_listener(sample):
     global cf
     global position
     position = cf.get_position(sample)
 
-def led_light:
+import time, zenoh
+import RPi.GPIO as GPIO
+session = zenoh.open()
+session.declare_subscriber ('cognifly_id', led_light)
+is_called = False
+def led_light():
     global is_called
     if is_called: return
     is_called = True
