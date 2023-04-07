@@ -60,7 +60,7 @@ class MoveCognifly:
     
     def distance_calculation(self):
         cognifly_position = self.cf.get_position()
-        return math.sqrt(cognifly_position[0]**2 + math.pow(cognifly_position[1]**2)
+        return math.sqrt( cognifly_position[0]**2 + cognifly_position[1]**2)
     
     def finish_mission(self):
         self.finishing_mission = True
