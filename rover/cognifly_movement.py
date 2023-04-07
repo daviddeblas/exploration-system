@@ -1,8 +1,8 @@
 from cognifly import Cognifly
 import time, zenoh, math, os
 
-DRONE = "cognifly",
-ROVER = "limo",
+MAX_VELOCITY = 0.25
+MAX_YAW = 1.0
 session = zenoh.open()
 class MoveCognifly:
     def __init__(self) -> None:
@@ -53,6 +53,10 @@ class MoveCognifly:
 
     def identify_cognifly(self, session, limo_pos):
         session.declare_publisher('cognifly_id').put('identify')
+
+    def is_crashed(self):
+        telemetry = self.cf.get_telemetry()
+        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
     
     def distance_calculation(self):
         cognifly_position = self.cf.get_position()
