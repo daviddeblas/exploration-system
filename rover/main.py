@@ -143,7 +143,7 @@ def map_callback(data):
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
 
-def farthest_robot_trigger(sample):
+def farthest_robot_trigger():
     global cognifly
     global last_position
     rover_distance = math.sqrt(math.pow(last_position.x) + math.pow(last_position.y))
