@@ -51,7 +51,8 @@ class MoveCognifly:
         time.sleep(5)
         self.cf.disarm()
 
-    def identify_cognifly(self, session, limo_pos):
+    def identify_cognifly(self):
+        global session
         session.declare_publisher('cognifly_id').put('identify')
 
     def is_crashed(self):
