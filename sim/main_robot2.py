@@ -21,6 +21,7 @@ forward_counter = 0
 backward_counter = 0
 
 last_position = None
+drone_thread = None
 
 
 def rotation_left():
@@ -103,13 +104,13 @@ def drone_movement(line_number, start_line):
     global line_counter, exploration_running
 
     for i in range(start_line, line_number):
+        if stop_event.is_set():
+            break
+
         if (line_counter % 2 == 0):
             forward()
         else:
             backward()
-
-        if stop_event.is_set():
-            break
 
         if (i != line_number - 1):
             lateral_movement("up")
@@ -165,6 +166,7 @@ def return_home_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     if (exploration_running == False):
+        back_to_base()
         return
     stop_event.set()
     drone_thread.join()
