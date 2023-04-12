@@ -128,7 +128,10 @@ async def identify(data, _):
 
 @ sio.event
 async def start(data, _):
-    if (rover.get_battery() <= LEVEL_TOO_LOW):
+    if (rover.get_battery() <= LEVEL_TOO_LOW and drone.get_battery() <= LEVEL_TOO_LOW):
+        return
+
+    elif (rover.get_battery() <= LEVEL_TOO_LOW):
         pub_start_drone.put("start_drone")
         logger_queue.put_nowait("groundstation;;start;;")
 
@@ -136,8 +139,6 @@ async def start(data, _):
         pub_start_rover.put("start_rover")
         logger_queue.put_nowait("groundstation;;start;;")
 
-    elif (rover.get_battery() <= LEVEL_TOO_LOW and drone.get_battery() <= LEVEL_TOO_LOW):
-        return
     else:
         pub_start_rover.put("start_rover")
         pub_start_drone.put("start_drone")
