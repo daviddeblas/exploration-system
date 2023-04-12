@@ -26,6 +26,7 @@ pub_identify = session.declare_publisher('identify')
 pub_start = session.declare_publisher('start')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
+p2p_trigger = session.declare_publisher('p2p')
 
 
 def log_sub(sample):
@@ -121,6 +122,9 @@ async def finish(data, _):
 async def return_home(data, _):
     return_home_finish.put("return_home")
 
+@ sio.event
+async def p2p(data, _):
+    p2p_trigger.put("p2p")
 
 @ sio.event
 async def disconnect(sid):
