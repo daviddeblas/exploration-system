@@ -156,10 +156,7 @@ def farthest_robot_trigger():
 
 def p2p_trigger(sample):
     global activate_p2p
-    if (activate_p2p) : 
-        activate_p2p = False;
-        return; 
-    activate_p2p = True;
+    activate_p2p = not activate_p2p
 
 def return_home_listener(sample):
     global initial_data
@@ -191,6 +188,7 @@ def main():
     global launch_exploration
     global initial_data
     global cognifly
+    global activate_p2p
 
     move.linear.x = 0.0
     move.angular.z = 0.0
