@@ -233,7 +233,8 @@ def main():
             drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-        if (activate_p2p): farthest_robot_trigger()
+        # if (activate_p2p): 
+        farthest_robot_trigger()
 
 if __name__ == "__main__":
     main()
