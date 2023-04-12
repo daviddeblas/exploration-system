@@ -243,6 +243,8 @@ def main():
 
     drone_state_pub = session.declare_publisher('drone_state')
     rover_state_pub = session.declare_publisher('rover_state')
+    pub_rover_battery = session.declare_publisher('rover_battery')
+    pub_drone_battery = session.declare_publisher('drone_battery')
     while True:
         time.sleep(1)
         if start_exploration and not exploration_running_rover:
@@ -256,9 +258,9 @@ def main():
             drone_state_pub.put(exploration_running_drone)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-        # pub_drone_battery = session.declare_publisher('drone_battery').put(cognifly.get_battery())
-        pub_rover_battery = session.declare_publisher(
-            'rover_battery').put(current_battery_rover)
+        pub_rover_battery.put(current_battery_rover)
+        pub_drone_battery.put(cognifly.get_battery())
+
 
 
 if __name__ == "__main__":
