@@ -14,6 +14,7 @@ from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 
 NAME = "rover"
+PUT_IN_CM = 100
 package_name = "limo_bringup"
 launch_file_name = "explore.launch"
 
@@ -34,6 +35,7 @@ move = Twist()
 
 last_position = None
 last_scan = None
+activate_p2p = False
 
 bridge = CvBridge()
 
@@ -146,11 +148,18 @@ def map_callback(data):
 def farthest_robot_trigger():
     global cognifly
     global last_position
-    rover_distance = math.sqrt(last_position.x**2 + last_position.y**2)
+    rover_distance = math.sqrt(last_position.x**2 + last_position.y**2) / PUT_IN_CM
     if (cognifly.distance_calculation() > rover_distance):
         cognifly.identify_cognifly()
     else :
         identify_rover()
+
+def p2p_trigger():
+    global activate_p2p
+    if (activate_p2p) : 
+        activate_p2p = False;
+        return; 
+    activate_p2p = True;
 
 def return_home_listener(sample):
     global initial_data
@@ -199,6 +208,7 @@ def main():
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
+    p2p_sub = session.declare_subscriber('p2p', p2p_trigger)
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
 
@@ -223,8 +233,7 @@ def main():
             drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-        farthest_robot_trigger()
-
+        if (activate_p2p): farthest_robot_trigger()
 
 if __name__ == "__main__":
     main()
