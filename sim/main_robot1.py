@@ -126,6 +126,18 @@ def map_callback(data):
     # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (robot_pos_x-2, robot_pos_y-2),
                   (robot_pos_x+2, robot_pos_y+2), (255, 0, 0, 255), thickness=-1)
+    
+    trans_cognifly, rot_cognifly = tfBuffer.lookupTransform(
+        "map", "simple_quad_base_link", rospy.Time())
+    
+    cognifly_pos_x = int((trans_cognifly[0] - cropped_origin_x) /
+                      cropped_info.info.resolution)
+    cognifly_pos_y = int((trans_cognifly[1] - cropped_origin_y) /
+                      cropped_info.info.resolution)
+    
+    # Dessine un rectangle au niveau de la position du cognifly
+    cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
+                  (cognifly_pos_x+2, cognifly_pos_y+2), (0, 255, 0, 255), thickness=-1)
 
     # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
