@@ -54,7 +54,7 @@ def start_listener(sample):
     start_exploration = True
 
 def identify_rover():
-    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', 'beep.wav'])
+    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', '/inf3995_ws/src/beep.wav'])
 
 def identify_listener(sample):
     global cognifly
@@ -148,13 +148,13 @@ def map_callback(data):
 def farthest_robot_trigger():
     global cognifly
     global last_position
-    rover_distance = math.sqrt(last_position.x**2 + last_position.y**2) * PUT_IN_CM
+    rover_distance = ( math.sqrt(last_position.x**2 + last_position.y**2) ) * PUT_IN_CM
     if (cognifly.distance_calculation() > rover_distance):
         cognifly.identify_cognifly()
     else :
         identify_rover()
 
-def p2p_trigger():
+def p2p_trigger(sample):
     global activate_p2p
     if (activate_p2p) : 
         activate_p2p = False;
@@ -233,8 +233,7 @@ def main():
             drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-        # if (activate_p2p): 
-        farthest_robot_trigger()
+        if (activate_p2p): farthest_robot_trigger()
 
 if __name__ == "__main__":
     main()
