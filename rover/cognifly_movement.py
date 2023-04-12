@@ -77,7 +77,7 @@ class MoveCognifly:
         self.started_mission = False
 
     def get_battery(self):
-        voltage = float(self.cf.get_telemetry[-2])
+        voltage = float(self.cf.get_telemetry()[-2])
         percentage = int((voltage - 6) / (8.4 - 6) * 100)
         self.battery = percentage
         return self.battery
