@@ -148,7 +148,7 @@ def map_callback(data):
 def farthest_robot_trigger():
     global cognifly
     global last_position
-    rover_distance = math.sqrt(last_position.x**2 + last_position.y**2) / PUT_IN_CM
+    rover_distance = math.sqrt(last_position.x**2 + last_position.y**2) * PUT_IN_CM
     if (cognifly.distance_calculation() > rover_distance):
         cognifly.identify_cognifly()
     else :
