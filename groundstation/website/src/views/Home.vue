@@ -96,9 +96,7 @@ export default defineComponent({
       >
         P2P
       </button>
-      <button 
-        v-show="rover == 'en mission' || drone == 'en mission'"
-        @click="return_home"> Retour à la Base </button>
+      <button  @click="return_home"> Retour à la Base </button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
