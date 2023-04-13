@@ -45,8 +45,7 @@ cognifly = MoveCognifly()
 
 def start_listener(sample):
     global start_exploration
-    # global cognifly
-    # cognifly.start_mission()
+    cognifly.start_mission()
 
     message = sample.payload.decode('utf-8')
     print(message)
@@ -70,8 +69,7 @@ def finish_listener(sample):
     global launch_exploration
     global exploration_running
 
-    # global cognifly
-    # cognifly.finish_mission()
+    cognifly.finish_mission()
 
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
@@ -79,10 +77,35 @@ def finish_listener(sample):
 
     exploration_running = False
 
+def publish_cognifly_odom():
+    x, y, z = cognifly.cf.get_position()
+    odom = Odometry()
+
+    odom.header.stamp = rospy.Time.now()
+    odom.header.frame_id = 'simple_quad_odom_global'
+    odom.child_frame_id = 'simple_quad_base_link_global'
+
+    odom.pose.pose = Pose(Point(x=x, y=y, z=z), Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
+
+    odom_pub = rospy.Publisher('/cognifly/odom', Odometry, queue_size=10)
+
+    odom.header.stamp = rospy.Time.now()
+    odom_pub.publish(odom)
+    
+    # Publier la transformée entre l'odom et le base_link du cognifly
+    tf_broadcaster = tf.TransformBroadcaster()
+    tf_broadcaster.sendTransform(
+        (x, y, z),
+        (0.0, 0.0, 0.0, 1.0),
+        rospy.Time.now(),
+        'simple_quad_base_link_global',
+        'simple_quad_odom_global'
+    )
 
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
+    publish_cognifly_odom()
 
 def scan_callback(data):
     global last_scan
@@ -138,6 +161,19 @@ def map_callback(data):
     # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (robot_pos_x-2, robot_pos_y-2),
                   (robot_pos_x+2, robot_pos_y+2), (255, 0, 0, 255), thickness=-1)
+    
+    # Ajouter la position du cognifly de la même manière
+    trans_cognifly, rot_cognifly = tfBuffer.lookupTransform(
+        "map", "simple_quad_base_link_global", rospy.Time())
+
+    cognifly_pos_x = int((trans_cognifly[0] - cropped_origin_x) /
+                      cropped_info.info.resolution)
+    cognifly_pos_y = int((trans_cognifly[1] - cropped_origin_y) /
+                      cropped_info.info.resolution)
+
+    # Dessine un rectangle au niveau de la position du limo
+    cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
+                  (cognifly_pos_x+2, cognifly_pos_y+2), (255, 0, 0, 255), thickness=-1)
 
     # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
@@ -162,8 +198,7 @@ def return_home_listener(sample):
     global initial_data
     global exploration_running
 
-    # global cognifly
-    # cognifly.finish_mission()
+    cognifly.finish_mission()
     if exploration_running:
         return
     message = sample.payload.decode('utf-8')
