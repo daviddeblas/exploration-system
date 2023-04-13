@@ -7,6 +7,7 @@ import subprocess
 import time
 import tf
 import zenoh
+import math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
@@ -16,6 +17,7 @@ from sensor_msgs.msg import LaserScan
 from limo_base.msg import LimoStatus
 
 NAME = "rover"
+PUT_IN_CM = 100
 package_name = "limo_bringup"
 launch_file_name = "explore.launch"
 
@@ -37,6 +39,7 @@ move = Twist()
 last_position = None
 last_scan = None
 current_battery_rover = None
+activate_p2p = False
 
 bridge = CvBridge()
 tfBuffer = tf.TransformListener()
@@ -64,13 +67,18 @@ def start_listener_drone(sample):
     # cognifly.start_mission()
 
 
-def identify_listener(sample):
-    # global cognifly
-    # cognifly.identify_cognifly()
-    message = sample.payload.decode('utf-8')
-    print(message)
+def identify_rover():
     subprocess.call(['aplay', '-q', '--device', 'hw:2,0',
                     '/inf3995_ws/src/beep.wav'])
+
+
+def identify_listener(sample):
+    global cognifly
+    global session
+    cognifly.identify_cognifly()
+    message = sample.payload.decode('utf-8')
+    print(message)
+    identify_rover()
 
 
 def finish_listener(sample):
@@ -156,6 +164,22 @@ def map_callback(data):
     session.declare_publisher('map_image').put(png.tobytes())
 
 
+def farthest_robot_trigger():
+    global cognifly
+    global last_position
+    rover_distance = (math.sqrt(last_position.x**2 +
+                      last_position.y**2)) * PUT_IN_CM
+    if (cognifly.distance_calculation() > rover_distance):
+        cognifly.identify_cognifly()
+    else:
+        identify_rover()
+
+
+def p2p_trigger(sample):
+    global activate_p2p
+    activate_p2p = not activate_p2p
+
+
 def battery_rover_callback(data):
     global current_battery_rover
     voltage = float(data.battery_voltage)
@@ -209,6 +233,7 @@ def main():
     global initial_data
     global cognifly
     global exploration_running_drone
+    global activate_p2p
 
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -230,6 +255,7 @@ def main():
     identify_sub = session.declare_subscriber('identify', identify_listener)
 
     finish_sub = session.declare_subscriber('finish', finish_listener)
+    p2p_sub = session.declare_subscriber('p2p', p2p_trigger)
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
     return_home_sub_rover = session.declare_subscriber(
@@ -261,6 +287,8 @@ def main():
         pub_rover_battery.put(current_battery_rover)
         pub_drone_battery.put(cognifly.get_battery())
 
+        if (activate_p2p):
+            farthest_robot_trigger()
 
 
 if __name__ == "__main__":

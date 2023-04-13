@@ -28,6 +28,7 @@ pub_start_drone = session.declare_publisher('start_drone')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
 return_home_rover = session.declare_publisher('return_home_rover')
+p2p_trigger = session.declare_publisher('p2p')
 
 
 def log_sub(sample):
@@ -154,6 +155,11 @@ async def finish(data, _):
 @ sio.event
 async def return_home(data, _):
     return_home_finish.put("return_home")
+
+
+@ sio.event
+async def p2p(data, _):
+    p2p_trigger.put("p2p")
 
 
 @ sio.event
