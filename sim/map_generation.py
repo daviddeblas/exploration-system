@@ -90,8 +90,8 @@ def map_generation_cognifly(data, map_frame, tfBuffer):
                     cropped_info.info.resolution)
 
     # Dessine un rectangle au niveau de la position du cognifly
-    cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
-                (cognifly_pos_x+2, cognifly_pos_y+2), (0, 255, 0, 255), thickness=-1)
+    cv2.rectangle(map_image, (cognifly_pos_x-1, cognifly_pos_y-1),
+                (cognifly_pos_x+1, cognifly_pos_y+1), (0, 255, 0, 255), thickness=-1)
 
     # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
