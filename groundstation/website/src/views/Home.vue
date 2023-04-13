@@ -26,6 +26,9 @@ export default defineComponent({
     finish() {
       this.socket.emit("finish", { data: "Finir mission" });
     },
+    p2p() {
+      this.socket.emit("p2p", { data: "activer le mode P2P"})
+    },
     onRoverState(in_mission?: string) {
       if (in_mission === "True") {
         this.rover = ROBOT_STATUS.in_mission;
@@ -87,7 +90,13 @@ export default defineComponent({
       >
         Terminer
       </button>
-      <button @click="return_home">Retour à la Base</button>
+      <button
+        v-show="rover == 'en mission' || drone == 'en mission'"
+        @click="p2p"
+      >
+        P2P
+      </button>
+      <button  @click="return_home"> Retour à la Base </button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
