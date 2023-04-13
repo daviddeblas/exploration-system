@@ -76,4 +76,5 @@
 
     <node pkg="tf" type="static_transform_publisher" name="world_to_map_broadcaster"  args="0 0 0 0 0 0 main_map map 100"/>
     <node pkg="tf" type="static_transform_publisher" name="world_to_simple_quad_map_broadcaster" args="0 0 0 0 0 0 main_map simple_quad_map 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="map_to_simple_quad_odom_broadcaster" args="0 0 0 0 0 0 simple_quad_map simple_quad_odom_global 100"/>
 </launch>

@@ -62,7 +62,7 @@ COPY configuration_files/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make -DCMAKE_CXX_STANDARD=17"
 
-COPY main*.py ./src/
+COPY main*.py map*.py ./src/
 COPY *.sh ./src/
 
 RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc

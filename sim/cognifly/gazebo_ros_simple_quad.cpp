@@ -271,9 +271,9 @@ namespace gazebo_plugins
     impl_->transform_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>();
 
     // Odometry
-    impl_->odometry_frame_ = _sdf->Get<std::string>("odometry_frame", "simple_quad_odom").first;
+    impl_->odometry_frame_ = _sdf->Get<std::string>("odometry_frame", "simple_quad_odom_global").first;
     impl_->odometry_topic_ = _sdf->Get<std::string>("odometry_topic", "/robot2/odom").first;
-    impl_->robot_base_frame_ = _sdf->Get<std::string>("robot_base_frame", "simple_quad_base_link").first;
+    impl_->robot_base_frame_ = _sdf->Get<std::string>("robot_base_frame", "simple_quad_base_link_global").first;
 
     // Advertise odometry topic
     impl_->publish_odom_ = _sdf->Get<bool>("publish_odom", true).first;
@@ -455,7 +455,7 @@ namespace gazebo_plugins
     link_->AddForce(force);
     link_->AddRelativeTorque(torque);
 
-    PublishFootprintTf(_info.simTime);
+    // PublishFootprintTf(_info.simTime);
 
 #ifdef IGN_PROFILER_ENABLE
     IGN_PROFILE_END();
