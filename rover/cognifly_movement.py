@@ -1,11 +1,9 @@
 from cognifly import Cognifly
-import time
-import os
+import time, zenoh, math, os
 
 MAX_VELOCITY = 0.25
 MAX_YAW = 1.0
-
-
+session = zenoh.open()
 class MoveCognifly:
     def __init__(self) -> None:
         self.cf = Cognifly(
@@ -54,11 +52,17 @@ class MoveCognifly:
         self.cf.disarm()
 
     def identify_cognifly(self):
-        if not self.started_mission and not self.finishing_mission:
-            self.cf.arm()
-            time.sleep(2)
-            self.cf.disarm()
+        global session
+        session.declare_publisher('cognifly_id').put('identify')
 
+    def is_crashed(self):
+        telemetry = self.cf.get_telemetry()
+        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
+    
+    def distance_calculation(self):
+        cognifly_position = self.cf.get_position()
+        return math.sqrt( cognifly_position[0]**2 + cognifly_position[1]**2)
+    
     def finish_mission(self):
         self.finishing_mission = True
         self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
@@ -69,7 +73,4 @@ class MoveCognifly:
         self.cf.disarm()
         self.finishing_mission = False
         self.started_mission = False
-
-    def is_crashed(self):
-        telemetry = self.cf.get_telemetry()
-        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
+        

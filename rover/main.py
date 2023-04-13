@@ -5,7 +5,7 @@ import rospy
 import subprocess
 import time
 import tf
-import zenoh
+import zenoh, math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
@@ -13,8 +13,8 @@ from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 
-
 NAME = "rover"
+PUT_IN_CM = 100
 package_name = "limo_bringup"
 launch_file_name = "explore.launch"
 
@@ -35,6 +35,7 @@ move = Twist()
 
 last_position = None
 last_scan = None
+activate_p2p = False
 
 bridge = CvBridge()
 
@@ -42,11 +43,9 @@ tfBuffer = tf.TransformListener()
 
 cognifly = MoveCognifly()
 
-
 def start_listener(sample):
     global start_exploration
     # global cognifly
-
     # cognifly.start_mission()
 
     message = sample.payload.decode('utf-8')
@@ -54,16 +53,17 @@ def start_listener(sample):
     pub.publish(move)
     start_exploration = True
 
+def identify_rover():
+    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', '/inf3995_ws/src/beep.wav'])
 
 def identify_listener(sample):
-    # global cognifly
-    # cognifly.identify_cognifly()
+    global cognifly
+    global session
+    cognifly.identify_cognifly()
     message = sample.payload.decode('utf-8')
     print(message)
-    subprocess.call(['aplay', '-q', '--device', 'hw:2,0',
-                    '/inf3995_ws/src/beep.wav'])
-
-
+    identify_rover()
+    
 def finish_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
@@ -83,7 +83,6 @@ def finish_listener(sample):
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
-
 
 def scan_callback(data):
     global last_scan
@@ -146,6 +145,18 @@ def map_callback(data):
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
 
+def farthest_robot_trigger():
+    global cognifly
+    global last_position
+    rover_distance = ( math.sqrt(last_position.x**2 + last_position.y**2) ) * PUT_IN_CM
+    if (cognifly.distance_calculation() > rover_distance):
+        cognifly.identify_cognifly()
+    else :
+        identify_rover()
+
+def p2p_trigger(sample):
+    global activate_p2p
+    activate_p2p = not activate_p2p
 
 def return_home_listener(sample):
     global initial_data
@@ -177,6 +188,7 @@ def main():
     global launch_exploration
     global initial_data
     global cognifly
+    global activate_p2p
 
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -194,6 +206,7 @@ def main():
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
+    p2p_sub = session.declare_subscriber('p2p', p2p_trigger)
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
 
@@ -218,7 +231,7 @@ def main():
             drone_state_pub.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-
+        if (activate_p2p): farthest_robot_trigger()
 
 if __name__ == "__main__":
     main()
