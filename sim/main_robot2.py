@@ -19,7 +19,7 @@ session = zenoh.open()
 exploration_running = False
 stop_event = threading.Event()
 line_counter = 0
-
+limo_exists = False
 last_position = None
 
 tfBuffer = tf.TransformListener()
@@ -173,6 +173,16 @@ def main():
         pub_state.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
 
+def receive_existence(sample):
+    global limo_exists
+    if(limo_exists): return
+    limo_exists = True
+    send_existence()
+
+def send_existence():
+    session.declare_publisher("cognifly_exists").put(True)
 
 if __name__ == "__main__":
+    exists_sub = session.declare_subscriber("limo_exists", receive_existence)
+    send_existence()
     main()

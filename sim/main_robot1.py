@@ -29,6 +29,8 @@ move = Twist()
 last_position = None
 last_scan = None
 
+cognifly_exists= False
+
 tfBuffer = tf.TransformListener()
 
 
@@ -74,7 +76,7 @@ def scan_callback(data):
 
 
 def map_callback(data):
-    png = map_generation(data, "map", tfBuffer, True, True)
+    png = map_generation(data, "map", tfBuffer, cognifly_exists, True)
 
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
@@ -100,6 +102,14 @@ def return_home_listener(sample):
     # Publish the message
     return_pub.publish(msg)
 
+def receive_existence(sample):
+    global cognifly_exists
+    if(cognifly_exists): return
+    cognifly_exists = True
+    send_existence()
+
+def send_existence():
+    session.declare_publisher("limo_exists").put(True)
 
 def main():
     global start_exploration
@@ -118,6 +128,9 @@ def main():
     start_sub = session.declare_subscriber('start', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
+    
+    exists_sub = session.declare_subscriber("cognifly_exists", receive_existence)
+    send_existence()
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
