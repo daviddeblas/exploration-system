@@ -20,7 +20,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ros-noetic-move-base \
     ros-noetic-navigation ros-noetic-explore-lite \
     python3-wstool python3-rosdep ninja-build stow python3-catkin-tools \
-    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping
+    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping \
+    ros-noetic-pointcloud-to-laserscan ros-noetic-octomap-server
 
 RUN curl -LO https://github.com/VirtualGL/virtualgl/archive/refs/tags/3.0.2.tar.gz && \
     tar xvf 3.0.2.tar.gz && \
@@ -43,7 +44,6 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 WORKDIR /inf3995_ws
-RUN apt-get install ros-noetic-pointcloud-to-laserscan ros-noetic-octomap-server ros-noetic-multirobot-map-merge -y
 RUN rosdep install --from-paths src --ignore-src -r -y
 
 COPY wall_generator.py ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/

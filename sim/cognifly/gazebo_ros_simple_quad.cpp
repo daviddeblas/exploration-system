@@ -225,9 +225,6 @@ namespace gazebo_plugins
     }
     impl_->last_update_time_ = _model->GetWorld()->SimTime();
 
-    // From GazeboRosHandOfGod
-    // impl_->frame_ = _sdf->Get<std::string>("frame_id", "world").first;
-
     impl_->kl_ = _sdf->Get<double>("kl", 200).first;
     impl_->ka_ = _sdf->Get<double>("ka", 200).first;
 
@@ -454,8 +451,6 @@ namespace gazebo_plugins
 
     link_->AddForce(force);
     link_->AddRelativeTorque(torque);
-
-    // PublishFootprintTf(_info.simTime);
 
 #ifdef IGN_PROFILER_ENABLE
     IGN_PROFILE_END();
