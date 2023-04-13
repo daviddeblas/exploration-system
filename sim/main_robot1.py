@@ -3,7 +3,7 @@ import time
 import rospy
 import roslaunch
 from geometry_msgs.msg import Twist, PoseStamped
-from map_generation import map_generation
+from map_generation import map_generation_limo
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 import tf
@@ -76,7 +76,7 @@ def scan_callback(data):
 
 
 def map_callback(data):
-    png = map_generation(data, "map", tfBuffer, cognifly_exists, True)
+    png = map_generation_limo(data, "map", tfBuffer, cognifly_exists, True)
 
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
