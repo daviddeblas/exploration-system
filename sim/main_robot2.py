@@ -2,8 +2,10 @@ import zenoh
 import time
 import rospy
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import OccupancyGrid, Odometry
+from map_generation import map_generation_cognifly
 import threading
+import tf
 from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
 
 NAME = "drone"
@@ -20,6 +22,7 @@ line_counter = 0
 
 last_position = None
 
+tfBuffer = tf.TransformListener()
 
 def rotation_left():
     rospy.sleep(1.5)
@@ -146,6 +149,10 @@ def finish_listener(sample):
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
+    
+def map_callback(data):
+    png = map_generation_cognifly(data, "simple_quad_map", tfBuffer)
+    session.declare_publisher('map_image_cognifly').put(png.tobytes())    
 
 
 def main():
@@ -159,7 +166,7 @@ def main():
     pub_state = session.declare_publisher('drone_state')
     rospy.Subscriber("/robot2/odom", Odometry, odom_callback)
     logger_pub = session.declare_publisher('logger')
-
+    sub_map = rospy.Subscriber('/robot2/map', OccupancyGrid, map_callback)
     print("Started listening")
     while True:
         time.sleep(1)
