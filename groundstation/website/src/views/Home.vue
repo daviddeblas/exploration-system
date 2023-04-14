@@ -11,13 +11,13 @@ export default defineComponent({
   name: "Home",
   data() {
     return {
-
       rover: ref(ROBOT_STATUS.offline),
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
       rover_battery: ref(battery_charge_100),
       drone_battery: ref(battery_charge_100),
+      mapImageCogniflyUrl: ref(""),
     };
   },
   methods: {
@@ -32,7 +32,7 @@ export default defineComponent({
       this.socket.emit("finish", { data: "Finir mission" });
     },
     p2p() {
-      this.socket.emit("p2p", { data: "activer le mode P2P"})
+      this.socket.emit("p2p", { data: "activer le mode P2P" });
     },
     onRoverState(in_mission?: string) {
       if (in_mission === "True") {
@@ -59,7 +59,12 @@ export default defineComponent({
       const blob = new Blob([arrayBufferView], { type: "image/png" });
       const imageUrl = URL.createObjectURL(blob);
       this.mapImageUrl = imageUrl;
-      console.log(imageUrl);
+    },
+    onMapCogniflyUpdate(map_bytes: ArrayBuffer) {
+      const arrayBufferView = new Uint8Array(map_bytes);
+      const blob = new Blob([arrayBufferView], { type: "image/png" });
+      const imageUrl = URL.createObjectURL(blob);
+      this.mapImageCogniflyUrl = imageUrl;
     },
     return_home() {
       this.socket.emit("return_home", { data: "Retour à la base" });
@@ -77,6 +82,7 @@ export default defineComponent({
     this.socket.on("map_update", this.onMapUpdate);
     this.socket.on("rover_battery", this.onRoverBatteryState);
     this.socket.on("drone_battery", this.onDroneBatteryState);
+    this.socket.on("map_cognifly_update", this.onMapCogniflyUpdate);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
@@ -84,6 +90,7 @@ export default defineComponent({
     this.socket.off("map_update", this.onMapUpdate);
     this.socket.off("rover_battery", this.onRoverBatteryState);
     this.socket.off("drone_battery", this.onDroneBatteryState);
+    this.socket.off("map_cognifly_update", this.onMapCogniflyUpdate);
   },
 });
 </script>
@@ -111,7 +118,7 @@ export default defineComponent({
       >
         P2P
       </button>
-      <button  @click="return_home"> Retour à la Base </button>
+      <button @click="return_home">Retour à la Base</button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
@@ -131,6 +138,14 @@ export default defineComponent({
         class="image"
         :src="mapImageUrl"
         alt="Map"
+      />
+    </div>
+    <div class="image-container">
+      <img
+        v-if="mapImageCogniflyUrl !== ''"
+        class="image"
+        :src="mapImageCogniflyUrl"
+        alt="CogniflyMap"
       />
     </div>
   </div>

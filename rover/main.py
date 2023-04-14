@@ -5,6 +5,7 @@ import roslaunch
 import rospy
 import subprocess
 from threading import Thread
+from threading import Thread
 import time
 import tf
 import zenoh
@@ -12,6 +13,7 @@ import math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
+from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
@@ -51,6 +53,8 @@ exploration_running_drone = False
 
 def start_listener_rover(sample):
     global start_exploration
+    mission_thread = Thread(target=cognifly.start_mission)
+    mission_thread.start()
 
     message = sample.payload.decode('utf-8')
     print(message)
@@ -91,6 +95,8 @@ def finish_listener(sample):
     global exploration_running
     finish_thread = Thread(target=cognifly.finish_mission)
     finish_thread.start()
+    finish_thread = Thread(target=cognifly.finish_mission)
+    finish_thread.start()
 
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
@@ -126,6 +132,30 @@ def publish_cognifly_odom():
         'simple_quad_odom_global'
     )
 
+def publish_cognifly_odom():
+    x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
+    odom = Odometry()
+
+    odom.header.stamp = rospy.Time.now()
+    odom.header.frame_id = 'simple_quad_odom_global'
+    odom.child_frame_id = 'simple_quad_base_link_global'
+
+    odom.pose.pose = Pose(Point(x=x, y=y, z=z), Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
+
+    odom_pub = rospy.Publisher('/cognifly/odom', Odometry, queue_size=10)
+
+    odom.header.stamp = rospy.Time.now()
+    odom_pub.publish(odom)
+    
+    # Publier la transformée entre l'odom et le base_link du cognifly
+    tf_broadcaster = tf.TransformBroadcaster()
+    tf_broadcaster.sendTransform(
+        (x, y, z),
+        (0.0, 0.0, 0.0, 1.0),
+        rospy.Time.now(),
+        'simple_quad_base_link_global',
+        'simple_quad_odom_global'
+    )
 
 def odom_callback(data):
     global last_position
