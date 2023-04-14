@@ -3,6 +3,7 @@ import numpy as np
 import roslaunch
 import rospy
 import subprocess
+from threading import Thread
 import time
 import tf
 import zenoh, math
@@ -45,7 +46,8 @@ cognifly = MoveCognifly()
 
 def start_listener(sample):
     global start_exploration
-    cognifly.start_mission()
+    mission_thread = Thread(target=cognifly.start_mission)
+    mission_thread.start()
 
     message = sample.payload.decode('utf-8')
     print(message)
@@ -67,8 +69,8 @@ def finish_listener(sample):
     print(message)
     global launch_exploration
     global exploration_running
-
-    cognifly.finish_mission()
+    finish_thread = Thread(target=cognifly.finish_mission)
+    finish_thread.start()
 
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
@@ -77,7 +79,7 @@ def finish_listener(sample):
     exploration_running = False
 
 def publish_cognifly_odom():
-    x, y, z = cognifly.cf.get_position()
+    x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
     odom = Odometry()
 
     odom.header.stamp = rospy.Time.now()
@@ -172,7 +174,7 @@ def map_callback(data):
 
     # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
-                  (cognifly_pos_x+2, cognifly_pos_y+2), (255, 0, 0, 255), thickness=-1)
+                  (cognifly_pos_x+2, cognifly_pos_y+2), (0, 255, 0, 255), thickness=-1)
 
     # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
