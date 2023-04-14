@@ -49,7 +49,6 @@ def start_listener(sample):
 
     message = sample.payload.decode('utf-8')
     print(message)
-    pub.publish(move)
     start_exploration = True
 
 def identify_rover():
