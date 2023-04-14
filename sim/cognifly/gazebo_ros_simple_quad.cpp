@@ -225,9 +225,6 @@ namespace gazebo_plugins
     }
     impl_->last_update_time_ = _model->GetWorld()->SimTime();
 
-    // From GazeboRosHandOfGod
-    impl_->frame_ = _sdf->Get<std::string>("frame_id", "world").first;
-
     impl_->kl_ = _sdf->Get<double>("kl", 200).first;
     impl_->ka_ = _sdf->Get<double>("ka", 200).first;
 
@@ -254,14 +251,14 @@ namespace gazebo_plugins
     impl_->ca_ = 2.0 * sqrt(impl_->ka_ * impl_->link_->GetInertial()->IXX());
 
     // Subscribe to pose
-    impl_->cmd_pos_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_pos", 100,
+    impl_->cmd_pos_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_pos", 1000,
                                                      &GazeboRosSimpleQuadPrivate::OnCmdPos, impl_.get());
 
     // ROS_INFO("Subscribed to [%s]", impl_->cmd_pos_sub_.get_topic_name());
     ROS_INFO("Subscribed to [cmd_pos]");
 
     // Subscribe to twist
-    impl_->cmd_vel_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_vel", 100,
+    impl_->cmd_vel_sub_ = impl_->ros_node_.subscribe("/robot2/cmd_vel", 1000,
                                                      &GazeboRosSimpleQuadPrivate::OnCmdVel, impl_.get());
 
     // ROS_INFO("Subscribed to [%s]", impl_->cmd_vel_sub_.get_topic_name());
@@ -271,9 +268,9 @@ namespace gazebo_plugins
     impl_->transform_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>();
 
     // Odometry
-    impl_->odometry_frame_ = _sdf->Get<std::string>("odometry_frame", "simple_quad_odom").first;
+    impl_->odometry_frame_ = _sdf->Get<std::string>("odometry_frame", "simple_quad_odom_global").first;
     impl_->odometry_topic_ = _sdf->Get<std::string>("odometry_topic", "/robot2/odom").first;
-    impl_->robot_base_frame_ = _sdf->Get<std::string>("robot_base_frame", "simple_quad_base_link").first;
+    impl_->robot_base_frame_ = _sdf->Get<std::string>("robot_base_frame", "simple_quad_base_link_global").first;
 
     // Advertise odometry topic
     impl_->publish_odom_ = _sdf->Get<bool>("publish_odom", true).first;
@@ -285,7 +282,7 @@ namespace gazebo_plugins
     }
 
     // Create TF broadcaster if needed
-    impl_->publish_odom_tf_ = _sdf->Get<bool>("publish_odom_tf", false).first;
+    impl_->publish_odom_tf_ = _sdf->Get<bool>("publish_odom_tf", true).first;
     if (impl_->publish_odom_tf_)
     {
       ROS_INFO("Publishing odom transforms between [%s] and [%s]", impl_->odometry_frame_.c_str(),
@@ -335,7 +332,7 @@ namespace gazebo_plugins
 
     impl_->max_acc_ = _sdf->Get<double>("max_acc", 0.1).first;
 
-    impl_->fake_pitch_roll_ = _sdf->Get<bool>("fake_pitch_roll", true).first;
+    impl_->fake_pitch_roll_ = _sdf->Get<bool>("fake_pitch_roll", false).first;
 
     // Listen to the update event (broadcast every simulation iteration)
     impl_->update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(
@@ -455,8 +452,6 @@ namespace gazebo_plugins
     link_->AddForce(force);
     link_->AddRelativeTorque(torque);
 
-    PublishFootprintTf(_info.simTime);
-
 #ifdef IGN_PROFILER_ENABLE
     IGN_PROFILE_END();
 #endif
@@ -571,7 +566,10 @@ namespace gazebo_plugins
     msg.transform.translation.y = odom_.pose.pose.position.y;
     msg.transform.translation.z = odom_.pose.pose.position.z;
 
-    msg.transform.rotation = odom_.pose.pose.orientation;
+    msg.transform.rotation.x = 0;
+    msg.transform.rotation.y = 0;
+    msg.transform.rotation.z = 0;
+    msg.transform.rotation.w = 1; // set to default orientation
 
     transform_broadcaster_->sendTransform(msg);
   }

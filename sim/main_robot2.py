@@ -2,8 +2,10 @@ import zenoh
 import time
 import rospy
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import OccupancyGrid, Odometry
+from map_generation import map_generation_cognifly
 import threading
+import tf
 from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
 import math
 
@@ -18,9 +20,11 @@ session = zenoh.open()
 exploration_running = False
 stop_event = threading.Event()
 line_counter = 0
-
+limo_exists = False
 last_position = None
 distance_traveled = 0.0
+
+tfBuffer = tf.TransformListener()
 
 
 def rotation_left():
@@ -43,7 +47,7 @@ def rotation_right():
 
 def forward():
     rospy.sleep(0.5)
-    move.linear.x = 1.0
+    move.linear.x = 0.01
     pub.publish(move)
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
@@ -53,7 +57,7 @@ def forward():
 
 def backward():
     rospy.sleep(0.5)
-    move.linear.x = -1.0
+    move.linear.x = -0.01
     pub.publish(move)
     rospy.sleep(END_LINE_TIME)
     move.linear.x = 0.0
@@ -159,6 +163,11 @@ def odom_callback(data):
     last_position = position
 
 
+def map_callback(data):
+    png = map_generation_cognifly(data, "simple_quad_map", tfBuffer)
+    session.declare_publisher('map_image_cognifly').put(png.tobytes())
+
+
 def main():
     global distance_traveled
     move.linear.x = 0.0
@@ -173,7 +182,7 @@ def main():
         f'{NAME}_distance_traveled')
     rospy.Subscriber("/robot2/odom", Odometry, odom_callback)
     logger_pub = session.declare_publisher('logger')
-
+    sub_map = rospy.Subscriber('/robot2/map', OccupancyGrid, map_callback)
     print("Started listening")
     while True:
         time.sleep(1)
@@ -182,5 +191,19 @@ def main():
         distance_traveled_pub.put(distance_traveled)
 
 
+def receive_existence(sample):
+    global limo_exists
+    if (limo_exists):
+        return
+    limo_exists = True
+    send_existence()
+
+
+def send_existence():
+    session.declare_publisher("cognifly_exists").put(True)
+
+
 if __name__ == "__main__":
+    exists_sub = session.declare_subscriber("limo_exists", receive_existence)
+    send_existence()
     main()

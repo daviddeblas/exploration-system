@@ -10,6 +10,7 @@
     </node>
 
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+      <remap from="map" to="/limo/map"/>
       <param name="map_update_interval" value="0.1"/>
       <param name="maxUrange" value="16.0"/>
       <param name="sigma" value="0.05"/>
