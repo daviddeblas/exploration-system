@@ -41,9 +41,8 @@ class MoveCognifly:
         ]
 
     def start_mission(self):
-        if self.started_mission or self.battery <= LEVEL_TOO_LOW:
+        if self.started_mission or self.battery <= LEVEL_TOO_LOW or self.finishing_mission:
             return
-        self.finishing_mission = False
         self.started_mission = True
         self.cf.arm()
         time.sleep(2)
@@ -74,7 +73,10 @@ class MoveCognifly:
         return math.sqrt(cognifly_position[0]**2 + cognifly_position[1]**2)
 
     def finish_mission(self):
+        if not self.started_mission:
+            return
         self.finishing_mission = True
+        self.started_mission = False
         self.cf.set_position_nonblocking(x=0.0, y=0.0, z=0.5, yaw=0.0,
                                          max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
         time.sleep(10)
@@ -82,7 +84,6 @@ class MoveCognifly:
         time.sleep(2)
         self.cf.disarm()
         self.finishing_mission = False
-        self.started_mission = False
 
     def get_battery(self):
         voltage = float(self.cf.get_telemetry()[-2])
