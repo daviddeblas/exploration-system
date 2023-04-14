@@ -9,7 +9,7 @@ import zenoh, math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 
