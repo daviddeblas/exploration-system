@@ -91,10 +91,7 @@ def finish_listener(sample):
     global exploration_running_drone
     message = sample.payload.decode('utf-8')
     print(message)
-    global launch_exploration
     global exploration_running
-    finish_thread = Thread(target=cognifly.finish_mission)
-    finish_thread.start()
     finish_thread = Thread(target=cognifly.finish_mission)
     finish_thread.start()
 
@@ -132,30 +129,6 @@ def publish_cognifly_odom():
         'simple_quad_odom_global'
     )
 
-def publish_cognifly_odom():
-    x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
-    odom = Odometry()
-
-    odom.header.stamp = rospy.Time.now()
-    odom.header.frame_id = 'simple_quad_odom_global'
-    odom.child_frame_id = 'simple_quad_base_link_global'
-
-    odom.pose.pose = Pose(Point(x=x, y=y, z=z), Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
-
-    odom_pub = rospy.Publisher('/cognifly/odom', Odometry, queue_size=10)
-
-    odom.header.stamp = rospy.Time.now()
-    odom_pub.publish(odom)
-    
-    # Publier la transformée entre l'odom et le base_link du cognifly
-    tf_broadcaster = tf.TransformBroadcaster()
-    tf_broadcaster.sendTransform(
-        (x, y, z),
-        (0.0, 0.0, 0.0, 1.0),
-        rospy.Time.now(),
-        'simple_quad_base_link_global',
-        'simple_quad_odom_global'
-    )
 
 def odom_callback(data):
     global last_position

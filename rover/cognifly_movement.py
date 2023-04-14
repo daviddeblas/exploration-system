@@ -89,7 +89,3 @@ class MoveCognifly:
         percentage = int((voltage - 6.4) / (8.4 - 6.4) * 100)
         self.battery = percentage
         return self.battery
-
-    def is_crashed(self):
-        telemetry = self.cf.get_telemetry()
-        return "BLOCKED_UAV_NOT_LEVEL" in telemetry[-1]
