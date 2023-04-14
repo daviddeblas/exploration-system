@@ -10,6 +10,8 @@ import datetime
 import json
 
 logger_queue = asyncio.Queue()
+in_mission_sem = asyncio.Semaphore()
+mission = None
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
@@ -37,12 +39,15 @@ logger_sub = session.declare_subscriber("logger", log_sub)
 
 
 async def logger_task():
+    global mission
     while True:
         message = await logger_queue.get()
+        if mission is None:
+            continue
         data = message.split(";;", 2)
         db = database.SessionLocal()
         log_entry = models.LogEntry(
-            mission_id=models.mission.id,
+            mission_id=mission.id,
             time=datetime.datetime.now(),
             robot=data[0],
             category=data[1],
@@ -55,12 +60,41 @@ async def logger_task():
         await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
 
 
+async def in_mission_task():
+    global mission
+    while True:
+        await in_mission_sem.acquire()
+        in_mission = False
+        if rover.in_mission is not None or drone.in_mission is not None:
+            in_mission = rover.in_mission == "True" or drone.in_mission == "True"
+
+        if mission is not None:
+            if rover.in_mission == "True":
+                mission.has_rover = True
+            if drone.in_mission == "True":
+                mission.has_drone = True
+
+        if mission is None and in_mission:
+            mission = models.Mission(start=datetime.datetime.now())
+            db = database.SessionLocal()
+            db.add(mission)
+            db.commit()
+            db.refresh(mission)
+            db.close()
+        elif mission is not None and not in_mission:
+            mission.end = datetime.datetime.now()
+            mission.distance_drone = drone.distance_traveled
+            mission.distance_rover = rover.distance_traveled
+            db = database.SessionLocal()
+            db.add(mission)
+            db.commit()
+            db.close()
+            mission = None
+
+
 @sio.event
 async def connect(sid, environ, auth):
     print(f'{sid}: connected')
-    asyncio.create_task(rover.send_robot_state())
-    asyncio.create_task(drone.send_robot_state())
-    asyncio.create_task(logger_task())
     logger_queue.put_nowait(f"groundstation;;connect;;{sid}")
 
 
@@ -69,8 +103,11 @@ class RobotCommunication:
         self.name = name
         self.in_mission = None
         self.last_updated = None
+        self.distance_traveled = 0.0
         self.sub = session.declare_subscriber(
             f'{self.name}_state', self.robot_state)
+        self.dist_sub = session.declare_subscriber(
+            f'{self.name}_distance_traveled', self.robot_distance_traveled)
 
     async def send_robot_state(self):
         while True:
@@ -87,6 +124,10 @@ class RobotCommunication:
     def robot_state(self, sample):
         self.in_mission = sample.payload.decode('utf-8')
         self.last_updated = time.time()
+        in_mission_sem.release()
+
+    def robot_distance_traveled(self, sample):
+        self.distance_traveled = float(sample.payload.decode('utf-8'))
 
 
 def handle_map_update(sample):
@@ -97,6 +138,11 @@ def handle_map_update(sample):
 rover = RobotCommunication('rover')
 drone = RobotCommunication('drone')
 sub_map_updates = session.declare_subscriber('map_image', handle_map_update)
+
+asyncio.create_task(rover.send_robot_state())
+asyncio.create_task(drone.send_robot_state())
+asyncio.create_task(logger_task())
+asyncio.create_task(in_mission_task())
 
 
 @ sio.event

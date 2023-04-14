@@ -32,11 +32,15 @@ def missions(db: Session = Depends(get_db)):
 
 @api.get("/logs")
 def logs(skip: int = 0, start_id: int = 0, mission: int = 0, db: Session = Depends(get_db)):
+    current_mission = db.query(models.Mission).order_by(
+        desc(models.Mission.id)).limit(1).one_or_none()
+    if current_mission is None:
+        return []
     query = db.query(models.LogEntry).order_by(desc(models.LogEntry.id))
     if mission:
         query = query.filter(models.LogEntry.mission_id == mission)
     else:
-        query = query.filter(models.LogEntry.mission_id == models.mission.id)
+        query = query.filter(models.LogEntry.mission_id == current_mission.id)
     if start_id:
         query = query.filter(models.LogEntry.id <= start_id)
     return query.offset(skip).limit(30).all()

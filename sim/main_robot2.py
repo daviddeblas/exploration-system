@@ -5,6 +5,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import threading
 from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
+import math
 
 NAME = "drone"
 
@@ -19,6 +20,7 @@ stop_event = threading.Event()
 line_counter = 0
 
 last_position = None
+distance_traveled = 0.0
 
 
 def rotation_left():
@@ -116,6 +118,9 @@ def stop_drone_movement():
 
 def start_listener(sample):
     global drone_thread, exploration_running, line_counter
+    global distance_traveled
+
+    distance_traveled = 0.0
     message = sample.payload.decode('utf-8')
     print(message)
     exploration_running = True
@@ -145,10 +150,17 @@ def finish_listener(sample):
 
 def odom_callback(data):
     global last_position
-    last_position = data.pose.pose.position
+    global distance_traveled
+    position = data.pose.pose.position
+    if last_position is not None:
+        distance_traveled += math.sqrt(
+            (last_position.x - position.x) ** 2 +
+            (last_position.y - position.y) ** 2)
+    last_position = position
 
 
 def main():
+    global distance_traveled
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
@@ -157,6 +169,8 @@ def main():
     sub2 = session.declare_subscriber('identify', identify_listener)
     sub3 = session.declare_subscriber('finish', finish_listener)
     pub_state = session.declare_publisher('drone_state')
+    distance_traveled_pub = session.declare_publisher(
+        f'{NAME}_distance_traveled')
     rospy.Subscriber("/robot2/odom", Odometry, odom_callback)
     logger_pub = session.declare_publisher('logger')
 
@@ -165,6 +179,7 @@ def main():
         time.sleep(1)
         pub_state.put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
+        distance_traveled_pub.put(distance_traveled)
 
 
 if __name__ == "__main__":
