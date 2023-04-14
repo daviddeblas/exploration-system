@@ -233,10 +233,7 @@ def battery_rover_callback(data):
 def return_home():
     global initial_data
     global exploration_running_rover
-    global exploration_running_drone
 
-    exploration_running_drone = False
-    cognifly.finish_mission()
     if exploration_running_rover:
         global launch_exploration
         launch_exploration.shutdown()
@@ -264,10 +261,12 @@ def return_home_rover_listener(sample):
 
 
 def return_home_listener(sample):
+    global exploration_running_drone
     message = sample.payload.decode('utf-8')
     print(message)
-    # global cognifly
-    # cognifly.finish_mission()
+    exploration_running_drone = False
+    mission_thread = Thread(cognifly.finish_mission())
+    mission_thread.start
     return_home()
 
 
