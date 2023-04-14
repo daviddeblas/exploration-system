@@ -4,6 +4,7 @@ import numpy as np
 import roslaunch
 import rospy
 import subprocess
+from threading import Thread
 import time
 import tf
 import zenoh
@@ -11,7 +12,7 @@ import math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 from limo_base.msg import LimoStatus
@@ -53,7 +54,6 @@ def start_listener_rover(sample):
 
     message = sample.payload.decode('utf-8')
     print(message)
-    pub.publish(move)
     start_exploration = True
 
 
@@ -63,8 +63,8 @@ def start_listener_drone(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     exploration_running_drone = True
-    # global cognifly
-    # cognifly.start_mission()
+    mission_thread = Thread(target=cognifly.start_mission)
+    mission_thread.start()
 
 
 def identify_rover():
@@ -87,9 +87,11 @@ def finish_listener(sample):
     global exploration_running_drone
     message = sample.payload.decode('utf-8')
     print(message)
+    global launch_exploration
+    global exploration_running
+    finish_thread = Thread(target=cognifly.finish_mission)
+    finish_thread.start()
 
-    # global cognifly
-    # cognifly.finish_mission()
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
@@ -97,9 +99,37 @@ def finish_listener(sample):
     exploration_running_drone = False
 
 
+def publish_cognifly_odom():
+    x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
+    odom = Odometry()
+
+    odom.header.stamp = rospy.Time.now()
+    odom.header.frame_id = 'simple_quad_odom_global'
+    odom.child_frame_id = 'simple_quad_base_link_global'
+
+    odom.pose.pose = Pose(Point(x=x, y=y, z=z),
+                          Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
+
+    odom_pub = rospy.Publisher('/cognifly/odom', Odometry, queue_size=10)
+
+    odom.header.stamp = rospy.Time.now()
+    odom_pub.publish(odom)
+
+    # Publier la transformée entre l'odom et le base_link du cognifly
+    tf_broadcaster = tf.TransformBroadcaster()
+    tf_broadcaster.sendTransform(
+        (x, y, z),
+        (0.0, 0.0, 0.0, 1.0),
+        rospy.Time.now(),
+        'simple_quad_base_link_global',
+        'simple_quad_odom_global'
+    )
+
+
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
+    publish_cognifly_odom()
 
 
 def scan_callback(data):
@@ -157,6 +187,19 @@ def map_callback(data):
     cv2.rectangle(map_image, (robot_pos_x-2, robot_pos_y-2),
                   (robot_pos_x+2, robot_pos_y+2), (255, 0, 0, 255), thickness=-1)
 
+    # Ajouter la position du cognifly de la même manière
+    trans_cognifly, rot_cognifly = tfBuffer.lookupTransform(
+        "map", "simple_quad_base_link_global", rospy.Time())
+
+    cognifly_pos_x = int((trans_cognifly[0] - cropped_origin_x) /
+                         cropped_info.info.resolution)
+    cognifly_pos_y = int((trans_cognifly[1] - cropped_origin_y) /
+                         cropped_info.info.resolution)
+
+    # Dessine un rectangle au niveau de la position du limo
+    cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
+                  (cognifly_pos_x+2, cognifly_pos_y+2), (0, 255, 0, 255), thickness=-1)
+
     # Encoder l'image en PNG
     ret, png = cv2.imencode('.png', map_image)
 
@@ -190,6 +233,7 @@ def return_home():
     global initial_data
     global exploration_running_rover
 
+    cognifly.finish_mission()
     if exploration_running_rover:
         global launch_exploration
         launch_exploration.shutdown()
