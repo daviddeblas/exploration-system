@@ -101,6 +101,7 @@ def finish_listener(sample):
 
 def publish_cognifly_odom():
     x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
+    y = -y
     odom = Odometry()
 
     odom.header.stamp = rospy.Time.now()
@@ -232,7 +233,9 @@ def battery_rover_callback(data):
 def return_home():
     global initial_data
     global exploration_running_rover
+    global exploration_running_drone
 
+    exploration_running_drone = False
     cognifly.finish_mission()
     if exploration_running_rover:
         global launch_exploration
@@ -240,8 +243,6 @@ def return_home():
         launch_exploration = roslaunch.parent.ROSLaunchParent(
             uuid, [launch_file_path])
         exploration_running_rover = False
-        return
-
     return_pub = rospy.Publisher(
         '/move_base_simple/goal', PoseStamped, queue_size=10)
     msg = PoseStamped()
