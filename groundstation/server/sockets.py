@@ -2,7 +2,7 @@ import socketio
 import zenoh
 import asyncio
 import time
-from constants import TIMEOUT_ROBOT
+from constants import TIMEOUT_ROBOT, BATTERY_CHARGE_100, LEVEL_TOO_LOW
 import database
 import asyncio
 import models
@@ -23,9 +23,11 @@ sio_app = socketio.ASGIApp(
 
 session = zenoh.open()
 pub_identify = session.declare_publisher('identify')
-pub_start = session.declare_publisher('start')
+pub_start_rover = session.declare_publisher('start_rover')
+pub_start_drone = session.declare_publisher('start_drone')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
+return_home_rover = session.declare_publisher('return_home_rover')
 p2p_trigger = session.declare_publisher('p2p')
 
 
@@ -70,8 +72,11 @@ class RobotCommunication:
         self.name = name
         self.in_mission = None
         self.last_updated = None
+        self.battery = BATTERY_CHARGE_100
         self.sub = session.declare_subscriber(
             f'{self.name}_state', self.robot_state)
+        self.sub_battery = session.declare_subscriber(
+            f'{self.name}_battery', self.battery_state)
 
     async def send_robot_state(self):
         while True:
@@ -88,6 +93,22 @@ class RobotCommunication:
     def robot_state(self, sample):
         self.in_mission = sample.payload.decode('utf-8')
         self.last_updated = time.time()
+
+    def battery_state(self, sample):
+        battery = sample.payload.decode('utf-8')
+        try:
+            battery = int(sample.payload.decode('utf-8'))
+        except (ValueError, AttributeError):
+            return
+        self.battery = battery
+
+        asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
+
+        if (self.battery <= LEVEL_TOO_LOW and self.name == "rover"):
+            return_home_rover.put("return_home_rover")
+
+    def get_battery(self):
+        return self.battery
 
 
 def handle_map_update(sample):
@@ -113,8 +134,21 @@ async def identify(data, _):
 
 @ sio.event
 async def start(data, _):
-    pub_start.put("start")
-    logger_queue.put_nowait("groundstation;;start;;")
+    if (rover.get_battery() <= LEVEL_TOO_LOW and drone.get_battery() <= LEVEL_TOO_LOW):
+        return
+
+    elif (rover.get_battery() <= LEVEL_TOO_LOW):
+        pub_start_drone.put("start_drone")
+        logger_queue.put_nowait("groundstation;;start;;")
+
+    elif (drone.get_battery() <= LEVEL_TOO_LOW):
+        pub_start_rover.put("start_rover")
+        logger_queue.put_nowait("groundstation;;start;;")
+
+    else:
+        pub_start_rover.put("start_rover")
+        pub_start_drone.put("start_drone")
+        logger_queue.put_nowait("groundstation;;start;;")
 
 
 @ sio.event
@@ -127,9 +161,11 @@ async def finish(data, _):
 async def return_home(data, _):
     return_home_finish.put("return_home")
 
+
 @ sio.event
 async def p2p(data, _):
     p2p_trigger.put("p2p")
+
 
 @ sio.event
 async def disconnect(sid):

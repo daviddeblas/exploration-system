@@ -5,6 +5,8 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { ROBOT_STATUS } from "@/common/constants";
 
+let battery_charge_100 = 100;
+
 export default defineComponent({
   name: "Home",
   data() {
@@ -13,6 +15,8 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
+      rover_battery: ref(battery_charge_100),
+      drone_battery: ref(battery_charge_100),
       mapImageCogniflyUrl: ref(""),
     };
   },
@@ -28,7 +32,7 @@ export default defineComponent({
       this.socket.emit("finish", { data: "Finir mission" });
     },
     p2p() {
-      this.socket.emit("p2p", { data: "activer le mode P2P"})
+      this.socket.emit("p2p", { data: "activer le mode P2P" });
     },
     onRoverState(in_mission?: string) {
       if (in_mission === "True") {
@@ -65,17 +69,27 @@ export default defineComponent({
     return_home() {
       this.socket.emit("return_home", { data: "Retour à la base" });
     },
+    onRoverBatteryState(battery_state: number) {
+      this.rover_battery = battery_state;
+    },
+    onDroneBatteryState(battery_state: number) {
+      this.drone_battery = battery_state;
+    },
   },
   mounted() {
     this.socket.on("rover_state", this.onRoverState);
     this.socket.on("drone_state", this.onDroneState);
     this.socket.on("map_update", this.onMapUpdate);
+    this.socket.on("rover_battery", this.onRoverBatteryState);
+    this.socket.on("drone_battery", this.onDroneBatteryState);
     this.socket.on("map_cognifly_update", this.onMapCogniflyUpdate);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
     this.socket.off("drone_state", this.onDroneState);
     this.socket.off("map_update", this.onMapUpdate);
+    this.socket.off("rover_battery", this.onRoverBatteryState);
+    this.socket.off("drone_battery", this.onDroneBatteryState);
     this.socket.off("map_cognifly_update", this.onMapCogniflyUpdate);
   },
 });
@@ -104,11 +118,19 @@ export default defineComponent({
       >
         P2P
       </button>
-      <button  @click="return_home"> Retour à la Base </button>
+      <button @click="return_home">Retour à la Base</button>
     </div>
     <div>
       <span class="robot_state">Le rover est {{ rover }} </span>
       <span class="robot_state">Le drone est {{ drone }} </span>
+    </div>
+    <div>
+      <span class="battery_state" v-if="drone !== 'hors ligne'"
+        >La batterie du drone est à {{ drone_battery }}%
+      </span>
+      <span class="battery_state" v-if="rover !== 'hors ligne'"
+        >La batterie du rover est à {{ rover_battery }}%
+      </span>
     </div>
     <div class="image-container">
       <img
@@ -163,16 +185,32 @@ export default defineComponent({
   border-radius: 5px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   width: 230px;
-  text-align: center;
+  float: left;
   position: relative;
   overflow: hidden;
+  margin: 5px;
+}
+
+.battery_state {
+  margin-top: 10px;
+  font-size: 20px;
+  background-color: #d9c1b9;
+  color: #604d44;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  width: 230px;
+  float: right;
+  position: relative;
+  overflow: hidden;
+  margin: 5px;
 }
 
 span {
   display: block;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 520px) {
   .image {
     height: 30vh;
   }
@@ -187,7 +225,11 @@ span {
   }
   .robot_state {
     font-size: 16px;
-    width: 180px;
+    width: 185px;
+  }
+  .battery_state {
+    font-size: 16px;
+    width: 185px;
   }
 }
 </style>

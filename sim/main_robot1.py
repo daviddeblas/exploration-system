@@ -86,7 +86,11 @@ def return_home_listener(sample):
     global initial_data
     global exploration_running
     if exploration_running:
-        return
+        global launch_exploration
+        launch_exploration.shutdown()
+        launch_exploration = roslaunch.parent.ROSLaunchParent(
+            uuid, [launch_file_path])
+        exploration_running = False
     message = sample.payload.decode('utf-8')
     print(message)
     return_pub = rospy.Publisher(
@@ -125,7 +129,7 @@ def main():
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
-    start_sub = session.declare_subscriber('start', start_listener)
+    start_sub = session.declare_subscriber('start_rover', start_listener)
     identify_sub = session.declare_subscriber('identify', identify_listener)
     finish_sub = session.declare_subscriber('finish', finish_listener)
     
