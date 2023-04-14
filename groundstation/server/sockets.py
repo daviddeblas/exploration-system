@@ -94,10 +94,15 @@ def handle_map_update(sample):
     png_bytes = sample.payload
     asyncio.run(sio.emit('map_update', png_bytes))
 
+def handle_map_cognifly_update(sample):
+    png_bytes = sample.payload
+    asyncio.run(sio.emit('map_cognifly_update', png_bytes))
+
 
 rover = RobotCommunication('rover')
 drone = RobotCommunication('drone')
 sub_map_updates = session.declare_subscriber('map_image', handle_map_update)
+sub_map_cognifly_updates = session.declare_subscriber('map_image_cognifly', handle_map_cognifly_update)
 
 
 @ sio.event

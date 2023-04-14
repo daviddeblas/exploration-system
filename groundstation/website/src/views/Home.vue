@@ -13,6 +13,7 @@ export default defineComponent({
       drone: ref(ROBOT_STATUS.offline),
       socket: inject(socketProvider) as Socket,
       mapImageUrl: ref(""),
+      mapImageCogniflyUrl: ref(""),
     };
   },
   methods: {
@@ -54,7 +55,12 @@ export default defineComponent({
       const blob = new Blob([arrayBufferView], { type: "image/png" });
       const imageUrl = URL.createObjectURL(blob);
       this.mapImageUrl = imageUrl;
-      console.log(imageUrl);
+    },
+    onMapCogniflyUpdate(map_bytes: ArrayBuffer) {
+      const arrayBufferView = new Uint8Array(map_bytes);
+      const blob = new Blob([arrayBufferView], { type: "image/png" });
+      const imageUrl = URL.createObjectURL(blob);
+      this.mapImageCogniflyUrl = imageUrl;
     },
     return_home() {
       this.socket.emit("return_home", { data: "Retour à la base" });
@@ -64,11 +70,13 @@ export default defineComponent({
     this.socket.on("rover_state", this.onRoverState);
     this.socket.on("drone_state", this.onDroneState);
     this.socket.on("map_update", this.onMapUpdate);
+    this.socket.on("map_cognifly_update", this.onMapCogniflyUpdate);
   },
   unmounted() {
     this.socket.off("rover_state", this.onRoverState);
     this.socket.off("drone_state", this.onDroneState);
     this.socket.off("map_update", this.onMapUpdate);
+    this.socket.off("map_cognifly_update", this.onMapCogniflyUpdate);
   },
 });
 </script>
@@ -108,6 +116,14 @@ export default defineComponent({
         class="image"
         :src="mapImageUrl"
         alt="Map"
+      />
+    </div>
+    <div class="image-container">
+      <img
+        v-if="mapImageCogniflyUrl !== ''"
+        class="image"
+        :src="mapImageCogniflyUrl"
+        alt="CogniflyMap"
       />
     </div>
   </div>
