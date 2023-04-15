@@ -80,4 +80,12 @@ describe("Home", () => {
       data: "Finir mission",
     });
   });
+  it("should emit activate event when P2P button is clicked", () => {
+    vi.spyOn(socketTestHelper, "emit");
+    const p2pButton = wrapper.find("#buttons button:nth-child(4)");
+    p2pButton.trigger("click");
+    expect(socketTestHelper.emit).toHaveBeenCalledWith("p2p", {
+      data: "activer le mode P2P",
+    });
+  });
 });
