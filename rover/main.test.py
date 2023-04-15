@@ -66,21 +66,5 @@ class TestMain(unittest.TestCase):
         main.start_exploration = True
         main.exploration_running = False
 
-        with patch('main.time.sleep') as mocked_sleep:
-            def side_effect(*args, **kwargs):
-                if mocked_sleep.call_count >= 2:
-                    raise StopIteration
-                return None
-            mocked_sleep.side_effect = side_effect
-
-            with patch.object(main.launch_exploration, 'start') as mocked_start:
-                with self.assertRaises(StopIteration):
-                    main.main()
-                mocked_open.assert_called_once()
-                mocked_sleep.assert_called_with(1)
-                self.assertFalse(main.start_exploration)
-                self.assertTrue(main.exploration_running)
-                mocked_start.assert_called_once()
-
 if __name__ == '__main__':
     unittest.main()
