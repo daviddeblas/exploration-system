@@ -153,7 +153,7 @@ def main():
     initial_y = odom_msg.pose.pose.position.y
     initial_data = {'x': initial_x, 'y': initial_y}
 
-    # Envoie au serveur le fait que le limo existe
+    # Envoie au cognifly le fait que le limo existe
     send_existence()
 
     time.sleep(0.5)
