@@ -58,10 +58,9 @@ def identify_rover():
 
 def identify_listener(sample):
     global cognifly
-    global session
-    cognifly.identify_cognifly()
     message = sample.payload.decode('utf-8')
     print(message)
+    cognifly.identify_cognifly()
     identify_rover()
     
 def finish_listener(sample):
@@ -75,7 +74,6 @@ def finish_listener(sample):
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
-
     exploration_running = False
 
 def publish_cognifly_odom():
@@ -92,7 +90,7 @@ def publish_cognifly_odom():
 
     odom.header.stamp = rospy.Time.now()
     odom_pub.publish(odom)
-    
+ 
     # Publier la transformée entre l'odom et le base_link du cognifly
     tf_broadcaster = tf.TransformBroadcaster()
     tf_broadcaster.sendTransform(
@@ -111,7 +109,6 @@ def odom_callback(data):
 def scan_callback(data):
     global last_scan
     last_scan = data
-
 
 def map_callback(data):
     # Convertir le message OccupancyGrid vers une image RGBA OpenCV
