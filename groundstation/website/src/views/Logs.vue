@@ -3,6 +3,7 @@ import { inject, defineComponent } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
+import axios from 'axios';
 
 interface Log {
   id: number;
@@ -12,14 +13,11 @@ interface Log {
   category: string;
   data: string;
 }
-
 interface Mission {
   id: number;
   start: string;
 }
-
 const MAX_LOG = 30;
-
 export default defineComponent({
   name: "Logs",
   data() {
@@ -66,16 +64,16 @@ export default defineComponent({
       }
     },
     async loadLogs() {
-      let res = await fetch(
+      let res = await axios.get(
         SERVER_URL +
           `/api/logs?mission=${this.mission_id}&start_id=${this.start_id}`
       );
-      let logs = (await res.json()) as Log[];
+      let logs = res.data as Log[];
       this.logs = logs;
     },
     async loadMissions() {
-      let res = await fetch(SERVER_URL + "/api/missions");
-      let missions = (await res.json()) as Mission[];
+      let res = await axios.get(SERVER_URL + "/api/missions");
+      let missions = res.data as Mission[];
       this.missions = missions;
     },
   },
@@ -95,7 +93,6 @@ export default defineComponent({
   },
 });
 </script>
-
 <template>
   <div>
     <h1>Logs</h1>
@@ -129,7 +126,11 @@ export default defineComponent({
         <td>{{ log.robot }}</td>
         <td>{{ log.category }}</td>
         <td class="log-data">
-          <div v-for="(line, index) in log.data.split('\n')" :key="index">
+          <div
+            v-for="(line, index) in log.data.split('\n')"
+            :key="index"
+            :data-test="`log-data-line-${index}`"
+          >
             <div v-if="line.length <= 50 || showFullLog">
               {{ line }}
             </div>
@@ -140,7 +141,6 @@ export default defineComponent({
     </table>
   </div>
 </template>
-
 <style scoped>
 .log-data {
   white-space: pre;
