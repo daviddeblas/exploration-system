@@ -1,18 +1,23 @@
+
 import cv2
 import numpy as np
 import roslaunch
 import rospy
 import subprocess
 from threading import Thread
+from threading import Thread
 import time
 import tf
-import zenoh, math
+import zenoh
+import math
 
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
+from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
+from limo_base.msg import LimoStatus
 
 NAME = "rover"
 PUT_IN_CM = 100
@@ -25,7 +30,7 @@ launch_file_path = roslaunch.rlutil.resolve_launch_arguments(
     [package_name, launch_file_name])[0]
 launch_exploration = roslaunch.parent.ROSLaunchParent(uuid, [launch_file_path])
 start_exploration = False
-exploration_running = False
+exploration_running_rover = False
 initial_data = {'x': 0, 'y': 0}
 
 session = zenoh.open()
@@ -36,15 +41,17 @@ move = Twist()
 
 last_position = None
 last_scan = None
+current_battery_rover = None
 activate_p2p = False
 
 bridge = CvBridge()
-
 tfBuffer = tf.TransformListener()
 
 cognifly = MoveCognifly()
+exploration_running_drone = False
 
-def start_listener(sample):
+
+def start_listener_rover(sample):
     global start_exploration
     mission_thread = Thread(target=cognifly.start_mission)
     mission_thread.start()
@@ -53,8 +60,21 @@ def start_listener(sample):
     print(message)
     start_exploration = True
 
+
+def start_listener_drone(sample):
+    global exploration_running_drone
+
+    message = sample.payload.decode('utf-8')
+    print(message)
+    exploration_running_drone = True
+    mission_thread = Thread(target=cognifly.start_mission)
+    mission_thread.start()
+
+
 def identify_rover():
-    subprocess.call(['aplay', '-q', '--device', 'hw:2,0', '/inf3995_ws/src/beep.wav'])
+    subprocess.call(['aplay', '-q', '--device', 'hw:2,0',
+                    '/inf3995_ws/src/beep.wav'])
+
 
 def identify_listener(sample):
     global cognifly
@@ -63,11 +83,14 @@ def identify_listener(sample):
     message = sample.payload.decode('utf-8')
     print(message)
     identify_rover()
-    
+
+
 def finish_listener(sample):
+    global launch_exploration
+    global exploration_running_rover
+    global exploration_running_drone
     message = sample.payload.decode('utf-8')
     print(message)
-    global launch_exploration
     global exploration_running
     finish_thread = Thread(target=cognifly.finish_mission)
     finish_thread.start()
@@ -75,24 +98,27 @@ def finish_listener(sample):
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
+    exploration_running_rover = False
+    exploration_running_drone = False
 
-    exploration_running = False
 
 def publish_cognifly_odom():
     x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
+    y = -y
     odom = Odometry()
 
     odom.header.stamp = rospy.Time.now()
     odom.header.frame_id = 'simple_quad_odom_global'
     odom.child_frame_id = 'simple_quad_base_link_global'
 
-    odom.pose.pose = Pose(Point(x=x, y=y, z=z), Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
+    odom.pose.pose = Pose(Point(x=x, y=y, z=z),
+                          Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
 
     odom_pub = rospy.Publisher('/cognifly/odom', Odometry, queue_size=10)
 
     odom.header.stamp = rospy.Time.now()
     odom_pub.publish(odom)
-    
+
     # Publier la transformée entre l'odom et le base_link du cognifly
     tf_broadcaster = tf.TransformBroadcaster()
     tf_broadcaster.sendTransform(
@@ -103,10 +129,12 @@ def publish_cognifly_odom():
         'simple_quad_odom_global'
     )
 
+
 def odom_callback(data):
     global last_position
     last_position = data.pose.pose.position
     publish_cognifly_odom()
+
 
 def scan_callback(data):
     global last_scan
@@ -162,15 +190,15 @@ def map_callback(data):
     # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (robot_pos_x-2, robot_pos_y-2),
                   (robot_pos_x+2, robot_pos_y+2), (255, 0, 0, 255), thickness=-1)
-    
+
     # Ajouter la position du cognifly de la même manière
     trans_cognifly, rot_cognifly = tfBuffer.lookupTransform(
         "map", "simple_quad_base_link_global", rospy.Time())
 
     cognifly_pos_x = int((trans_cognifly[0] - cropped_origin_x) /
-                      cropped_info.info.resolution)
+                         cropped_info.info.resolution)
     cognifly_pos_y = int((trans_cognifly[1] - cropped_origin_y) /
-                      cropped_info.info.resolution)
+                         cropped_info.info.resolution)
 
     # Dessine un rectangle au niveau de la position du limo
     cv2.rectangle(map_image, (cognifly_pos_x-2, cognifly_pos_y-2),
@@ -182,28 +210,39 @@ def map_callback(data):
     # Envoyer l'image par Zenoh
     session.declare_publisher('map_image').put(png.tobytes())
 
+
 def farthest_robot_trigger():
     global cognifly
     global last_position
-    rover_distance = ( math.sqrt(last_position.x**2 + last_position.y**2) ) * PUT_IN_CM
+    rover_distance = (math.sqrt(last_position.x**2 +
+                      last_position.y**2)) * PUT_IN_CM
     if (cognifly.distance_calculation() > rover_distance):
         cognifly.identify_cognifly()
-    else :
+    else:
         identify_rover()
+
 
 def p2p_trigger(sample):
     global activate_p2p
     activate_p2p = not activate_p2p
 
-def return_home_listener(sample):
-    global initial_data
-    global exploration_running
 
-    cognifly.finish_mission()
-    if exploration_running:
-        return
-    message = sample.payload.decode('utf-8')
-    print(message)
+def battery_rover_callback(data):
+    global current_battery_rover
+    voltage = float(data.battery_voltage)
+    current_battery_rover = int((voltage - 8.3) / (12.6 - 8.3) * 100)
+
+
+def return_home():
+    global initial_data
+    global exploration_running_rover
+
+    if exploration_running_rover:
+        global launch_exploration
+        launch_exploration.shutdown()
+        launch_exploration = roslaunch.parent.ROSLaunchParent(
+            uuid, [launch_file_path])
+        exploration_running_rover = False
     return_pub = rospy.Publisher(
         '/move_base_simple/goal', PoseStamped, queue_size=10)
     msg = PoseStamped()
@@ -218,12 +257,29 @@ def return_home_listener(sample):
     return_pub.publish(msg)
 
 
+def return_home_rover_listener(sample):
+    message = sample.payload.decode('utf-8')
+    print(message)
+    return_home()
+
+
+def return_home_listener(sample):
+    global exploration_running_drone
+    message = sample.payload.decode('utf-8')
+    print(message)
+    exploration_running_drone = False
+    mission_thread = Thread(cognifly.finish_mission())
+    mission_thread.start
+    return_home()
+
+
 def main():
     global start_exploration
-    global exploration_running
+    global exploration_running_rover
     global launch_exploration
     global initial_data
     global cognifly
+    global exploration_running_drone
     global activate_p2p
 
     move.linear.x = 0.0
@@ -232,6 +288,7 @@ def main():
 
     rospy.Subscriber("/odom", Odometry, odom_callback)
     rospy.Subscriber("/scan", LaserScan, scan_callback)
+    rospy.Subscriber("/limo_status", LimoStatus, battery_rover_callback)
 
     logger_pub = session.declare_publisher('logger')
 
@@ -239,35 +296,47 @@ def main():
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
 
-    start_sub = session.declare_subscriber('start', start_listener)
+    start_sub = session.declare_subscriber('start_rover', start_listener_rover)
+    start_sub2 = session.declare_subscriber(
+        'start_drone', start_listener_drone)
     identify_sub = session.declare_subscriber('identify', identify_listener)
+
     finish_sub = session.declare_subscriber('finish', finish_listener)
     p2p_sub = session.declare_subscriber('p2p', p2p_trigger)
     return_home_sub = session.declare_subscriber(
         'return_home', return_home_listener)
+    return_home_sub_rover = session.declare_subscriber(
+        'return_home_rover', return_home_rover_listener)
 
     initial_data = {'x': initial_x, 'y': initial_y}
 
     sub_map = rospy.Subscriber('/map', OccupancyGrid, map_callback)
 
     print("Started listening")
-    
+
     drone_state_pub = session.declare_publisher('drone_state')
-    rover_state_pub= session.declare_publisher('rover_state')
+    rover_state_pub = session.declare_publisher('rover_state')
+    pub_rover_battery = session.declare_publisher('rover_battery')
+    pub_drone_battery = session.declare_publisher('drone_battery')
     while True:
         time.sleep(1)
-        if start_exploration and not exploration_running:
+        if start_exploration and not exploration_running_rover:
             launch_exploration.start()
             start_exploration = False
-            exploration_running = True
-        rover_state_pub.put(exploration_running)
+            exploration_running_rover = True
+        rover_state_pub.put(exploration_running_rover)
         if cognifly.is_crashed():
             drone_state_pub.put("Crashed")
         else:
-            drone_state_pub.put(exploration_running)
+            drone_state_pub.put(exploration_running_drone)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
-        if (activate_p2p): farthest_robot_trigger()
+        pub_rover_battery.put(current_battery_rover)
+        pub_drone_battery.put(cognifly.get_battery())
+
+        if (activate_p2p):
+            farthest_robot_trigger()
+
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ import socketio
 import zenoh
 import asyncio
 import time
-from constants import TIMEOUT_ROBOT
+from constants import TIMEOUT_ROBOT, BATTERY_CHARGE_100, LEVEL_TOO_LOW
 import database
 import asyncio
 import models
@@ -25,9 +25,11 @@ sio_app = socketio.ASGIApp(
 
 session = zenoh.open()
 pub_identify = session.declare_publisher('identify')
-pub_start = session.declare_publisher('start')
+pub_start_rover = session.declare_publisher('start_rover')
+pub_start_drone = session.declare_publisher('start_drone')
 pub_finish = session.declare_publisher('finish')
 return_home_finish = session.declare_publisher('return_home')
+return_home_rover = session.declare_publisher('return_home_rover')
 p2p_trigger = session.declare_publisher('p2p')
 
 
@@ -109,6 +111,9 @@ class RobotCommunication:
             f'{self.name}_state', self.robot_state)
         self.dist_sub = session.declare_subscriber(
             f'{self.name}_distance_traveled', self.robot_distance_traveled)
+        self.battery = BATTERY_CHARGE_100
+        self.sub_battery = session.declare_subscriber(
+            f'{self.name}_battery', self.battery_state)
 
     async def send_robot_state(self):
         while True:
@@ -130,10 +135,27 @@ class RobotCommunication:
     def robot_distance_traveled(self, sample):
         self.distance_traveled = float(sample.payload.decode('utf-8'))
 
+    def battery_state(self, sample):
+        battery = sample.payload.decode('utf-8')
+        try:
+            battery = int(sample.payload.decode('utf-8'))
+        except (ValueError, AttributeError):
+            return
+        self.battery = battery
+
+        asyncio.run(sio.emit(f'{self.name}_battery', self.battery))
+
+        if (self.battery <= LEVEL_TOO_LOW and self.name == "rover"):
+            return_home_rover.put("return_home_rover")
+
+    def get_battery(self):
+        return self.battery
+
 
 def handle_map_update(sample):
     png_bytes = sample.payload
     asyncio.run(sio.emit('map_update', png_bytes))
+
 
 def handle_map_cognifly_update(sample):
     png_bytes = sample.payload
@@ -143,7 +165,8 @@ def handle_map_cognifly_update(sample):
 rover = RobotCommunication('rover')
 drone = RobotCommunication('drone')
 sub_map_updates = session.declare_subscriber('map_image', handle_map_update)
-sub_map_cognifly_updates = session.declare_subscriber('map_image_cognifly', handle_map_cognifly_update)
+sub_map_cognifly_updates = session.declare_subscriber(
+    'map_image_cognifly', handle_map_cognifly_update)
 
 asyncio.create_task(rover.send_robot_state())
 asyncio.create_task(drone.send_robot_state())
@@ -159,8 +182,21 @@ async def identify(data, _):
 
 @ sio.event
 async def start(data, _):
-    pub_start.put("start")
-    logger_queue.put_nowait("groundstation;;start;;")
+    if (rover.get_battery() <= LEVEL_TOO_LOW and drone.get_battery() <= LEVEL_TOO_LOW):
+        return
+
+    elif (rover.get_battery() <= LEVEL_TOO_LOW):
+        pub_start_drone.put("start_drone")
+        logger_queue.put_nowait("groundstation;;start;;")
+
+    elif (drone.get_battery() <= LEVEL_TOO_LOW):
+        pub_start_rover.put("start_rover")
+        logger_queue.put_nowait("groundstation;;start;;")
+
+    else:
+        pub_start_rover.put("start_rover")
+        pub_start_drone.put("start_drone")
+        logger_queue.put_nowait("groundstation;;start;;")
 
 
 @ sio.event
@@ -173,9 +209,11 @@ async def finish(data, _):
 async def return_home(data, _):
     return_home_finish.put("return_home")
 
+
 @ sio.event
 async def p2p(data, _):
     p2p_trigger.put("p2p")
+
 
 @ sio.event
 async def disconnect(sid):
