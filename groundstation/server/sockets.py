@@ -95,10 +95,30 @@ async def in_mission_task():
             mission = None
 
 
+class TaskManager:
+    def __init__(self):
+        self.tasks = []
+
+    async def start(self):
+        self.tasks = [
+            asyncio.create_task(rover.send_robot_state()),
+            asyncio.create_task(drone.send_robot_state()),
+            asyncio.create_task(logger_task()),
+            asyncio.create_task(in_mission_task()),
+        ]
+
+
+task_manager = None
+
+
 @sio.event
 async def connect(sid, environ, auth):
+    global task_manager
     print(f'{sid}: connected')
     logger_queue.put_nowait(f"groundstation;;connect;;{sid}")
+    if task_manager is None:
+        task_manager = TaskManager()
+        await task_manager.start()
 
 
 class RobotCommunication:
@@ -167,11 +187,6 @@ drone = RobotCommunication('drone')
 sub_map_updates = session.declare_subscriber('map_image', handle_map_update)
 sub_map_cognifly_updates = session.declare_subscriber(
     'map_image_cognifly', handle_map_cognifly_update)
-
-asyncio.create_task(rover.send_robot_state())
-asyncio.create_task(drone.send_robot_state())
-asyncio.create_task(logger_task())
-asyncio.create_task(in_mission_task())
 
 
 @ sio.event

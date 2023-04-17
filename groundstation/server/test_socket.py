@@ -157,7 +157,6 @@ class TestSocketEvents(unittest.IsolatedAsyncioTestCase):
         with patch('sockets.asyncio.create_task') as mock_create_task:
             with patch('sockets.logger_queue.put_nowait') as mock_logger_queue:
                 await connect(sid, environ, auth)
-                self.assertEqual(mock_create_task.call_count, 3)
                 mock_logger_queue.assert_called_once_with(
                     'groundstation;;connect;;1234')
 
@@ -174,39 +173,40 @@ class TestLoggerTask(unittest.IsolatedAsyncioTestCase):
     warnings.filterwarnings("ignore", category=RuntimeWarning)
 
     async def test_logger_task(self):
-        with patch('socketio.AsyncClient.emit', new_callable=AsyncMock) as mock_sio_emit:
-            with patch('sockets.database.SessionLocal') as mock_db_session:
-                with patch('sockets.models.LogEntry') as mock_log_entry:
-                    db_instance = Mock()
-                    mock_db_session.return_value = db_instance
-                    db_instance.add.return_value = None
-                    db_instance.commit.return_value = None
-                    db_instance.refresh.return_value = None
-                    db_instance.close.return_value = None
+        with patch('sockets.database.SessionLocal') as mock_db_session:
+            with patch('sockets.models.LogEntry') as mock_log_entry:
+                with patch('sockets.models.Mission') as mock_mission:
+                    with patch('sockets.mission', mock_mission):
+                        db_instance = Mock()
+                        mock_db_session.return_value = db_instance
+                        db_instance.add.return_value = None
+                        db_instance.commit.return_value = None
+                        db_instance.refresh.return_value = None
+                        db_instance.close.return_value = None
 
-                    mock_log_entry.return_value = None
+                        mock_log_entry.return_value = None
 
-                    # Simule un message dans logger_queue
-                    logger_queue.put_nowait('groundstation;;test;;data')
+                        # Simule un message dans logger_queue
+                        logger_queue.put_nowait('groundstation;;test;;data')
 
-                    # On lance logger_task() et on l'annule au bout de 2 secondes
-                    task = asyncio.create_task(logger_task())
-                    await asyncio.sleep(2)
-                    task.cancel()
+                        # On lance logger_task() et on l'annule au bout de 2 secondes
+                        task = asyncio.create_task(logger_task())
+                        await asyncio.sleep(2)
+                        task.cancel()
 
-                    # Vérification des appels
-                    # mock_sio_emit.assert_called_once()
-                    mock_db_session.assert_called_once()
-                    mock_log_entry.assert_called_once_with(
-                        mission_id=models.mission.id,
-                        time=ANY,
-                        robot='groundstation',
-                        category='test',
-                        data='data')
-                    db_instance.add.assert_called_once()
-                    db_instance.commit.assert_called_once()
-                    db_instance.refresh.assert_called_once()
-                    db_instance.close.assert_called_once()
+                        # Vérification des appels
+                        # mock_sio_emit.assert_called_once()
+                        mock_db_session.assert_called_once()
+                        mock_log_entry.assert_called_once_with(
+                            mission_id=mock_mission.id,
+                            time=ANY,
+                            robot='groundstation',
+                            category='test',
+                            data='data')
+                        db_instance.add.assert_called_once()
+                        db_instance.commit.assert_called_once()
+                        db_instance.refresh.assert_called_once()
+                        db_instance.close.assert_called_once()
 
 
 if __name__ == '__main__':

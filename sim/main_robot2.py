@@ -6,7 +6,7 @@ from nav_msgs.msg import OccupancyGrid, Odometry
 from map_generation import map_generation_cognifly
 import threading
 import tf
-from constants import TIME_TO_TURN_90, TIME_TO_TURN_145, END_LINE_TIME, REPOSITION_TIME, CROSS_THE_MAP_TIME, NUMBER_OF_LINE
+from constants import TIME_TO_TURN_90, END_LINE_TIME, REPOSITION_TIME, NUMBER_OF_LINE
 import math
 
 NAME = "drone"
