@@ -2,6 +2,8 @@
 
 Premièrement, il faut build et run l'image docker en étant placer dans le root du dossier
 
+Pour que le script de seulement un des deux robots soit lancé, il est possible d'ajouter la variable
+d'environement  `-e "USE_ONLY=ROBOT"` ou le ROBOT est le robot voulant être lancé seul écrit en majuscule (LIMO ou COGNIFLY)
 ```
 docker compose run --build -p 5901:5901 sim
 ```
@@ -13,7 +15,7 @@ source .profile
 TVNC_WM=openbox-session vncserver -securitytypes tlsnone,x509none,none
 ```
 Ensuite ouvrir **TurboVNC Viewer**
-Puis se connecter à `localhost:5901` et mettre sont mot de passe
+Puis se connecter à `localhost:5901`
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 ```
 sed -i -e 's/\r$//' /inf3995_ws/src/launch_simulation.sh
@@ -45,4 +47,3 @@ python3 /inf3995_ws/src/main_robot2.py
 Si la station au sol roule également, il est possible d'utiliser les bouton disponible pour interagir avec la simulation
 
 Pour ouvrir un éditeur de texte et modifier des fichiers, gedit est installé et peux être utilisé `gedit ../inf3995_ws/src/main_robot1.py`ou `gedit ../inf3995_ws/src/main_robot2.py` pour le second robot.  
-
