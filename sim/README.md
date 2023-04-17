@@ -2,11 +2,14 @@
 
 Premièrement, il faut build et run l'image docker en étant placer dans le root du dossier
 
+Pour que le script de seulement un des deux robots soit lancé, il est possible d'ajouter la variable
+d'environement `-e "USE_ONLY=ROBOT"` ou le ROBOT est le robot voulant être lancé seul écrit en majuscule (LIMO ou COGNIFLY)
+
 ```
 docker compose run --build -p 5901:5901 sim
 ```
 
-Ensuite exécuter ces lignes de commande dans le bash shell ouvert,et ajouter un mot de passe pour le Client VNC
+Ensuite exécuter ces lignes de commande dans le bash shell ouvert
 
 ```
 cd /root
@@ -15,7 +18,7 @@ TVNC_WM=openbox-session vncserver -securitytypes tlsnone,x509none,none
 ```
 
 Ensuite ouvrir **TurboVNC Viewer**
-Puis se connecter à `localhost:5901` et mettre sont mot de passe
+Puis se connecter à `localhost:5901`
 Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 
 ```
