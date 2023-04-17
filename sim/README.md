@@ -25,7 +25,7 @@ Dans TurboVNC, click droit pour ouvrir un nouveau terminal puis executer:
 /inf3995_ws/src/launch_simulation.sh
 ```
 
-Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' ./src/launch_simulation.sh`
+Remarque: Si vous avez une erreur où il ne peux pas trouver le .sh, tapez cette commande `sed -i -e 's/\r$//' /inf3995_ws/src/launch_simulation.sh`
 Cela lancera la simulation et tous les launch files nécessaires.
 
 ## Lancement manuel de tout les fichiers de simulation
