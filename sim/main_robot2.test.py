@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch, call, ANY
 import main_robot2 as mr2
 from nav_msgs.msg import Odometry, OccupancyGrid
 import warnings
@@ -173,7 +173,15 @@ class TestMainRobot2(unittest.TestCase):
             ])
             mock_declare_publisher.assert_has_calls([
                 call('drone_state'),
-                call('logger')
+                call(f'drone_distance_traveled'),
+                call('logger'),
+                call().put(ANY),
+                call().put(ANY),
+                call().put(ANY),
+                call().put(ANY),
+                call().put(ANY),
+                call().put(ANY)
+
             ])
             mock_subscriber.assert_has_calls([
                 call("/robot2/odom", Odometry, mr2.odom_callback),
