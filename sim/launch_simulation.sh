@@ -13,4 +13,5 @@ python3 /inf3995_ws/src/main_robot1.py &
 fi
 if [ "$USE_ONLY" != "LIMO" ]; then
 python3 /inf3995_ws/src/main_robot2.py &
+python3 /inf3995_ws/src/simple_quad/src/simple_quad/show_image.py &
 fi
