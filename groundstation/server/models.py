@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, Float
 from sqlalchemy.orm import relationship
 
 import datetime
@@ -11,8 +11,18 @@ class Mission(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     start = Column(DateTime)
+    end = Column(DateTime)
+    is_sim = Column(Boolean)
+
+    has_rover = Column(Boolean)
+    has_drone = Column(Boolean)
+    distance_rover = Column(Float)
+    distance_drone = Column(Float)
 
     log_entries = relationship("LogEntry", back_populates="mission")
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class LogEntry(Base):
@@ -35,7 +45,3 @@ class LogEntry(Base):
 
 db = SessionLocal()
 Base.metadata.create_all(engine)
-mission = Mission(start=datetime.datetime.now())
-db.add(mission)
-db.commit()
-db.refresh(mission)

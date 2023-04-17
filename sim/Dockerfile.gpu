@@ -20,11 +20,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     ros-noetic-move-base \
     ros-noetic-navigation ros-noetic-explore-lite \
     python3-wstool python3-rosdep ninja-build stow python3-catkin-tools \
-    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping
+    ros-noetic-robot-pose-ekf ros-noetic-slam-gmapping \
+    ros-noetic-pointcloud-to-laserscan ros-noetic-octomap-server
 
 RUN mkdir -p inf3995_ws/src && \
     git clone https://github.com/agilexrobotics/ugv_gazebo_sim inf3995_ws/src/ugv_gazebo_sim && \
-    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/
+    git clone https://github.com/willRicard/simple_quad_gazebo.git inf3995_ws/src/simple_quad/ && \
+    git clone https://github.com/appliedAI-Initiative/orb_slam_2_ros inf3995_ws/src/orb_slam_2_ros
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
@@ -38,13 +40,17 @@ COPY launch/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/launch/
 COPY personalised.world ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/worlds/
 COPY cognifly/gazebo_ros_simple_quad.cpp ./src/simple_quad/src/simple_quad/src/
 COPY cognifly/simple_quad.urdf ./src/simple_quad/src/simple_quad/src/description/
+COPY cognifly/cognifly_pointcloud.launch ./src/simple_quad/src/simple_quad/launch/
+COPY cognifly/show_image.py ./src/simple_quad/src/simple_quad/
+COPY cognifly/cognifly_mapping.launch ./src/simple_quad/src/simple_quad/launch/
+COPY cognifly/cognifly_mapping.rviz ./src/simple_quad/src/simple_quad/rviz/
 COPY constants.py ./src/
 COPY configuration_files/* ./src/ugv_gazebo_sim/limo/limo_gazebo_sim/config/
 
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
     catkin_make -DCMAKE_CXX_STANDARD=17"
 
-COPY main*.py ./src/
+COPY main*.py map*.py ./src/
 COPY *.sh ./src/
 
 RUN echo "source /inf3995_ws/devel/setup.sh" >> ~/.bashrc
