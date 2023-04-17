@@ -7,6 +7,7 @@ from map_generation import map_generation_limo
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 import tf
+import math
 
 NAME = "rover"
 
@@ -27,6 +28,7 @@ rate = rospy.Rate(10)
 move = Twist()
 
 last_position = None
+distance_traveled = 0.0
 last_scan = None
 
 cognifly_exists= False
@@ -37,6 +39,9 @@ tfBuffer = tf.TransformListener()
 def start_listener(sample):
     global exploration_running
     global start_exploration
+    global distance_traveled
+
+    distance_traveled = 0.0
 
     if not exploration_running:
         move.angular.z = 1.5708
@@ -67,7 +72,13 @@ def finish_listener(sample):
 
 def odom_callback(data):
     global last_position
-    last_position = data.pose.pose.position
+    global distance_traveled
+    position = data.pose.pose.position
+    if last_position is not None:
+        distance_traveled += math.sqrt(
+            (last_position.x - position.x) ** 2 +
+            (last_position.y - position.y) ** 2)
+    last_position = position
 
 
 def scan_callback(data):
@@ -120,12 +131,15 @@ def main():
     global exploration_running
     global launch_exploration
     global initial_data
+    global distance_traveled
     move.linear.x = 0.0
     move.angular.z = 0.0
     pub.publish(move)
     rospy.Subscriber("/odom", Odometry, odom_callback)
     rospy.Subscriber("/limo/scan", LaserScan, scan_callback)
     logger_pub = session.declare_publisher('logger')
+    distance_traveled_pub = session.declare_publisher(
+        f'{NAME}_distance_traveled')
     odom_msg = rospy.wait_for_message('/odom', Odometry)
     initial_x = odom_msg.pose.pose.position.x
     initial_y = odom_msg.pose.pose.position.y
@@ -153,6 +167,7 @@ def main():
             'rover_state').put(exploration_running)
         logger_pub.put(f"{NAME};;position;;{str(last_position)}")
         logger_pub.put(f"{NAME};;scan;;{str(last_scan)}")
+        distance_traveled_pub.put(distance_traveled)
 
 
 if __name__ == "__main__":
