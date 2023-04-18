@@ -5,7 +5,6 @@ import roslaunch
 import rospy
 import subprocess
 from threading import Thread
-from threading import Thread
 import time
 import tf
 import zenoh
@@ -14,10 +13,11 @@ import math
 from cognifly_movement import MoveCognifly
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
-from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
 from limo_base.msg import LimoStatus
+from move_base_msgs.msg import MoveBaseActionGoal
+from actionlib_msgs.msg import GoalID
 
 NAME = "rover"
 PUT_IN_CM = 100
@@ -89,6 +89,7 @@ def finish_listener(sample):
     global launch_exploration
     global exploration_running_rover
     global exploration_running_drone
+    global cognifly
     message = sample.payload.decode('utf-8')
     print(message)
     global exploration_running
@@ -100,6 +101,18 @@ def finish_listener(sample):
         uuid, [launch_file_path])
     exploration_running_rover = False
     exploration_running_drone = False
+    
+    cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
+
+    # Create a GoalID message with the same stamp value as the goal message you want to cancel
+    cancel_msg = GoalID()
+    cancel_msg.stamp = rospy.Time.now()
+
+    # Publish the GoalID message to the move_base/cancel topic
+    cancel_pub.publish(cancel_msg)
+
+    # Wait for a brief moment to allow the previous goal to be cancelled
+    rospy.sleep(0.5)
 
 
 def publish_cognifly_odom():
@@ -243,15 +256,23 @@ def return_home():
         launch_exploration = roslaunch.parent.ROSLaunchParent(
             uuid, [launch_file_path])
         exploration_running_rover = False
-    return_pub = rospy.Publisher(
-        '/move_base_simple/goal', PoseStamped, queue_size=10)
-    msg = PoseStamped()
+
+    # Cancel la mission en cours
+    cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
+
+    cancel_msg = GoalID()
+    cancel_msg.stamp = rospy.Time.now()
+
+    cancel_pub.publish(cancel_msg)
+
+    rospy.sleep(0.5)
+    return_pub = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=10)
+    msg = MoveBaseActionGoal()
     msg.header.stamp = rospy.Time.now()
-    msg.header.frame_id = "map"
-    msg.pose.position.x = initial_data['x']
-    msg.pose.position.y = initial_data['y']
-    msg.pose.position.z = 0.0
-    msg.pose.orientation.w = 1.0
+    msg.goal.target_pose.header.frame_id = "map"
+    msg.goal.target_pose.pose.position.x = initial_data['x']
+    msg.goal.target_pose.pose.position.y = initial_data['y']
+    msg.goal.target_pose.pose.orientation.w = 1.0
 
     # Publish the message
     return_pub.publish(msg)
@@ -265,11 +286,12 @@ def return_home_rover_listener(sample):
 
 def return_home_listener(sample):
     global exploration_running_drone
+    global cognifly
     message = sample.payload.decode('utf-8')
     print(message)
     exploration_running_drone = False
-    mission_thread = Thread(cognifly.finish_mission())
-    mission_thread.start
+    finish_thread = Thread(target=cognifly.finish_mission)
+    finish_thread.start()
     return_home()
 
 
