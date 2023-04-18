@@ -3,20 +3,9 @@ import { inject, defineComponent } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
-import axios from 'axios';
+import axios from "axios";
+import type { Log, Mission } from "@/common/interfaces";
 
-interface Log {
-  id: number;
-  mission_id: number;
-  time: string;
-  robot: string;
-  category: string;
-  data: string;
-}
-interface Mission {
-  id: number;
-  start: string;
-}
 const MAX_LOG = 30;
 export default defineComponent({
   name: "Logs",

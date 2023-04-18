@@ -107,4 +107,56 @@ describe("Logs", () => {
     expect(logs[2].text()).toContain("Event2");
     expect(logs[2].text()).toContain("Data2");
   });
+
+  it("toggles full log view when show/hide button is clicked", async () => {
+    const logData =
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam non lacinia odio.";
+    wrapper.vm.logs = [
+      {
+        id: 1,
+        mission_id: 1,
+        time: "2022-03-24T16:41:16.000Z",
+        robot: "rover",
+        category: "data",
+        data: logData,
+      },
+    ];
+    await wrapper.vm.$nextTick();
+
+    const logDataElement = wrapper.find(".log-data div");
+    expect(logDataElement.text()).toContain(logData.slice(0, 50) + "...");
+
+    const showHideButton = wrapper.find("button:nth-child(4)");
+    await showHideButton.trigger("click");
+
+    expect(logDataElement.text()).toContain(logData);
+  });
+
+  it("does not add duplicate logs when onLogger is called with an existing log", async () => {
+    const existingLog = {
+      id: 1,
+      mission_id: 1,
+      time: "2022-03-24T16:41:16.000Z",
+      robot: "rover",
+      category: "data",
+      data: "Test log",
+    };
+    wrapper.vm.logs = [existingLog];
+    wrapper.vm.onLogger(JSON.stringify(existingLog));
+    expect(wrapper.vm.logs.length).toEqual(1);
+  });
+
+  it("does not add logs when onLogger is called while a mission is selected", async () => {
+    const newLog = {
+      id: 1,
+      mission_id: 1,
+      time: "2022-03-24T16:41:16.000Z",
+      robot: "rover",
+      category: "data",
+      data: "Test log",
+    };
+    wrapper.vm.mission_id = 1;
+    wrapper.vm.onLogger(JSON.stringify(newLog));
+    expect(wrapper.vm.logs.length).toEqual(0);
+  });
 });
