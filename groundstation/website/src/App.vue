@@ -7,7 +7,7 @@ import { RouterLink, RouterView } from "vue-router";
     <header>
       <ul class = "topPage">
         <span class = team>
-          <img src = "./assets/cognifly.png" alt="logo">
+          <img src = "./assets/fav.png" alt="logo">
         </span>
         <li><RouterLink to="/">Station</RouterLink></li>
         <li><RouterLink to="/missions">Historique</RouterLink></li>
