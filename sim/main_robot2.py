@@ -137,7 +137,9 @@ def stop_drone_movement():
 def start_listener(sample):
     global drone_thread, exploration_running, line_counter
     global distance_traveled
-
+    global session
+    is_sim_pub = session.declare_publisher('simulation_mission')
+    is_sim_pub.put("True")
     distance_traveled = 0.0
     message = sample.payload.decode('utf-8')
     print(message)

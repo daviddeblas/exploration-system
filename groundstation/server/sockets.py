@@ -8,6 +8,7 @@ import asyncio
 import models
 import datetime
 import json
+import pytz
 
 logger_queue = asyncio.Queue()
 in_mission_sem = asyncio.Semaphore()
@@ -62,9 +63,18 @@ async def logger_task():
 
         await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
 
+is_sim = False
+
+def set_is_sim_true(sample):
+        global is_sim
+        is_sim = True
+
+is_sim_sub = session.declare_subscriber("simulation_mission", set_is_sim_true)
 
 async def in_mission_task():
     global mission
+    global is_sim
+    etc_timezone = pytz.timezone('US/Eastern')
     while True:
         await in_mission_sem.acquire()
         in_mission = False
@@ -79,22 +89,24 @@ async def in_mission_task():
             await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
 
         if mission is None and in_mission:
-            mission = models.Mission(start=datetime.datetime.now())
+            mission = models.Mission(start=datetime.datetime.now(tz=etc_timezone))
             db = database.SessionLocal()
             db.add(mission)
             db.commit()
             db.refresh(mission)
             db.close()
         elif mission is not None and not in_mission:
-            mission.end = datetime.datetime.now()
+            mission.end = datetime.datetime.now(tz=etc_timezone)
             mission.distance_drone = drone.distance_traveled
             mission.distance_rover = rover.distance_traveled
+            mission.is_sim = is_sim
             db = database.SessionLocal()
             db.add(mission)
             db.commit()
             db.close()
             await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
             mission = None
+            is_sim = False
 
 
 class TaskManager:
