@@ -2,17 +2,61 @@
   box-sizing: border-box;
 }
 
+html{
+  min-height: 100%;
+  position:relative;
+}
 body {
-  background-image: url("./background.jpg");
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: rgb(238,174,202);
+  background: linear-gradient(20deg, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
+  background-size: auto;
+  background-repeat: no-repeat;
+  height: 100%;
   margin: 0;
   font-family: "Roboto", sans-serif;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header ul {
+  display: flex;
+  gap: 20px;
+}
+
+header ul li a {
+  font-size: 35px;
+  text-decoration: none;
+  list-style-type: none;  
+}
+
+a {
+  color: #000;
+  text-decoration-line: none;
+}
+
+img {
+  height: 75px;
+}
+
 .toolbar {
   overflow: hidden;
-  background-color: #4f312b;
-  margin-left: 10px;
+  background-color: #00000000;
+  size: 300px;
   font-weight: bold;
+}
+
+.team{
+  font-family: "Pacifico", cursive;
+  font-size: 40px;
 }
 
 .toolbar a {

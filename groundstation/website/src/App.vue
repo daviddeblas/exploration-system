@@ -3,15 +3,20 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav class="toolbar">
-        <RouterLink to="/">Accueil</RouterLink>
-        <RouterLink to="/missions">Missions</RouterLink>
-        <RouterLink to="/logs">Logs</RouterLink>
-      </nav>
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <span class="team">
+        <img src = "./assets/cognifly.png" alt="logo">
+        <RouterLink to="/">CogniPepe</RouterLink>
+      </span>
+      <ul>
+        <li><RouterLink to="/">Accueil</RouterLink></li>
+        <li><RouterLink to="/missions">Missions</RouterLink></li>
+        <li><RouterLink to="/logs">Logs</RouterLink></li>
+      </ul>
+    </header>
+  </div>
+  
 
-  <RouterView class="router-view" />
+  <!--RouterView class="router-view" /-->
 </template>
