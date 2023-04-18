@@ -5,7 +5,8 @@ import App from "./App.vue";
 import router from "./router";
 import socket from "./plugins/socket";
 
-import "./assets/main.css";
+import "./assets/css/main.css";
+import './assets/css/index.css';
 
 const app = createApp(App);
 
