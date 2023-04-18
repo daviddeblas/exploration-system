@@ -1,5 +1,6 @@
 server/__pycache__
 server/.venv
+server/logs.db
 
 website/dist
 website/node_modules

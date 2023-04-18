@@ -3,20 +3,7 @@ import { inject, defineComponent } from "vue";
 import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
-
-interface Log {
-  id: number;
-  mission_id: number;
-  time: string;
-  robot: string;
-  category: string;
-  data: string;
-}
-
-interface Mission {
-  id: number;
-  start: string;
-}
+import type { Log, Mission } from "@/common/interfaces";
 
 const MAX_LOG = 30;
 

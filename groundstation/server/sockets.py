@@ -76,6 +76,7 @@ async def in_mission_task():
                 mission.has_rover = True
             if drone.in_mission == "True":
                 mission.has_drone = True
+            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
 
         if mission is None and in_mission:
             mission = models.Mission(start=datetime.datetime.now())
@@ -92,6 +93,7 @@ async def in_mission_task():
             db.add(mission)
             db.commit()
             db.close()
+            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
             mission = None
 
 
