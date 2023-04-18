@@ -97,7 +97,6 @@ export default defineComponent({
 
 <template>
   <div class="home">
-    <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
       <button
         v-show="rover !== 'en mission' && drone !== 'en mission'"
@@ -120,18 +119,6 @@ export default defineComponent({
       </button>
       <button @click="return_home">Retour à la Base</button>
     </div>
-    <div>
-      <span class="robot_state">Le rover est {{ rover }} </span>
-      <span class="robot_state">Le drone est {{ drone }} </span>
-    </div>
-    <div>
-      <span class="battery_state" v-if="drone !== 'hors ligne'"
-        >La batterie du drone est à {{ drone_battery }}%
-      </span>
-      <span class="battery_state" v-if="rover !== 'hors ligne'"
-        >La batterie du rover est à {{ rover_battery }}%
-      </span>
-    </div>
     <div class="image-container">
       <img
         v-if="mapImageUrl !== ''"
@@ -149,6 +136,16 @@ export default defineComponent({
       />
     </div>
   </div>
+  <div class="bottomNav">
+    <ul id = "robotStatus">
+      <li>Limo Status: {{ rover }}</li>
+      <li>Cognifly Status: {{ drone }}</li>
+    </ul>
+    <ul id = battery>
+      <li >Limo Battery: {{ rover_battery }}%</li>
+      <li >Cognifly Battery: {{ drone_battery }}%</li>
+    </ul>
+  </div>
 </template>
 
 <style scoped>
@@ -165,46 +162,55 @@ export default defineComponent({
 .image {
   height: 50vh;
 }
+
+.bottomNav {
+  position: fixed;
+  width: 100%;
+  height: 120px;
+  padding: 5px;
+  bottom: 0%;
+  display: flex;
+  font-size: 25px;
+}
+
+#robotStatus{
+  flex:1;
+}
+
+#battery{
+  text-align: right;
+  flex:1;
+  margin-right: 35px;
+}
+
 #title {
   color: #943e36;
   font-weight: bold;
   font-size: 50px;
   text-align: center;
 }
+
 #buttons {
   display: flex;
   gap: 25px;
 }
 
-.robot_state {
-  margin-top: 10px;
-  font-size: 20px;
-  background-color: #d9c1b9;
-  color: #604d44;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  width: 230px;
-  float: left;
-  position: relative;
-  overflow: hidden;
-  margin: 5px;
+ul li{
+  text-decoration: underline;
+  text-transform:none;
+  background: #982a1c;
+  border-color: #982a1c !important;
+  color: white !important;
+  transition: all 0.4s ease 0s;
+  pointer-events: none;
 }
 
-.battery_state {
-  margin-top: 10px;
-  font-size: 20px;
-  background-color: #d9c1b9;
-  color: #604d44;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  width: 230px;
-  float: right;
-  position: relative;
-  overflow: hidden;
-  margin: 5px;
-}
+/* ul il:hover{
+  text-decoration: underline;
+  background: #e65946;
+  border-color: #e65946 !important;
+  transition: all 0.4s ease 0s;
+} */
 
 span {
   display: block;

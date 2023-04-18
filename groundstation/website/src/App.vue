@@ -5,12 +5,12 @@ import { RouterLink, RouterView } from "vue-router";
 <template>
   <div class="container">
     <header>
-      <ul>
+      <ul class = "topPage">
         <span class = team>
           <img src = "./assets/cognifly.png" alt="logo">
         </span>
-        <li><RouterLink to="/">Accueil</RouterLink></li>
-        <li><RouterLink to="/missions">Missions</RouterLink></li>
+        <li><RouterLink to="/">Station</RouterLink></li>
+        <li><RouterLink to="/missions">Historique</RouterLink></li>
         <li><RouterLink to="/logs">Logs</RouterLink></li> 
       </ul>
     </header>
