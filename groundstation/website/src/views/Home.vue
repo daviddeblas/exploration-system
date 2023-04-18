@@ -142,8 +142,8 @@ export default defineComponent({
       <li>Cognifly Status: {{ drone }}</li>
     </ul>
     <ul id = battery>
-      <li >Limo Battery: {{ rover_battery }}%</li>
-      <li >Cognifly Battery: {{ drone_battery }}%</li>
+      <li v-if="rover !== 'hors ligne'">Limo Battery: {{ rover_battery }}%</li>
+      <li v-if="drone !== 'hors ligne'">Cognifly Battery: {{ drone_battery }}%</li>
     </ul>
   </div>
 </template>
