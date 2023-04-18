@@ -160,6 +160,7 @@ def main():
     rover_state_pub = session.declare_publisher('rover_state')
     distance_traveled_pub = session.declare_publisher(
         f'{NAME}_distance_traveled')
+    is_sim_pub = session.declare_publisher('simulation_mission')
 
     # Enregistrement de la position
     odom_msg = rospy.wait_for_message('/odom', Odometry)
@@ -177,6 +178,7 @@ def main():
         time.sleep(1)
         if start_exploration and not exploration_running:
             launch_exploration.start()
+            is_sim_pub.put("True")
             start_exploration = False
             exploration_running = True
         rover_state_pub.put(exploration_running)
