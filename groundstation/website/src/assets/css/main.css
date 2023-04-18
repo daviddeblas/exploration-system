@@ -33,6 +33,7 @@ header {
   height: 80px;
   border-bottom-color: black;
   border-bottom-style: solid;
+  font-family: "Kanit", sans-serif;
 }
 
 header ul {
@@ -56,7 +57,7 @@ li {
   padding: 10px;
   height: 100%;
   display: inline-block;
-  text-transform: uppercase;
+  text-transform: none;
   transition: all 0.4s ease 0s;
 }
 
@@ -85,7 +86,7 @@ img {
     margin: 25px auto;
     justify-content: center;
     width: 80%;
-    background: #df9d81;
+    background: #ec7263;
     padding: 25px;
 }
 

@@ -94,7 +94,7 @@ export default defineComponent({
 table {
   background-color: #d9c1b9;
   font-size: 20px;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Chivo Mono', monospace;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;

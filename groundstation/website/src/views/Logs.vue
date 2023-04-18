@@ -85,31 +85,33 @@ export default defineComponent({
 
 <template>
   <div>
-    <h1>Logs</h1>
-    <p class="actions">
-      <select v-model="mission_id">
-        <option :value="0">Direct</option>
-        <option
-          v-for="mission in missions"
-          :value="mission.id"
-          :key="mission.id"
-        >
-          Mission #{{ mission.id }}
-        </option>
-      </select>
-      <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
-      <button @click="onNext">&rarr;</button>
-      <button @click="showFullLog = !showFullLog">
-        {{ showFullLog ? "▲" : "▼" }}
-        {{ showFullLog ? "Afficher Moins" : "Afficher Plus" }}
-      </button>
-    </p>
+    <div class = pageHeader>
+      <h1 class="logs">Logs</h1>
+      <p class="actions">
+        <select v-model="mission_id">
+          <option :value="0">Direct</option>
+          <option
+            v-for="mission in missions"
+            :value="mission.id"
+            :key="mission.id"
+          >
+            Mission #{{ mission.id }}
+          </option>
+        </select>
+        <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
+        <button @click="onNext">&rarr;</button>
+        <button @click="showFullLog = !showFullLog">
+          {{ showFullLog ? "▲" : "▼" }}
+          {{ showFullLog ? "Afficher Moins" : "Afficher Plus" }}
+        </button>
+      </p>
+    </div>
     <table>
       <tr>
-        <th>Temps</th>
-        <th>Robot</th>
-        <th>Évènement</th>
-        <th>Information</th>
+        <th v-if = "logs.length !== 0">Temps</th>
+        <th v-if = "logs.length !== 0">Robot</th>
+        <th v-if = "logs.length !== 0">Évènement</th>
+        <th v-if = "logs.length !== 0">Information</th>
       </tr>
       <tr v-for="log in logs" :key="log.id">
         <td>{{ new Date(log.time).toLocaleTimeString("it-IT") }}</td>
@@ -135,6 +137,20 @@ export default defineComponent({
 .actions > button {
   margin-left: 10px;
 }
+
+.pageHeader{
+  display: flex;
+}
+
+.logs{
+  flex:1;
+}
+
+.actions{
+  text-align: right;
+  flex:1;
+}
+
 table {
   border-collapse: collapse;
 }
