@@ -205,13 +205,6 @@ ul li{
   pointer-events: none;
 }
 
-/* ul il:hover{
-  text-decoration: underline;
-  background: #e65946;
-  border-color: #e65946 !important;
-  transition: all 0.4s ease 0s;
-} */
-
 span {
   display: block;
 }

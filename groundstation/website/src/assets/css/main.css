@@ -2,10 +2,15 @@
   box-sizing: border-box;
 }
 
+h1{
+  font-family: "Kanit", sans-serif;
+}
+
 html{
   min-height: 100%;
   position:relative;
 }
+
 body {
   height: 100%;
   width: 100%;
@@ -18,7 +23,6 @@ body {
   background-repeat: no-repeat;
   height: 100%;
   margin: 0;
-  font-family: "Roboto", sans-serif;
 }
 
 header {
@@ -75,32 +79,6 @@ a {
 
 img {
   height: 75px;
-}
-
-.toolbar {
-  overflow: hidden;
-  background-color: #00000000;
-  size: 300px;
-  font-weight: bold;
-}
-
-.toolbar a {
-  float: left;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.toolbar a:hover {
-  background-color: #ddd;
-  /* color: black; */
-}
-
-.toolbar a.active {
-  background-color: #a24036;
-  color: white;
 }
 
 .router-view {
