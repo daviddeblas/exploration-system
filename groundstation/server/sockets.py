@@ -65,11 +65,14 @@ async def logger_task():
 
 is_sim = False
 
+
 def set_is_sim_true(sample):
-        global is_sim
-        is_sim = True
+    global is_sim
+    is_sim = True
+
 
 is_sim_sub = session.declare_subscriber("simulation_mission", set_is_sim_true)
+
 
 async def in_mission_task():
     global mission
@@ -89,7 +92,8 @@ async def in_mission_task():
             await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
 
         if mission is None and in_mission:
-            mission = models.Mission(start=datetime.datetime.now(tz=etc_timezone))
+            mission = models.Mission(
+                start=datetime.datetime.now(tz=etc_timezone))
             db = database.SessionLocal()
             db.add(mission)
             db.commit()
@@ -100,11 +104,11 @@ async def in_mission_task():
             mission.distance_drone = drone.distance_traveled
             mission.distance_rover = rover.distance_traveled
             mission.is_sim = is_sim
+            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
             db = database.SessionLocal()
             db.add(mission)
             db.commit()
             db.close()
-            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
             mission = None
             is_sim = False
 
