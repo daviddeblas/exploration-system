@@ -12,6 +12,8 @@ export default defineComponent({
     return {
       socket: inject(socketProvider) as Socket,
       missions: [] as Mission[],
+      sortBy: "start",
+      sortDir: 1,
     };
   },
   methods: {
@@ -44,12 +46,47 @@ export default defineComponent({
   unmounted() {
     this.socket.off("mission_update", this.onMissionUpdate);
   },
+  computed: {
+    sortedMissions() {
+      if (this.sortBy == "duration") {
+        return this.missions.sort((a, b) => {
+          let aDuration =
+            new Date(a.end || Date.now()).getTime() -
+            new Date(a.start).getTime();
+          let bDuration =
+            new Date(b.end || Date.now()).getTime() -
+            new Date(b.start).getTime();
+          if (aDuration > bDuration) return -1 * this.sortDir;
+          if (bDuration > aDuration) return 1 * this.sortDir;
+          return 0;
+        });
+      }
+      return this.missions.sort((a, b) => {
+        let aa = a as any[string];
+        let bb = b as any[string];
+        if (aa[this.sortBy] > bb[this.sortBy]) return -1 * this.sortDir;
+        if (bb[this.sortBy] > aa[this.sortBy]) return 1 * this.sortDir;
+        return 0;
+      });
+    },
+  },
 });
 </script>
 <template>
   <div>
     <h1>Missions</h1>
-    <table v-for="mission in missions" :key="mission.id">
+    <p class="actions">
+      <select v-model="sortBy">
+        <option value="start">Début</option>
+        <option value="duration">Durée</option>
+        <option value="distance_rover">Distance parcourue (rover)</option>
+        <option value="distance_drone">Distance parcourue (drone)</option>
+      </select>
+      <button @click="sortDir = -sortDir">
+        {{ sortDir == 1 ? "▲" : "▼" }}
+      </button>
+    </p>
+    <table v-for="mission in sortedMissions" :key="mission.id">
       <tr>
         <th>Début</th>
         <td>
@@ -111,5 +148,8 @@ table td {
   white-space: nowrap;
   width: 100%;
   padding-left: 8px;
+}
+.actions > button {
+  margin-left: 10px;
 }
 </style>

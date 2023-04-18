@@ -20,23 +20,23 @@ class MoveCognifly:
         self.started_mission = False
         self.battery = BATTERY_CHARGE_100
         self.COMMANDS = [
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.0, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.0, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.3, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.3, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.3, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.3, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.6, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.6, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.6, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.6, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=1.0, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=2.0, y=1.0, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=1.0, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=0.0, y=1.0, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=0.5, yaw=0.0,
+            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
                                                      max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
         ]
 
@@ -77,7 +77,7 @@ class MoveCognifly:
             return
         self.finishing_mission = True
         self.started_mission = False
-        self.cf.set_position_nonblocking(x=0.0, y=0.0, z=0.5, yaw=0.0,
+        self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
                                          max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
         time.sleep(10)
         self.cf.land_nonblocking(),
