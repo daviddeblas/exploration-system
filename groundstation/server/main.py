@@ -27,7 +27,7 @@ api.add_middleware(
 
 @api.get("/missions")
 def missions(db: Session = Depends(get_db)):
-    return db.query(models.Mission).order_by(desc(models.Mission.id)).offset(0).limit(30).all()
+    return db.query(models.Mission).filter(models.Mission.end != None).order_by(desc(models.Mission.id)).offset(0).limit(30).all()
 
 
 @api.get("/logs")
