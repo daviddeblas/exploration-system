@@ -34,9 +34,12 @@ export default defineComponent({
     },
     onMissionUpdate(message: string) {
       let mission = JSON.parse(message) as Mission;
-      if (this.missions.find((e: Mission) => e.id == mission.id))
-        this.missions.shift();
-      this.missions.unshift(mission);
+      let index = this.missions.findIndex((e: Mission) => e.id == mission.id);
+      if (index >= 0) {
+        this.missions[index] = mission;
+      } else {
+        this.missions.unshift(mission);
+      }
     },
   },
   mounted() {
@@ -58,6 +61,14 @@ export default defineComponent({
             new Date(b.start).getTime();
           if (aDuration > bDuration) return -1 * this.sortDir;
           if (bDuration > aDuration) return 1 * this.sortDir;
+          return 0;
+        });
+      } else if (this.sortBy == "start") {
+        return this.missions.sort((a, b) => {
+          let aTime = new Date(a.start).getTime();
+          let bTime = new Date(b.start).getTime();
+          if (aTime > bTime) return -1 * this.sortDir;
+          if (bTime > aTime) return 1 * this.sortDir;
           return 0;
         });
       }
