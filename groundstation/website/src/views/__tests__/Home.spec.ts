@@ -4,21 +4,27 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { socketProvider } from "@/plugins/socket";
 import { ROBOT_STATUS } from "@/common/constants";
 import { SocketTestHelper } from "@/helper/socket-test-helper";
+
+URL.createObjectURL = vi.fn(() => "mocked-image-url");
+
 describe("Home", () => {
   let wrapper: any;
   let socketTestHelper: any;
+
   beforeEach(() => {
     socketTestHelper = new SocketTestHelper();
     wrapper = mount(Home, {
       global: { provide: { [socketProvider as symbol]: socketTestHelper } },
     });
   });
+
   it("should display rover and drone status as offline by default", () => {
     const roverStatus = wrapper.find(".robot_state").text();
     expect(roverStatus).toBe("Le rover est hors ligne");
     const droneStatus = wrapper.findAll(".robot_state").at(1)!.text();
     expect(droneStatus).toBe("Le drone est hors ligne");
   });
+
   it("should update rover and drone status when receiving rover_state event", async () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.rover).toBe(ROBOT_STATUS.offline);
@@ -42,6 +48,7 @@ describe("Home", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.drone).toBe(ROBOT_STATUS.offline);
   });
+
   it("should emit start event when start button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
     const startButton = wrapper.find("#buttons button:nth-child(1)");
@@ -50,6 +57,7 @@ describe("Home", () => {
       data: "Démarrer mission",
     });
   });
+
   it("should emit identify event when identify button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
     const identifyButton = wrapper.find("#buttons button:nth-child(2)");
@@ -58,6 +66,7 @@ describe("Home", () => {
       data: "beep",
     });
   });
+
   it("should emit stop event when finish button is clicked", () => {
     vi.spyOn(socketTestHelper, "emit");
     const stopButton = wrapper.find("#buttons button:nth-child(3)");
@@ -66,6 +75,7 @@ describe("Home", () => {
       data: "Finir mission",
     });
   });
+
   it("should emit p2p event when P2P button is clicked", () => {
     socketTestHelper.emit = vi.fn();
     const p2pButton = wrapper.find("#buttons button:nth-child(4)");
@@ -74,6 +84,7 @@ describe("Home", () => {
       data: "activer le mode P2P",
     });
   });
+
   it("should emit return_home event when return home button is clicked", () => {
     socketTestHelper.emit = vi.fn();
     const returnHomeButton = wrapper.find("#buttons button:nth-child(5)");
@@ -82,6 +93,7 @@ describe("Home", () => {
       data: "Retour à la base",
     });
   });
+
   it("should display updated battery states in the UI", async () => {
     socketTestHelper.peerSideEmit("rover_state", "True");
     socketTestHelper.peerSideEmit("drone_state", "True");
@@ -102,5 +114,36 @@ describe("Home", () => {
     expect(roverBatteryState.text()).toContain(
       `La batterie du rover est à ${roverBattery}%`
     );
+  });
+
+  it("should update mapImageUrl when receiving map_update event", async () => {
+    const mapData = new ArrayBuffer(8);
+    socketTestHelper.peerSideEmit("map_update", mapData);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.mapImageUrl).not.toBe("");
+  });
+
+  it("should update mapImageCogniflyUrl when receiving map_cognifly_update event", async () => {
+    const mapData = new ArrayBuffer(8);
+    socketTestHelper.peerSideEmit("map_cognifly_update", mapData);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.vm.mapImageCogniflyUrl).not.toBe("");
+  });
+
+  it("should display the updated map and CogniflyMap images in the UI", async () => {
+    const mapData = new ArrayBuffer(8);
+    const cogniflyData = new ArrayBuffer(8);
+
+    socketTestHelper.peerSideEmit("map_update", mapData);
+    await wrapper.vm.$nextTick();
+    const mapImage = wrapper.find('.image-container img[alt="Map"]');
+    expect(mapImage.exists()).toBe(true);
+
+    socketTestHelper.peerSideEmit("map_cognifly_update", cogniflyData);
+    await wrapper.vm.$nextTick();
+    const cogniflyImage = wrapper.find(
+      '.image-container img[alt="CogniflyMap"]'
+    );
+    expect(cogniflyImage.exists()).toBe(true);
   });
 });
