@@ -104,14 +104,12 @@ def finish_listener(sample):
     
     cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
 
-    # Create a GoalID message with the same stamp value as the goal message you want to cancel
+    # Cancel la mission en cours
     cancel_msg = GoalID()
     cancel_msg.stamp = rospy.Time.now()
 
-    # Publish the GoalID message to the move_base/cancel topic
     cancel_pub.publish(cancel_msg)
 
-    # Wait for a brief moment to allow the previous goal to be cancelled
     rospy.sleep(0.5)
 
 
