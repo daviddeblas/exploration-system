@@ -120,33 +120,33 @@ export default defineComponent({
       </button>
       <button @click="return_home">Retour à la Base</button>
     </div>
-    <div class="image-container">
-      <img
-        v-if="mapImageUrl !== ''"
-        class="image"
-        :src="mapImageUrl"
-        alt="Map"
-      />
+    <div class="robotNav">
+      <ul id = "roverStatus">
+        <li>Limo Status: {{ rover }}</li>
+        <li v-if="rover !== 'hors ligne'">Limo Battery: {{ rover_battery }}%</li>
+      </ul>
+      <ul id = "droneStatus">
+        <li>Cognifly Status: {{ drone }}</li>
+        <li v-if="drone !== 'hors ligne'">Cognifly Battery: {{ drone_battery }}%</li>
+      </ul>
     </div>
     <div class="image-container">
       <img
-        v-if="mapImageCogniflyUrl !== ''"
-        class="image"
-        :src="mapImageCogniflyUrl"
-        alt="CogniflyMap"
-      />
+            v-if="mapImageUrl !== ''"
+            class="image"
+            :src="mapImageUrl"
+            alt="Map"
+          />
+        </div>
+        <div class="image-container">
+          <img
+            v-if="mapImageCogniflyUrl !== ''"
+            class="image"
+            :src="mapImageCogniflyUrl"
+            alt="CogniflyMap"
+          />
+        </div>
     </div>
-  </div>
-  <div class="bottomNav">
-    <ul id = "robotStatus">
-      <li>Limo Status: {{ rover }}</li>
-      <li>Cognifly Status: {{ drone }}</li>
-    </ul>
-    <ul id = battery>
-      <li v-if="rover !== 'hors ligne'">Limo Battery: {{ rover_battery }}%</li>
-      <li v-if="drone !== 'hors ligne'">Cognifly Battery: {{ drone_battery }}%</li>
-    </ul>
-  </div>
 </template>
 <style scoped>
 .home {
@@ -163,36 +163,17 @@ export default defineComponent({
   height: 50vh;
 }
 
-.bottomNav {
-  position: fixed;
-  width: 100%;
-  height: 120px;
-  padding: 5px;
-  bottom: 0%;
+.robotNav {
   display: flex;
-  font-size: 25px;
-}
-
-#robotStatus{
-  flex:1;
-}
-
-#battery{
-  text-align: right;
-  flex:1;
-  margin-right: 35px;
-}
-
-#title {
-  color: #943e36;
-  font-weight: bold;
-  font-size: 50px;
-  text-align: center;
+  font-size: 15px;
+  justify-content: center;
+  align-items: center;
 }
 
 #buttons {
-  display: flex;
-  gap: 25px;
+  display: auto;
+  gap: 5px;
+  justify-content: center;
 }
 
 ul li{
@@ -207,26 +188,23 @@ ul li{
 span {
   display: block;
 }
-@media only screen and (max-width: 520px) {
+@media only screen and (max-width: 600px) {
   .image {
     height: 30vh;
+    width: 100%;
+    object-fit: contain;
+    
   }
-  #title {
-    font-size: 30px;
-    margin-top: 10px;
-  }
-  .btn {
+  #buttons {
     font-size: 16px;
-    padding: 8px;
-    margin: 0 3px;
+    margin: 0px;
+    display: block;
+    text-align: center;
+    width: auto;
   }
-  .robot_state {
-    font-size: 16px;
-    width: 185px;
-  }
-  .battery_state {
-    font-size: 16px;
-    width: 185px;
+  .robotNav {
+    display: block;
+    justify-items: center;
   }
 }
 </style>
