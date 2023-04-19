@@ -40,6 +40,9 @@ rate = rospy.Rate(10)
 move = Twist()
 
 last_position = None
+distance_traveled = 0
+cognifly_last_position = None
+cognifly_distance_traveled = 0
 last_scan = None
 current_battery_rover = None
 activate_p2p = False
@@ -101,7 +104,7 @@ def finish_listener(sample):
         uuid, [launch_file_path])
     exploration_running_rover = False
     exploration_running_drone = False
-    
+
     cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
 
     # Cancel la mission en cours
@@ -114,6 +117,9 @@ def finish_listener(sample):
 
 
 def publish_cognifly_odom():
+    global cognifly_last_position
+    global cognifly_distance_traveled
+
     x, y, z = tuple(value/PUT_IN_CM for value in cognifly.cf.get_position())
     y = -y
     odom = Odometry()
@@ -140,10 +146,23 @@ def publish_cognifly_odom():
         'simple_quad_odom_global'
     )
 
+    position = odom.pose.pose.position
+    if cognifly_last_position is not None:
+        cognifly_distance_traveled += math.sqrt(
+            (cognifly_last_position.x - position.x) ** 2 +
+            (cognifly_last_position.y - position.y) ** 2)
+    cognifly_last_position = position
+
 
 def odom_callback(data):
     global last_position
-    last_position = data.pose.pose.position
+    global distance_traveled
+    position = data.pose.pose.position
+    if last_position is not None:
+        distance_traveled += math.sqrt(
+            (last_position.x - position.x) ** 2 +
+            (last_position.y - position.y) ** 2)
+    last_position = position
     publish_cognifly_odom()
 
 
@@ -264,7 +283,8 @@ def return_home():
     cancel_pub.publish(cancel_msg)
 
     rospy.sleep(0.5)
-    return_pub = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=10)
+    return_pub = rospy.Publisher(
+        '/move_base/goal', MoveBaseActionGoal, queue_size=10)
     msg = MoveBaseActionGoal()
     msg.header.stamp = rospy.Time.now()
     msg.goal.target_pose.header.frame_id = "map"
@@ -301,6 +321,8 @@ def main():
     global cognifly
     global exploration_running_drone
     global activate_p2p
+    global distance_traveled
+    global cognifly_distance_traveled
 
     move.linear.x = 0.0
     move.angular.z = 0.0
@@ -338,6 +360,10 @@ def main():
     rover_state_pub = session.declare_publisher('rover_state')
     pub_rover_battery = session.declare_publisher('rover_battery')
     pub_drone_battery = session.declare_publisher('drone_battery')
+    distance_traveled_pub = session.declare_publisher(
+        'rover_distance_traveled')
+    cognifly_distance_traveled_pub = session.declare_publisher(
+        'drone_distance_traveled')
     while True:
         time.sleep(1)
         if start_exploration and not exploration_running_rover:
@@ -345,6 +371,8 @@ def main():
             start_exploration = False
             exploration_running_rover = True
         rover_state_pub.put(exploration_running_rover)
+        distance_traveled_pub.put(distance_traveled)
+        cognifly_distance_traveled_pub.put(cognifly_distance_traveled)
         if cognifly.is_crashed():
             drone_state_pub.put("Crashed")
         else:
