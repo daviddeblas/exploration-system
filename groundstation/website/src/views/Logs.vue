@@ -119,7 +119,7 @@ export default defineComponent({
         <th v-if = "logs.length !== 0">Temps</th>
         <th v-if = "logs.length !== 0">Robot</th>
         <th v-if = "logs.length !== 0">Évènement</th>
-        <th v-if = "logs.length !== 0" class="info">Information</th>
+        <th v-if = "logs.length !== 0">Information</th>
       </tr>
       <tr v-for="log in logs" :key="log.id">
         <td>{{ new Date(log.time).toLocaleTimeString("it-IT") }}</td>
