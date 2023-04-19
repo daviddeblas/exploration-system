@@ -98,7 +98,6 @@ export default defineComponent({
 
 <template>
   <div class="home">
-    <h1 id="title">Gestion de la mission</h1>
     <div id="buttons">
       <button
         v-show="rover !== 'en mission' && drone !== 'en mission'"
@@ -121,23 +120,19 @@ export default defineComponent({
       </button>
       <button @click="return_home">Retour à la Base</button>
     </div>
-    <div>
-      <span class="robot_state">Le rover est {{ rover }} </span>
-      <span class="robot_state">Le drone est {{ drone }} </span>
-    </div>
-    <div>
-      <span
-        class="battery_state"
-        v-if="drone !== 'hors ligne'"
-        data-test="drone_battery_state"
-        >La batterie du drone est à {{ drone_battery }}%
-      </span>
-      <span
-        class="battery_state"
-        v-if="rover !== 'hors ligne'"
-        data-test="rover_battery_state"
-        >La batterie du rover est à {{ rover_battery }}%
-      </span>
+    <div class="robotNav">
+      <ul id="roverStatus">
+        <li class="rover_status">Limo Status: {{ rover }}</li>
+        <li v-if="rover !== 'hors ligne'" class="rover_battery">
+          Limo Battery: {{ rover_battery }}%
+        </li>
+      </ul>
+      <ul id="droneStatus">
+        <li class="drone_status">Cognifly Status: {{ drone }}</li>
+        <li v-if="drone !== 'hors ligne'" class="drone_battery">
+          Cognifly Battery: {{ drone_battery }}%
+        </li>
+      </ul>
     </div>
     <div class="image-container">
       <img
@@ -171,67 +166,49 @@ export default defineComponent({
 .image {
   height: 50vh;
 }
-#title {
-  color: #943e36;
-  font-weight: bold;
-  font-size: 50px;
-  text-align: center;
+
+.robotNav {
+  display: flex;
+  font-size: 15px;
+  justify-content: center;
+  align-items: center;
 }
+
 #buttons {
   display: flex;
-  gap: 25px;
+  align-items: center;
+  justify-content: center;
 }
-.robot_state {
-  margin-top: 10px;
-  font-size: 20px;
-  background-color: #d9c1b9;
-  color: #604d44;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  width: 230px;
-  float: left;
-  position: relative;
-  overflow: hidden;
-  margin: 5px;
-}
-.battery_state {
-  margin-top: 10px;
-  font-size: 20px;
-  background-color: #d9c1b9;
-  color: #604d44;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  width: 230px;
-  float: right;
-  position: relative;
-  overflow: hidden;
-  margin: 5px;
+
+ul li{
+  text-decoration: underline;
+  text-transform:none;
+  background: #982a1c;
+  border-color: #982a1c !important;
+  color: white !important;
+  transition: all 0.4s ease 0s;
+  pointer-events: none;
 }
 span {
   display: block;
 }
-@media only screen and (max-width: 520px) {
+@media only screen and (max-width: 725px) {
   .image {
     height: 30vh;
+    width: 100%;
+    object-fit: contain;
+    
   }
-  #title {
-    font-size: 30px;
-    margin-top: 10px;
-  }
-  .btn {
+  #buttons {
     font-size: 16px;
-    padding: 8px;
-    margin: 0 3px;
+    margin: 0px;
+    display: block;
+    text-align: center;
+    width: auto;
   }
-  .robot_state {
-    font-size: 16px;
-    width: 185px;
-  }
-  .battery_state {
-    font-size: 16px;
-    width: 185px;
+  .robotNav {
+    display: block;
+    justify-items: center;
   }
 }
 </style>

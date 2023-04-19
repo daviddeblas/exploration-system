@@ -5,7 +5,9 @@ import App from "./App.vue";
 import router from "./router";
 import socket from "./plugins/socket";
 
-import "./assets/main.css";
+import "./assets/css/main.css";
+import './assets/css/index.css';
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const app = createApp(App);
 

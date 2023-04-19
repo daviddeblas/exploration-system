@@ -85,19 +85,21 @@ export default defineComponent({
 </script>
 <template>
   <div>
-    <h1>Missions</h1>
-    <p class="actions">
-      <select v-model="sortBy">
-        <option value="start">Début</option>
-        <option value="duration">Durée</option>
-        <option value="distance_rover">Distance parcourue (rover)</option>
-        <option value="distance_drone">Distance parcourue (drone)</option>
-      </select>
-      <button @click="sortDir = -sortDir">
-        {{ sortDir == 1 ? "▲" : "▼" }}
-      </button>
-    </p>
-    <table v-for="mission in sortedMissions" :key="mission.id">
+    <div class="topPage">
+      <h1>Missions</h1>
+      <p class="actions">
+        <select v-model="sortBy" class="sortBy">
+          <option value="start">Début</option>
+          <option value="duration">Durée</option>
+          <option value="distance_rover">Distance parcourue (rover)</option>
+          <option value="distance_drone">Distance parcourue (drone)</option>
+        </select>
+        <button @click="sortDir = -sortDir" class="sortDir">
+          {{ sortDir == 1 ? "▲" : "▼" }}
+        </button>
+      </p>
+    </div>
+    <table v-for="mission in sortedMissions" :key="mission.id" class="table">
       <tr>
         <th>Début</th>
         <td>
@@ -155,7 +157,7 @@ export default defineComponent({
 table {
   background-color: #d9c1b9;
   font-size: 20px;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Chivo Mono', monospace;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -178,7 +180,70 @@ table img {
   object-fit: contain;
   background-color: white;
 }
+
+h1{
+  margin: 0;
+  text-align: left;
+}
+.actions{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
 .actions > button {
   margin-left: 10px;
+}
+
+.topPage{
+  display: flex;
+  justify-content: space-between;
+  align-items:baseline;
+  gap: 10px;
+}
+.sortBy, .sortDir {
+    height: 100%;
+    align-self:baseline;
+}
+.sortBy{
+  font-family: "Kanit", sans-serif;
+}
+
+@media screen and (max-width: 725px) {
+  .topPage {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .actions{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .table{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  td{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  table th {
+    white-space: normal;
+    word-wrap:normal;
+    text-align: left;
+  }
+  
+  .sortBy {
+    margin-top: 5px;
+  }
+
+  .sortDir {
+    margin-top: 5px;
+  }
 }
 </style>

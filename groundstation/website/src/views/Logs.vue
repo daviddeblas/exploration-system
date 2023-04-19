@@ -84,31 +84,42 @@ export default defineComponent({
 </script>
 <template>
   <div>
-    <h1>Logs</h1>
-    <p class="actions">
-      <select v-model="mission_id">
-        <option :value="0">Direct</option>
-        <option
-          v-for="mission in missions"
-          :value="mission.id"
-          :key="mission.id"
-        >
-          Mission #{{ mission.id }}
-        </option>
-      </select>
-      <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
-      <button @click="onNext">&rarr;</button>
-      <button @click="showFullLog = !showFullLog">
-        {{ showFullLog ? "▲" : "▼" }}
-        {{ showFullLog ? "Afficher Moins" : "Afficher Plus" }}
-      </button>
-    </p>
+    <div class = pageHeader>
+      <h1 class="logs">Logs</h1>
+      <div class="actions">
+        <div class="dropdown">
+          <select v-model="mission_id" class="mobile-select">
+            <option :value="0">Direct</option>
+            <option
+              v-for="mission in missions"
+              :value="mission.id"
+              :key="mission.id"
+            >
+              Mission #{{ mission.id }}
+            </option>
+          </select>
+        </div>
+        <div class="button-group">
+          <button @click="onPrev" :disabled="mission_id == 0">&larr;</button>
+          <button @click="onNext">&rarr;</button>
+          <button @click="showFullLog = !showFullLog">
+            {{ showFullLog ? "▲" : "▼" }}
+          </button>
+        </div>
+      </div>
+    </div>
     <table>
+      <colgroup>
+        <col style="width: 20%" />
+        <col style="width: 20%" />
+        <col style="width: 30%" />
+        <col style="width: 30%" />
+      </colgroup>
       <tr>
-        <th>Temps</th>
-        <th>Robot</th>
-        <th>Évènement</th>
-        <th>Information</th>
+        <th v-if="logs.length !== 0">Temps</th>
+        <th v-if="logs.length !== 0">Robot</th>
+        <th v-if="logs.length !== 0">Évènement</th>
+        <th v-if="logs.length !== 0">Information</th>
       </tr>
       <tr v-for="log in logs" :key="log.id">
         <td>{{ new Date(log.time).toLocaleTimeString("it-IT") }}</td>
@@ -134,14 +145,76 @@ export default defineComponent({
 .log-data {
   white-space: pre;
 }
-.actions > button {
-  margin-left: 10px;
+
+.mobile-select{
+  position: relative;
+  align-self:baseline;
+  size: 100%;
+  flex:1;
+  font-family: "Kanit", sans-serif;
 }
+
+.dropdown {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+  position: relative;
+}
+
+.pageHeader{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pageHeader > * {
+  height: 100%;
+  line-height: 60px;
+  align-items:end;
+}
+
+.logs{
+  flex:1;
+  margin-bottom: 10px;
+}
+
+.actions{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 table {
   border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
 }
 td {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
+  font-size:14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 725px) {
+  .mobile-select{
+    width:100%;
+    margin-bottom: 10px;
+  }
+  .button-group {
+    display: flex; 
+    justify-content: space-between;
+    flex-direction: row;
+    margin-bottom: 10px;
+  }
+  .actions{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+  .pageHeader{
+    display: flex;
+    flex-direction: column;
+    align-items:self-start;
+  }  
 }
 </style>
