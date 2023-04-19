@@ -2,6 +2,7 @@ import zenoh
 import time
 import rospy
 import roslaunch
+from actionlib_msgs.msg import GoalID
 from geometry_msgs.msg import Twist, PoseStamped
 from map_generation import map_generation_limo
 from nav_msgs.msg import OccupancyGrid, Odometry
@@ -65,6 +66,16 @@ def finish_listener(sample):
     launch_exploration.shutdown()
     launch_exploration = roslaunch.parent.ROSLaunchParent(
         uuid, [launch_file_path])
+    
+    # Cancel la mission en cours
+    cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
+
+    cancel_msg = GoalID()
+    cancel_msg.stamp = rospy.Time.now()
+
+    cancel_pub.publish(cancel_msg)
+
+    rospy.sleep(0.5)
 
     global exploration_running
     exploration_running = False
@@ -104,6 +115,15 @@ def return_home_listener(sample):
         exploration_running = False
     message = sample.payload.decode('utf-8')
     print(message)
+    # Cancel la mission en cours
+    cancel_pub = rospy.Publisher('/move_base/cancel', GoalID, queue_size=10)
+
+    cancel_msg = GoalID()
+    cancel_msg.stamp = rospy.Time.now()
+
+    cancel_pub.publish(cancel_msg)
+
+    rospy.sleep(0.5)
     return_pub = rospy.Publisher(
         '/move_base_simple/goal', PoseStamped, queue_size=10)
     msg = PoseStamped()

@@ -4,6 +4,7 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
 import type { Mission } from "@/common/interfaces";
+import axios from "axios";
 
 export default defineComponent({
   name: "Missions",
@@ -11,12 +12,14 @@ export default defineComponent({
     return {
       socket: inject(socketProvider) as Socket,
       missions: [] as Mission[],
+      sortBy: "start",
+      sortDir: 1,
     };
   },
   methods: {
     async loadMissions() {
-      let res = await fetch(SERVER_URL + "/api/missions");
-      let missions = (await res.json()) as Mission[];
+      let res = await axios.get(SERVER_URL + "/api/missions");
+      let missions = res.data as Mission[];
       this.missions = missions;
     },
     missionDuration(mission: Mission): string {
@@ -31,9 +34,12 @@ export default defineComponent({
     },
     onMissionUpdate(message: string) {
       let mission = JSON.parse(message) as Mission;
-      if (this.missions.find((e: Mission) => e.id == mission.id))
-        this.missions.shift();
-      this.missions.unshift(mission);
+      let index = this.missions.findIndex((e: Mission) => e.id == mission.id);
+      if (index >= 0) {
+        this.missions[index] = mission;
+      } else {
+        this.missions.unshift(mission);
+      }
     },
   },
   mounted() {
@@ -43,12 +49,55 @@ export default defineComponent({
   unmounted() {
     this.socket.off("mission_update", this.onMissionUpdate);
   },
+  computed: {
+    sortedMissions() {
+      if (this.sortBy == "duration") {
+        return this.missions.sort((a, b) => {
+          let aDuration =
+            new Date(a.end || Date.now()).getTime() -
+            new Date(a.start).getTime();
+          let bDuration =
+            new Date(b.end || Date.now()).getTime() -
+            new Date(b.start).getTime();
+          if (aDuration > bDuration) return -1 * this.sortDir;
+          if (bDuration > aDuration) return 1 * this.sortDir;
+          return 0;
+        });
+      } else if (this.sortBy == "start") {
+        return this.missions.sort((a, b) => {
+          let aTime = new Date(a.start).getTime();
+          let bTime = new Date(b.start).getTime();
+          if (aTime > bTime) return -1 * this.sortDir;
+          if (bTime > aTime) return 1 * this.sortDir;
+          return 0;
+        });
+      }
+      return this.missions.sort((a, b) => {
+        let aa = a as any[string];
+        let bb = b as any[string];
+        if (aa[this.sortBy] > bb[this.sortBy]) return -1 * this.sortDir;
+        if (bb[this.sortBy] > aa[this.sortBy]) return 1 * this.sortDir;
+        return 0;
+      });
+    },
+  },
 });
 </script>
 <template>
   <div>
     <h1>Missions</h1>
-    <table v-for="mission in missions" :key="mission.id">
+    <p class="actions">
+      <select v-model="sortBy">
+        <option value="start">Début</option>
+        <option value="duration">Durée</option>
+        <option value="distance_rover">Distance parcourue (rover)</option>
+        <option value="distance_drone">Distance parcourue (drone)</option>
+      </select>
+      <button @click="sortDir = -sortDir">
+        {{ sortDir == 1 ? "▲" : "▼" }}
+      </button>
+    </p>
+    <table v-for="mission in sortedMissions" :key="mission.id">
       <tr>
         <th>Début</th>
         <td>
@@ -86,6 +135,18 @@ export default defineComponent({
           <input type="checkbox" :checked="mission.is_sim" disabled />
         </td>
       </tr>
+      <tr v-if="mission.map_rover">
+        <th>Carte</th>
+        <td>
+          <img :src="`data:image/png;base64, ${mission.map_rover}`" />
+        </td>
+      </tr>
+      <tr v-if="mission.map_drone">
+        <th>Carte (drone)</th>
+        <td>
+          <img :src="`data:image/png;base64, ${mission.map_drone}`" />
+        </td>
+      </tr>
     </table>
   </div>
 </template>
@@ -110,5 +171,14 @@ table td {
   white-space: nowrap;
   width: 100%;
   padding-left: 8px;
+}
+table img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  background-color: white;
+}
+.actions > button {
+  margin-left: 10px;
 }
 </style>

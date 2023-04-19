@@ -1,3 +1,4 @@
+
 <!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts">
 import { ref, inject, defineComponent } from "vue";
@@ -147,7 +148,6 @@ export default defineComponent({
     </ul>
   </div>
 </template>
-
 <style scoped>
 .home {
   display: flex;
@@ -204,11 +204,9 @@ ul li{
   transition: all 0.4s ease 0s;
   pointer-events: none;
 }
-
 span {
   display: block;
 }
-
 @media only screen and (max-width: 520px) {
   .image {
     height: 30vh;

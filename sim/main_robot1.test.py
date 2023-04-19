@@ -1,8 +1,9 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 import main_robot1
 import rospy
 from geometry_msgs.msg import PoseStamped
+from actionlib_msgs.msg import GoalID
 
 
 class TestMainRobot1(unittest.TestCase):
@@ -59,10 +60,19 @@ class TestMainRobot1(unittest.TestCase):
                 with patch.object(rospy, 'Publisher', autospec=True) as mocked_publisher:
                     main_robot1.return_home_listener(self.sample)
                     mocked_print.assert_called_with('test')
-                    mocked_publisher.return_value.publish.assert_called_once()
-                    args, kwargs = mocked_publisher.return_value.publish.call_args
-                    sent_msg = args[0]
-                    self.assertIsInstance(sent_msg, PoseStamped)
+
+                    # Vérifier si publish() a été appelé exactement deux fois
+                    assert mocked_publisher.return_value.publish.call_count == 2
+
+                    # Vérification du premier appel
+                    args1, kwargs1 = mocked_publisher.return_value.publish.call_args_list[0]
+                    cancel_msg1 = args1[0]
+                    self.assertIsInstance(cancel_msg1, GoalID)
+
+                    # Vérification du deuxième appel
+                    args2, kwargs2 = mocked_publisher.return_value.publish.call_args_list[1]
+                    sent_msg2 = args2[0]
+                    self.assertIsInstance(sent_msg2, PoseStamped)
 
     def test_receive_existence(self):
         main_robot1.cognifly_exists = False
