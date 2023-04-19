@@ -135,6 +135,18 @@ export default defineComponent({
           <input type="checkbox" :checked="mission.is_sim" disabled />
         </td>
       </tr>
+      <tr v-if="mission.map_rover">
+        <th>Carte</th>
+        <td>
+          <img :src="`data:image/png;base64, ${mission.map_rover}`" />
+        </td>
+      </tr>
+      <tr v-if="mission.map_drone">
+        <th>Carte (drone)</th>
+        <td>
+          <img :src="`data:image/png;base64, ${mission.map_drone}`" />
+        </td>
+      </tr>
     </table>
   </div>
 </template>
@@ -159,6 +171,12 @@ table td {
   white-space: nowrap;
   width: 100%;
   padding-left: 8px;
+}
+table img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  background-color: white;
 }
 .actions > button {
   margin-left: 10px;

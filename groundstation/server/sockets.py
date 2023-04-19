@@ -13,6 +13,8 @@ import pytz
 logger_queue = asyncio.Queue()
 in_mission_sem = asyncio.Semaphore()
 mission = None
+map_rover = None
+map_drone = None
 
 sio = socketio.AsyncServer(
     async_mode='asgi',
@@ -63,6 +65,7 @@ async def logger_task():
 
         await sio.emit('logger', json.dumps(log_entry.as_dict(), default=str))
 
+
 is_sim = False
 
 
@@ -77,9 +80,13 @@ is_sim_sub = session.declare_subscriber("simulation_mission", set_is_sim_true)
 async def in_mission_task():
     global mission
     global is_sim
+    global map_rover
+    global map_drone
+
     etc_timezone = pytz.timezone('US/Eastern')
     while True:
         await in_mission_sem.acquire()
+
         in_mission = False
         if rover.in_mission is not None or drone.in_mission is not None:
             in_mission = rover.in_mission == "True" or drone.in_mission == "True"
@@ -89,7 +96,8 @@ async def in_mission_task():
                 mission.has_rover = True
             if drone.in_mission == "True":
                 mission.has_drone = True
-            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
+            asyncio.create_task(
+                sio.emit('mission_update', json.dumps(mission.as_dict(), default=str)))
 
         if mission is None and in_mission:
             mission = models.Mission(
@@ -104,7 +112,10 @@ async def in_mission_task():
             mission.distance_drone = drone.distance_traveled
             mission.distance_rover = rover.distance_traveled
             mission.is_sim = is_sim
-            await sio.emit('mission_update', json.dumps(mission.as_dict(), default=str))
+            mission.map_rover = map_rover
+            mission.map_drone = map_drone
+            asyncio.create_task(
+                sio.emit('mission_update', json.dumps(mission.as_dict(), default=str)))
             db = database.SessionLocal()
             db.add(mission)
             db.commit()
@@ -191,13 +202,17 @@ class RobotCommunication:
 
 
 def handle_map_update(sample):
+    global map_rover
     png_bytes = sample.payload
     asyncio.run(sio.emit('map_update', png_bytes))
+    map_rover = png_bytes
 
 
 def handle_map_cognifly_update(sample):
+    global map_drone
     png_bytes = sample.payload
     asyncio.run(sio.emit('map_cognifly_update', png_bytes))
+    map_drone = png_bytes
 
 
 rover = RobotCommunication('rover')
