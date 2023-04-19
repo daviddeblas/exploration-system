@@ -25,3 +25,8 @@ docker compose run --build -p 5901:5901 sim
 ```
 
 Puis allez voir dans le README dans le dossier sim pour plus d'information pour démarrer la simulation 
+
+## Convention de codage
+En Python, nous utilisons PEP 8 pour standardiser le format de code à travers le projet. 
+
+Pour TypeScript et Vue.js, nous utilisons Prettier ainsi que ESLint pour standardiser notre code.
