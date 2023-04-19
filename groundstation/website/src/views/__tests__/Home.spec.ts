@@ -19,10 +19,10 @@ describe("Home", () => {
   });
 
   it("should display rover and drone status as offline by default", () => {
-    const roverStatus = wrapper.find(".robot_state").text();
-    expect(roverStatus).toBe("Le rover est hors ligne");
-    const droneStatus = wrapper.findAll(".robot_state").at(1)!.text();
-    expect(droneStatus).toBe("Le drone est hors ligne");
+    const roverStatus = wrapper.find(".rover_status").text();
+    expect(roverStatus).toBe("Limo Status: hors ligne");
+    const droneStatus = wrapper.find(".drone_status").text();
+    expect(droneStatus).toBe("Cognifly Status: hors ligne");
   });
 
   it("should update rover and drone status when receiving rover_state event", async () => {
@@ -98,21 +98,21 @@ describe("Home", () => {
     socketTestHelper.peerSideEmit("rover_state", "True");
     socketTestHelper.peerSideEmit("drone_state", "True");
     await wrapper.vm.$nextTick();
-    const droneBatteryState = wrapper.find(".battery_state:nth-child(1)");
-    const roverBatteryState = wrapper.find(".battery_state:nth-child(2)");
-    expect(droneBatteryState.text()).toBe("La batterie du drone est à 100%");
-    expect(roverBatteryState.text()).toBe("La batterie du rover est à 100%");
+    const droneBatteryState = wrapper.find(".drone_battery");
+    const roverBatteryState = wrapper.find(".rover_battery");
+    expect(droneBatteryState.text()).toBe("Cognifly Battery: 100%");
+    expect(roverBatteryState.text()).toBe("Limo Battery: 100%");
     const droneBattery = 80;
     const roverBattery = 70;
     socketTestHelper.peerSideEmit("drone_battery", droneBattery);
     await wrapper.vm.$nextTick();
     expect(droneBatteryState.text()).toContain(
-      `La batterie du drone est à ${droneBattery}%`
+      `Cognifly Battery: ${droneBattery}%`
     );
     socketTestHelper.peerSideEmit("rover_battery", roverBattery);
     await wrapper.vm.$nextTick();
     expect(roverBatteryState.text()).toContain(
-      `La batterie du rover est à ${roverBattery}%`
+      `Limo Battery: ${roverBattery}%`
     );
   });
 

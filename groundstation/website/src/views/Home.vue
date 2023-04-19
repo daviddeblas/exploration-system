@@ -139,12 +139,12 @@ export default defineComponent({
   </div>
   <div class="bottomNav">
     <ul id = "robotStatus">
-      <li>Limo Status: {{ rover }}</li>
-      <li>Cognifly Status: {{ drone }}</li>
+      <li class="rover_status">Limo Status: {{ rover }}</li>
+      <li class="drone_status">Cognifly Status: {{ drone }}</li>
     </ul>
     <ul id = battery>
-      <li v-if="rover !== 'hors ligne'">Limo Battery: {{ rover_battery }}%</li>
-      <li v-if="drone !== 'hors ligne'">Cognifly Battery: {{ drone_battery }}%</li>
+      <li v-if="rover !== 'hors ligne'" class="rover_battery">Limo Battery: {{ rover_battery }}%</li>
+      <li v-if="drone !== 'hors ligne'" class="drone_battery">Cognifly Battery: {{ drone_battery }}%</li>
     </ul>
   </div>
 </template>
