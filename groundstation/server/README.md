@@ -1,6 +1,5 @@
 # Installation
 
-
 ```
 python -m venv .venv
 source .venv/bin/activate
@@ -16,5 +15,5 @@ uvicorn main:app --reload
 # Lancer les tests
 
 ```
-python3 -m unittest -v test_socket.py
+python3 -m unittest -v test_socket.py test_database.py test_models.py
 ```

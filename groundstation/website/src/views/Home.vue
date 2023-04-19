@@ -1,3 +1,4 @@
+
 <!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts">
 import { ref, inject, defineComponent } from "vue";
@@ -125,10 +126,16 @@ export default defineComponent({
       <span class="robot_state">Le drone est {{ drone }} </span>
     </div>
     <div>
-      <span class="battery_state" v-if="drone !== 'hors ligne'"
+      <span
+        class="battery_state"
+        v-if="drone !== 'hors ligne'"
+        data-test="drone_battery_state"
         >La batterie du drone est à {{ drone_battery }}%
       </span>
-      <span class="battery_state" v-if="rover !== 'hors ligne'"
+      <span
+        class="battery_state"
+        v-if="rover !== 'hors ligne'"
+        data-test="rover_battery_state"
         >La batterie du rover est à {{ rover_battery }}%
       </span>
     </div>
@@ -150,7 +157,6 @@ export default defineComponent({
     </div>
   </div>
 </template>
-
 <style scoped>
 .home {
   display: flex;
@@ -175,7 +181,6 @@ export default defineComponent({
   display: flex;
   gap: 25px;
 }
-
 .robot_state {
   margin-top: 10px;
   font-size: 20px;
@@ -190,7 +195,6 @@ export default defineComponent({
   overflow: hidden;
   margin: 5px;
 }
-
 .battery_state {
   margin-top: 10px;
   font-size: 20px;
@@ -205,11 +209,9 @@ export default defineComponent({
   overflow: hidden;
   margin: 5px;
 }
-
 span {
   display: block;
 }
-
 @media only screen and (max-width: 520px) {
   .image {
     height: 30vh;

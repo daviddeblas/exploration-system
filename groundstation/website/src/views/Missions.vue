@@ -4,6 +4,7 @@ import { socketProvider } from "@/plugins/socket";
 import type { Socket } from "socket.io-client";
 import { SERVER_URL } from "@/common/constants";
 import type { Mission } from "@/common/interfaces";
+import axios from "axios";
 
 export default defineComponent({
   name: "Missions",
@@ -17,8 +18,8 @@ export default defineComponent({
   },
   methods: {
     async loadMissions() {
-      let res = await fetch(SERVER_URL + "/api/missions");
-      let missions = (await res.json()) as Mission[];
+      let res = await axios.get(SERVER_URL + "/api/missions");
+      let missions = res.data as Mission[];
       this.missions = missions;
     },
     missionDuration(mission: Mission): string {
