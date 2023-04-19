@@ -126,7 +126,7 @@ describe("Logs", () => {
     const logDataElement = wrapper.find(".log-data div");
     expect(logDataElement.text()).toContain(logData.slice(0, 50) + "...");
 
-    const showHideButton = wrapper.find("button:nth-child(4)");
+    const showHideButton = wrapper.find("button:nth-child(3)");
     await showHideButton.trigger("click");
 
     expect(logDataElement.text()).toContain(logData);

@@ -121,32 +121,36 @@ export default defineComponent({
       <button @click="return_home">Retour à la Base</button>
     </div>
     <div class="robotNav">
-      <ul id = "roverStatus">
-        <li>Limo Status: {{ rover }}</li>
-        <li v-if="rover !== 'hors ligne'">Limo Battery: {{ rover_battery }}%</li>
+      <ul id="roverStatus">
+        <li class="rover_status">Limo Status: {{ rover }}</li>
+        <li v-if="rover !== 'hors ligne'" class="rover_battery">
+          Limo Battery: {{ rover_battery }}%
+        </li>
       </ul>
-      <ul id = "droneStatus">
-        <li>Cognifly Status: {{ drone }}</li>
-        <li v-if="drone !== 'hors ligne'">Cognifly Battery: {{ drone_battery }}%</li>
+      <ul id="droneStatus">
+        <li class="drone_status">Cognifly Status: {{ drone }}</li>
+        <li v-if="drone !== 'hors ligne'" class="drone_battery">
+          Cognifly Battery: {{ drone_battery }}%
+        </li>
       </ul>
     </div>
     <div class="image-container">
       <img
-            v-if="mapImageUrl !== ''"
-            class="image"
-            :src="mapImageUrl"
-            alt="Map"
-          />
-        </div>
-        <div class="image-container">
-          <img
-            v-if="mapImageCogniflyUrl !== ''"
-            class="image"
-            :src="mapImageCogniflyUrl"
-            alt="CogniflyMap"
-          />
-        </div>
+        v-if="mapImageUrl !== ''"
+        class="image"
+        :src="mapImageUrl"
+        alt="Map"
+      />
     </div>
+    <div class="image-container">
+      <img
+        v-if="mapImageCogniflyUrl !== ''"
+        class="image"
+        :src="mapImageCogniflyUrl"
+        alt="CogniflyMap"
+      />
+    </div>
+  </div>
 </template>
 <style scoped>
 .home {
