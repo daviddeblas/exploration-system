@@ -9,7 +9,7 @@ class TestMain(unittest.TestCase):
     # Test de start_listener et que le booléen soit bien modifié
     def test_start_listener(self):
         with patch('builtins.print') as mocked_print:
-            with patch.object(main.cognifly, 'start_mission') as mocked_cognifly_start
+            with patch.object(main.cognifly, 'start_mission') as mocked_cognifly_start:
                 main.start_listener(self.sample)
                 mocked_print.assert_called_with('start exploration')
                 mocked_cognifly_start.assert_called_once()
@@ -38,7 +38,7 @@ class TestMain(unittest.TestCase):
                 self.assertFalse(main.exploration_running)
 
     # Test de farthest_robot_trigger is cognifly
-    def farthest_robot_trigger():
+    def test_farthest_robot_trigger_drone():
         with patch.object(main.cognifly, 'identify_cognifly') as mocked_id_cognifly:
             with patch.object(main.cognifly, 'distance_calculation', 10 ) as mocked_cognifly_distance:
                 main.last_position = {x: 0, y: 1}
@@ -47,7 +47,7 @@ class TestMain(unittest.TestCase):
                 mocked_id_cognifly.assert_called_once()
 
     # Test de farthest_robot_trigger is rover
-    def farthest_robot_trigger():
+    def test_farthest_robot_trigger_rover():
         with patch('identify_rover') as mocked_id_rover:
             with patch.object(main.cognifly, 'distance_calculation', 0 ) as mocked_cognifly_distance:
                 main.last_position = {x: 5, y: 5}
@@ -56,9 +56,29 @@ class TestMain(unittest.TestCase):
                 mocked_id_rover.assert_called_once()
 
     # Test de p2p_trigger
-    def p2p_trigger(self):
+    def test_p2p_trigger(self):
         main.p2p_trigger(self.sample)
         self.assertTrue(main.activate_p2p)
+
+    # Test de odom_callback
+    def test_odom_callback(self, data):
+        with patch('publish_cognifly_odom') as mocked_odom:
+            main.odom_callback(data)
+            mocked_odom.assert_called_once()
+            self.assertTrue(main.last_position)
+
+    # Test de scan_callback
+    def test_scan_callback(self,data):
+        main.scan_callback(data)
+        self.assertTrue(main.last_scan)
+    # Test de return_home_listener
+    def test_return_home_listener(self):
+        with patch.object(main.cognifly, 'finish_mission') as mocked_cognifly_finish:
+            main.return_home_listener(self.sample)
+            mocked_cognifly_finish.assert_called_once()
+            self.assertTrue(main.initial_data)
+            self.assertTrue(main.exploration_running)
+
        
     # Test que la fonction main() change bien la valeur des booléens lorsqu'ils sont prêts à démarrer l'exploration
     @patch('main.zenoh.open')
