@@ -16,4 +16,6 @@ export interface Mission {
   has_drone: boolean;
   distance_rover: number;
   distance_drone: number;
+  map_rover: string;
+  map_drone: string;
 }
