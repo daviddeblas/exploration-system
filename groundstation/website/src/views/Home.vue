@@ -171,8 +171,8 @@ export default defineComponent({
 }
 
 #buttons {
-  display: auto;
-  gap: 5px;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
