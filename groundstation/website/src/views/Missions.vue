@@ -208,7 +208,7 @@ h1{
   font-family: "Kanit", sans-serif;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 725px) {
   .topPage {
     display: flex;
     flex-direction: column;

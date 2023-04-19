@@ -188,7 +188,7 @@ ul li{
 span {
   display: block;
 }
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 725px) {
   .image {
     height: 30vh;
     width: 100%;

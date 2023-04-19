@@ -195,7 +195,7 @@ td {
   line-height: 1.5;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 725px) {
   .mobile-select{
     width:100%;
     margin-bottom: 10px;
