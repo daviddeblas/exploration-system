@@ -33,3 +33,17 @@ où CogniflyX correspond au nom du Cognifly utilisé
 ```
 docker stop inf3995-101-rover
 ```
+## Lancer les fichiers test.py dans le dossier rover
+
+Exécuter la commande suivante dans votre terminal :
+
+```
+pytest
+```
+Ou 
+Vous pouvez exécuter uniquement les tests dans un fichier spécifique du dossier avec la commande suivante:
+
+```
+pytest file_name.test.py
+```
+Remplacer file_name.test.py par le nom du fichier
