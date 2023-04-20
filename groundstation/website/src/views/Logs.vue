@@ -7,6 +7,7 @@ import axios from "axios";
 import type { Log, Mission } from "@/common/interfaces";
 
 const MAX_LOG = 30;
+
 export default defineComponent({
   name: "Logs",
   data() {
@@ -82,6 +83,7 @@ export default defineComponent({
   },
 });
 </script>
+
 <template>
   <div>
     <div class="pageHeader">
@@ -141,6 +143,7 @@ export default defineComponent({
     </table>
   </div>
 </template>
+
 <style scoped>
 .log-data {
   white-space: pre;

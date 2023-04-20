@@ -188,9 +188,11 @@ ul li {
   transition: all 0.4s ease 0s;
   pointer-events: none;
 }
+
 span {
   display: block;
 }
+
 @media only screen and (max-width: 725px) {
   .image {
     height: 30vh;

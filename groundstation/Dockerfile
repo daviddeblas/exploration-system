@@ -5,7 +5,6 @@ RUN npm ci
 COPY website ./
 RUN npm run build
 
-
 FROM python:3.11-slim
 WORKDIR /app/server
 COPY server/requirements.txt ./

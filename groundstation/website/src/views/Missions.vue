@@ -83,6 +83,7 @@ export default defineComponent({
   },
 });
 </script>
+
 <template>
   <div>
     <div class="topPage">
@@ -154,6 +155,7 @@ export default defineComponent({
 </template>
 
 <style scoped>
+
 table {
   background-color: #d9c1b9;
   font-size: 20px;
@@ -165,15 +167,18 @@ table {
   width: 100%;
   margin-bottom: 15px;
 }
+
 table th {
   text-align: right;
   white-space: nowrap;
 }
+
 table td {
   white-space: nowrap;
   width: 100%;
   padding-left: 8px;
 }
+
 table img {
   width: 200px;
   height: 200px;
@@ -200,8 +205,8 @@ h1 {
   align-items: baseline;
   gap: 10px;
 }
-.sortBy,
-.sortDir {
+
+.sortBy, .sortDir {
   height: 100%;
   align-self: baseline;
 }

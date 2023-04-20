@@ -18,7 +18,6 @@ MAX_BATTERY = 8.4
 
 session = zenoh.open()
 
-
 class MoveCognifly:
     def __init__(self) -> None:
         self.cf = Cognifly(

@@ -28,6 +28,7 @@ RUN curl -LO https://github.com/VirtualGL/virtualgl/archive/refs/tags/3.0.2.tar.
     cmake -B build-virtualgl -S virtualgl-3.0.2 && \
     cmake --build build-virtualgl --parallel --target install && \
     rm -rf 3.0.2.tar.gz build-virtualgl virtualgl-3.0.2
+
 RUN curl -LO https://github.com/TurboVNC/turbovnc/archive/refs/tags/3.0.2.tar.gz && \
     tar xvf 3.0.2.tar.gz && \
     cmake -B build-turbovnc -S turbovnc-3.0.2 -DTVNC_BUILDHELPER=OFF -DTVNC_BUILDVIEWER=OFF && \
