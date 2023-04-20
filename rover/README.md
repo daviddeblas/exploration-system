@@ -33,3 +33,15 @@ où CogniflyX correspond au nom du Cognifly utilisé
 ```
 docker stop inf3995-101-rover
 ```
+
+# Installation des dépendances pour les tests
+
+```
+pip install -r requirements.txt
+```
+
+# Lancer les tests
+
+```
+python3 -m unittest -v test_cognifly_movement.py
+```
