@@ -1,4 +1,3 @@
-from cognifly import Cognifly
 import time, zenoh
 import RPi.GPIO as GPIO
 session = zenoh.open()
