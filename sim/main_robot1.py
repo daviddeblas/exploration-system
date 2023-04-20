@@ -14,6 +14,7 @@ NAME = "rover"
 
 package_name = "limo_gazebo_sim"
 launch_file_name = "explore.launch"
+
 uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
 roslaunch.configure_logging(uuid)
 launch_file_path = roslaunch.rlutil.resolve_launch_arguments(
@@ -22,6 +23,7 @@ launch_exploration = roslaunch.parent.ROSLaunchParent(uuid, [launch_file_path])
 start_exploration = False
 exploration_running = False
 initial_data = {'x': 0, 'y': 0}
+
 session = zenoh.open()
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 rospy.init_node('movement_limo1', anonymous=False)

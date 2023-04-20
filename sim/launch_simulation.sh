@@ -6,7 +6,7 @@ x=$((((RANDOM % 101) / 10) - 5)) # Les positions possibles sont entre -5 et 5
 y=$((((RANDOM % 101) / 10) - 5)) # Les positions possibles sont entre -5 et 5
 yaw=$((RANDOM % 7)) # Environ 2pi pour l'orientation
 
-roslaunch limo_gazebo_sim limos.launch x:=$x y:=$y yaw:=$yaw &
+roslaunch limo_gazebo_sim robots.launch x:=$x y:=$y yaw:=$yaw &
 sleep 20
 
 if [ "$USE_ONLY" != "COGNIFLY" ]; then

@@ -1,8 +1,9 @@
-from cognifly import Cognifly
 import time, zenoh
 import RPi.GPIO as GPIO
+
 session = zenoh.open()
 is_called = False
+
 def led_light():
     global is_called
     if is_called: return

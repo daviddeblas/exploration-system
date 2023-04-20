@@ -8,9 +8,15 @@ MAX_VELOCITY = 0.25
 MAX_YAW = 1.0
 BATTERY_CHARGE_100 = 100
 LEVEL_TOO_LOW = 30
+DURATION = 10.0
+HEIGHT = 1.0
+INITIAL_VALUE = 0.0
+MAX_DISTANCE = 2.0
+SIDEWAYS_INCREMENT = 0.3
+MIN_BATTERY = 6.4
+MAX_BATTERY = 8.4
 
 session = zenoh.open()
-
 
 class MoveCognifly:
     def __init__(self) -> None:
@@ -20,24 +26,24 @@ class MoveCognifly:
         self.started_mission = False
         self.battery = BATTERY_CHARGE_100
         self.COMMANDS = [
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.0, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.3, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.3, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.6, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=0.6, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=2.0, y=1.0, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=1.0, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
-            lambda: self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
-                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=INITIAL_VALUE, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=MAX_DISTANCE, y=INITIAL_VALUE, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=MAX_DISTANCE, y=SIDEWAYS_INCREMENT, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=SIDEWAYS_INCREMENT, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=SIDEWAYS_INCREMENT*2, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=MAX_DISTANCE, y=SIDEWAYS_INCREMENT*2, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=MAX_DISTANCE, y=HEIGHT, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=SIDEWAYS_INCREMENT*3, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
+            lambda: self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=INITIAL_VALUE, z=HEIGHT, yaw=INITIAL_VALUE,
+                                                     max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
         ]
 
     def start_mission(self):
@@ -55,7 +61,7 @@ class MoveCognifly:
                 self.finish_mission()
                 return
             command()
-            time.sleep(10)
+            time.sleep(DURATION)
         self.cf.land_nonblocking()
         time.sleep(5)
         self.cf.disarm()
@@ -77,8 +83,8 @@ class MoveCognifly:
             return
         self.finishing_mission = True
         self.started_mission = False
-        self.cf.set_position_nonblocking(x=0.0, y=0.0, z=1.0, yaw=0.0,
-                                         max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=10.0, relative=False),
+        self.cf.set_position_nonblocking(x=INITIAL_VALUE, y=INITIAL_VALUE, z=HEIGHT, yaw=INITIAL_VALUE,
+                                         max_velocity=MAX_VELOCITY, max_yaw_rate=MAX_YAW, max_duration=DURATION, relative=False),
         time.sleep(10)
         self.cf.land_nonblocking(),
         time.sleep(2)
@@ -87,6 +93,6 @@ class MoveCognifly:
 
     def get_battery(self):
         voltage = float(self.cf.get_telemetry()[-2])
-        percentage = int((voltage - 6.4) / (8.4 - 6.4) * 100)
+        percentage = int((voltage - MIN_BATTERY) / (MAX_BATTERY - MIN_BATTERY) * BATTERY_CHARGE_100)
         self.battery = percentage
         return self.battery
