@@ -1,9 +1,8 @@
 import { mount } from "@vue/test-utils";
 import Logs from "../Logs.vue";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { socketProvider } from "@/plugins/socket";
 import { SocketTestHelper } from "@/helper/socket-test-helper";
-import { SERVER_URL } from "@/common/constants";
 
 describe("Logs", () => {
   let wrapper: any;

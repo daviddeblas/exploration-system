@@ -84,7 +84,7 @@ export default defineComponent({
 </script>
 <template>
   <div>
-    <div class = pageHeader>
+    <div class="pageHeader">
       <h1 class="logs">Logs</h1>
       <div class="actions">
         <div class="dropdown">
@@ -146,11 +146,11 @@ export default defineComponent({
   white-space: pre;
 }
 
-.mobile-select{
+.mobile-select {
   position: relative;
-  align-self:baseline;
+  align-self: baseline;
   size: 100%;
-  flex:1;
+  flex: 1;
   font-family: "Kanit", sans-serif;
 }
 
@@ -161,7 +161,7 @@ export default defineComponent({
   position: relative;
 }
 
-.pageHeader{
+.pageHeader {
   display: flex;
   justify-content: flex-end;
 }
@@ -169,15 +169,15 @@ export default defineComponent({
 .pageHeader > * {
   height: 100%;
   line-height: 60px;
-  align-items:end;
+  align-items: end;
 }
 
-.logs{
-  flex:1;
+.logs {
+  flex: 1;
   margin-bottom: 10px;
 }
 
-.actions{
+.actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -191,30 +191,30 @@ table {
 td {
   border-top: 1px solid black;
   border-bottom: 1px solid black;
-  font-size:14px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
 @media (max-width: 725px) {
-  .mobile-select{
-    width:100%;
+  .mobile-select {
+    width: 100%;
     margin-bottom: 10px;
   }
   .button-group {
-    display: flex; 
+    display: flex;
     justify-content: space-between;
     flex-direction: row;
     margin-bottom: 10px;
   }
-  .actions{
+  .actions {
     display: flex;
     flex-direction: column;
     text-align: center;
   }
-  .pageHeader{
+  .pageHeader {
     display: flex;
     flex-direction: column;
-    align-items:self-start;
-  }  
+    align-items: self-start;
+  }
 }
 </style>

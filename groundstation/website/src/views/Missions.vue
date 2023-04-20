@@ -157,7 +157,7 @@ export default defineComponent({
 table {
   background-color: #d9c1b9;
   font-size: 20px;
-  font-family: 'Chivo Mono', monospace;
+  font-family: "Chivo Mono", monospace;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -181,11 +181,11 @@ table img {
   background-color: white;
 }
 
-h1{
+h1 {
   margin: 0;
   text-align: left;
 }
-.actions{
+.actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -194,17 +194,18 @@ h1{
   margin-left: 10px;
 }
 
-.topPage{
+.topPage {
   display: flex;
   justify-content: space-between;
-  align-items:baseline;
+  align-items: baseline;
   gap: 10px;
 }
-.sortBy, .sortDir {
-    height: 100%;
-    align-self:baseline;
+.sortBy,
+.sortDir {
+  height: 100%;
+  align-self: baseline;
 }
-.sortBy{
+.sortBy {
   font-family: "Kanit", sans-serif;
 }
 
@@ -214,30 +215,30 @@ h1{
     flex-direction: column;
   }
 
-  .actions{
+  .actions {
     display: flex;
     flex-direction: column;
     text-align: center;
   }
 
-  .table{
+  .table {
     display: flex;
     flex-direction: column;
     text-align: center;
   }
 
-  td{
+  td {
     display: flex;
     flex-direction: column;
     text-align: center;
   }
-  
+
   table th {
     white-space: normal;
-    word-wrap:normal;
+    word-wrap: normal;
     text-align: left;
   }
-  
+
   .sortBy {
     margin-top: 5px;
   }

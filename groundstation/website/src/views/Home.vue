@@ -1,4 +1,3 @@
-
 <!-- eslint-disable vue/multi-word-component-names -->
 <script lang="ts">
 import { ref, inject, defineComponent } from "vue";
@@ -180,9 +179,9 @@ export default defineComponent({
   justify-content: center;
 }
 
-ul li{
+ul li {
   text-decoration: underline;
-  text-transform:none;
+  text-transform: none;
   background: #982a1c;
   border-color: #982a1c !important;
   color: white !important;
@@ -197,7 +196,6 @@ span {
     height: 30vh;
     width: 100%;
     object-fit: contain;
-    
   }
   #buttons {
     font-size: 16px;
